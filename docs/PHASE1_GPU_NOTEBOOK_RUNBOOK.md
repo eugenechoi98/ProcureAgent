@@ -134,15 +134,48 @@ subprocess.run(
 
 guard 为 false 时不要运行训练单元格。
 
-### 10. 顺序运行训练
+### 10. Hydrate 当前 Kernel
 
-从 Notebook 第二节开始顺序执行。不要再手工新增依赖安装、路径重写、loader 或变量补丁。
+bootstrap 子进程不能修改当前 Notebook Kernel 的 Python 变量。继续运行第二个代码单元：
+
+```python
+from procureguard.extraction.gpu_notebook_context import build_gpu_notebook_context
+
+context = build_gpu_notebook_context(
+    project_root="/mnt/workspace/ProcureAgent",
+    processed_dir="/mnt/workspace/ProcureAgent/data/phase1/sroie_task3/processed",
+    model_dir="/mnt/workspace/models/layoutlmv3-base",
+    baseline_report_path=(
+        "/mnt/workspace/ProcureAgent/"
+        "reports/phase1/baseline_sroie_task3_validation.json"
+    ),
+)
+globals().update(context)
+```
+
+该单元会在当前 Kernel 内恢复真实 `LABEL2ID`、`ID2LABEL`、`SroieSample`、
+本地 processor、Torch、device 和全部训练参数。
+
+### 11. 运行 preflight
+
+第三个代码单元必须输出：
+
+```text
+missing_names = []
+```
+
+只有 bootstrap guard 和 runtime preflight 都通过，才继续创建 Dataset。
+
+### 12. 顺序运行训练
+
+继续按顺序运行剩余单元格。不要手工新增变量、依赖安装、路径重写、loader 或标签定义。
 
 ## Kernel 与 Terminal
 
 ModelScope Terminal 和 Notebook Kernel 可能是两个 Python 环境。
 
-训练只认 Notebook Kernel：
+训练只认 Notebook Kernel。bootstrap 负责外部环境和数据验证，hydrate 负责当前
+Kernel 的 Python 对象：
 
 ```text
 sys.executable

@@ -174,7 +174,8 @@ GPU 环境固定规则：
 - Terminal Python 与 Kernel 不一致时，以 Kernel 为训练真源。
 - 模型默认从本地目录加载，并使用 `local_files_only=True`。
 - bootstrap 自动备份并修复 processed JSONL 图片路径。
-- 只有 `training_guard_passed=true` 才进入训练。
+- hydrate 在当前 Kernel 一次性恢复 BIO 标签、样本、processor、Torch 和 device。
+- 只有 `training_guard_passed=true` 且 `missing_names=[]` 才进入训练。
 
 环境文件：
 
@@ -182,6 +183,7 @@ GPU 环境固定规则：
 requirements/phase1-gpu.txt
 scripts/phase1/bootstrap_gpu_notebook.py
 scripts/phase1/verify_gpu_notebook_env.py
+procureguard/extraction/gpu_notebook_context.py
 ```
 
 Notebook 包含手写 PyTorch train/validation loop、token/field F1、best checkpoint、loss PNG，以及 JSON/CSV/Markdown 训练报告导出。

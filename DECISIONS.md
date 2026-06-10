@@ -1,5 +1,8 @@
 # DECISIONS.md
 
+## 2026-06-11：GPU Notebook 将环境验证与 Kernel 状态恢复分离
+bootstrap 子进程只负责依赖、路径、模型和 guard，不能承担 Notebook 变量注入。当前 Kernel 统一调用 runtime context 构建函数恢复标签、样本、processor、Torch、device 和训练参数，并在 Dataset 前一次性 preflight，避免逐个 NameError。
+
 ## 2026-06-11：GPU 训练环境以 Notebook Kernel 为唯一真源
 ModelScope Terminal 与 Notebook Kernel 可能使用不同 Python 和 Torch。Phase 1 GPU 训练统一通过 `sys.executable` 安装和验证依赖，模型使用本地目录，processed JSONL 由 bootstrap 统一修复；只有训练 guard 通过后才允许进入训练。
 
