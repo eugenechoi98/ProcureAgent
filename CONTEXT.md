@@ -1,21 +1,21 @@
 # CONTEXT.md
 
 ## 当前目标
-共享契约层 Git 基线封板。
+Phase 2 后端基础服务。
 
 ## 当前进度
-- 共享契约层已完成并验收通过。
-- Git 仓库已初始化。
-- 已补齐 `.gitignore`，排除虚拟环境、缓存、本地数据库、模型权重和密钥。
-- 最小测试通过：`9 passed`。
+- FastAPI 应用入口已完成。
+- SQLite 接入、上传/查询、mock 处理链、人工审核基础闭环和接口测试已完成。
+- 最小 smoke test 已打通：上传发票、查询轨迹、查询审核队列、提交 approved 决定。
+- 全量测试通过：`22 passed`。
 
 ## 下一步
-进入 Phase 2 后端基础开发，只实现 FastAPI、SQLite 接入、上传/查询接口、mock 处理链和基础测试。
+回到审查与总控对话验收，再决定是否进入 Agent 与规则模块。
 
 ## 注意事项
 - 共享契约已冻结。
-- 如需修改模型、schema、状态流或工具签名，必须回到审查与总控对话确认。
-- 下一阶段不要实现 Agent 主链、Risk Engine 完整逻辑、OCR、LoRA、Docker 或 CI。
+- 当前处理链是 mock，不代表真实审核逻辑。
+- 本轮没有实现 OCR、LayoutLMv3、Agent 主链、完整 Risk Engine、LoRA、Docker 或 CI。
 
 ## 最后更新时间
 2026-06-10
