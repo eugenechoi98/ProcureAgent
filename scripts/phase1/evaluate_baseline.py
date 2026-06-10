@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import json
 import sys
 import time
@@ -25,6 +26,7 @@ def main() -> None:
     parser.add_argument("--input", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--data-source", default="sroie")
+    parser.add_argument("--evaluation-split", default="unspecified")
     parser.add_argument("--fixture", action="store_true", help="Mark report as fixture smoke result.")
     args = parser.parse_args()
 
@@ -49,15 +51,26 @@ def main() -> None:
     )
     sample_ids = [sample.sample_id for sample in samples]
     errors = collect_error_cases(sample_ids, predictions, references)
-    report["predictions"] = predictions
-    report["references"] = references
-    report["sample_ids"] = sample_ids
-    report["errors"] = errors_to_json(errors)
+    report["evaluation_split"] = args.evaluation_split
+    report["error_count"] = len(errors)
+    report["error_count_by_field"] = dict(Counter(error.field for error in errors))
+    report["error_type_distribution"] = dict(Counter(error.error_type for error in errors))
+    report["errors"] = errors_to_json(errors[:20])
 
     write_json_report(report, args.output)
     markdown_path = args.output.with_suffix(".md")
     markdown_path.write_text(metrics_to_markdown(report), encoding="utf-8")
-    print(f"samples={len(samples)} errors={len(errors)} output={args.output}")
+    print(f"sample_count={len(samples)}")
+    for metric in report["metrics"]:
+        print(
+            f"{metric['field']}: precision={metric['precision']:.4f} "
+            f"recall={metric['recall']:.4f} f1={metric['f1']:.4f} "
+            f"support={metric['support']}"
+        )
+    print(f"error_count={len(errors)}")
+    print(f"runtime_seconds={report['runtime_seconds']}")
+    print(f"evaluation_split={args.evaluation_split}")
+    print(f"output={args.output}")
 
 
 if __name__ == "__main__":

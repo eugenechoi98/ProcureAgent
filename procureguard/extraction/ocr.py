@@ -71,7 +71,19 @@ class PaddleOCRAdapter:
                 "pip install -e .[phase1]"
             ) from exc
 
-        self.ocr = PaddleOCR(use_angle_cls=use_angle_cls, lang=lang)
+        try:
+            self.ocr = PaddleOCR(
+                lang=lang,
+                use_doc_orientation_classify=False,
+                use_doc_unwarping=False,
+                use_textline_orientation=False,
+                enable_mkldnn=False,
+                device="cpu",
+            )
+            self.api_version = 3
+        except (TypeError, ValueError):
+            self.ocr = PaddleOCR(use_angle_cls=use_angle_cls, lang=lang)
+            self.api_version = 2
 
     def extract_tokens(self, image_path: str | Path) -> list[OCRToken]:
         """读取英文票据图片并输出统一 OCR token。"""
@@ -81,7 +93,10 @@ class PaddleOCRAdapter:
         path = Path(image_path)
         with Image.open(path) as image:
             width, height = image.size
-        result: list[Any] = self.ocr.ocr(str(path))
+        if self.api_version == 3:
+            result: list[Any] = self.ocr.predict(str(path))
+            return paddleocr_v3_result_to_tokens(result, width=width, height=height)
+        result = self.ocr.ocr(str(path))
         return paddleocr_result_to_tokens(result, width=width, height=height)
 
 
@@ -98,6 +113,25 @@ def paddleocr_result_to_tokens(result: list[Any], width: int, height: int) -> li
             confidence = float(line[1][1]) if len(line[1]) > 1 else 1.0
             bbox = normalize_bbox(raw_bbox, width=width, height=height)
             tokens.append(build_token(text, bbox, confidence))
+    return filter_empty_tokens(tokens)
+
+
+def paddleocr_v3_result_to_tokens(result: list[Any], width: int, height: int) -> list[OCRToken]:
+    """把 PaddleOCR 3.x 结果转换为统一 token。"""
+
+    tokens: list[OCRToken | None] = []
+    for page in result or []:
+        texts = list(page.get("rec_texts", []))
+        scores = list(page.get("rec_scores", []))
+        polygons = list(page.get("rec_polys", []))
+        for index, text in enumerate(texts):
+            if index >= len(polygons):
+                continue
+            confidence = float(scores[index]) if index < len(scores) else 1.0
+            polygon = polygons[index]
+            points = polygon.tolist() if hasattr(polygon, "tolist") else polygon
+            bbox = normalize_bbox(points, width=width, height=height)
+            tokens.append(build_token(str(text), bbox, confidence))
     return filter_empty_tokens(tokens)
 
 

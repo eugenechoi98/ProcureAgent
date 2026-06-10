@@ -1,0 +1,235 @@
+{
+  "baseline_name": "ocr-regex-sroie-baseline-v1",
+  "sample_count": 142,
+  "runtime_seconds": 0.0866,
+  "data_source": "Voxel51/scanned_receipts",
+  "is_fixture": false,
+  "matching": "normalized_exact_match",
+  "metrics": [
+    {
+      "field": "company",
+      "precision": 0.5704225352112676,
+      "recall": 0.5704225352112676,
+      "f1": 0.5704225352112676,
+      "support": 142,
+      "true_positive": 81,
+      "false_positive": 61,
+      "false_negative": 61
+    },
+    {
+      "field": "address",
+      "precision": 0.007042253521126761,
+      "recall": 0.007042253521126761,
+      "f1": 0.007042253521126761,
+      "support": 142,
+      "true_positive": 1,
+      "false_positive": 141,
+      "false_negative": 141
+    },
+    {
+      "field": "date",
+      "precision": 0.9807692307692307,
+      "recall": 0.7183098591549296,
+      "f1": 0.8292682926829269,
+      "support": 142,
+      "true_positive": 102,
+      "false_positive": 2,
+      "false_negative": 40
+    },
+    {
+      "field": "total",
+      "precision": 0.3671875,
+      "recall": 0.33098591549295775,
+      "f1": 0.34814814814814815,
+      "support": 142,
+      "true_positive": 47,
+      "false_positive": 81,
+      "false_negative": 95
+    },
+    {
+      "field": "macro",
+      "precision": 0.4813553798754063,
+      "recall": 0.40669014084507044,
+      "f1": 0.43872030739086737,
+      "support": 568,
+      "true_positive": 231,
+      "false_positive": 285,
+      "false_negative": 337
+    }
+  ],
+  "evaluation_split": "local_validation_split_seed_42",
+  "error_count": 337,
+  "error_count_by_field": {
+    "address": 141,
+    "date": 40,
+    "total": 95,
+    "company": 61
+  },
+  "error_type_distribution": {
+    "layout_change": 202,
+    "regex_rule_miss": 52,
+    "unknown": 83
+  },
+  "errors": [
+    {
+      "sample_id": "68f28c63d47a8203ad798055",
+      "field": "address",
+      "predicted": "m4-a-8, jalan pandah indah 4/1a,",
+      "ground_truth": "m4-a-8, jalan pandah indah 4/1a, pandah indah, 55100 kuala lumpur.",
+      "error_type": "layout_change",
+      "notes": "Heuristic line selection likely picked the wrong region."
+    },
+    {
+      "sample_id": "68f28c60d47a8203ad797f8c",
+      "field": "address",
+      "predicted": "gst ref no : 001694261248",
+      "ground_truth": "domino's pizza taman universiti 30, jln kebudayaan 7, tmn universiti 81300 skudai, johor",
+      "error_type": "layout_change",
+      "notes": "Heuristic line selection likely picked the wrong region."
+    },
+    {
+      "sample_id": "68f28c60d47a8203ad797f8c",
+      "field": "date",
+      "predicted": null,
+      "ground_truth": "28/04/18",
+      "error_type": "regex_rule_miss",
+      "notes": "Regex baseline did not produce a value."
+    },
+    {
+      "sample_id": "68f28c60d47a8203ad797f8c",
+      "field": "total",
+      "predicted": null,
+      "ground_truth": "39.60",
+      "error_type": "regex_rule_miss",
+      "notes": "Regex baseline did not produce a value."
+    },
+    {
+      "sample_id": "68f28c64d47a8203ad798081",
+      "field": "address",
+      "predicted": "no 1&3, jalan angsa delima 12,",
+      "ground_truth": "no 1&3, jalan wangsa delima 12, wangsa link, wangsa maju, 53300 kuala lumpur",
+      "error_type": "layout_change",
+      "notes": "Heuristic line selection likely picked the wrong region."
+    },
+    {
+      "sample_id": "68f28c64d47a8203ad798081",
+      "field": "total",
+      "predicted": "70.00",
+      "ground_truth": "83.00",
+      "error_type": "unknown",
+      "notes": "No deterministic category matched."
+    },
+    {
+      "sample_id": "68f28c61d47a8203ad797fd1",
+      "field": "company",
+      "predicted": "your order number is",
+      "ground_truth": "golden arches restaurants sdn bhd",
+      "error_type": "layout_change",
+      "notes": "Heuristic line selection likely picked the wrong region."
+    },
+    {
+      "sample_id": "68f28c61d47a8203ad797fd1",
+      "field": "address",
+      "predicted": "golden arches restaurants sdn bhd",
+      "ground_truth": "level 6, bangunan th, damansara uptown3 no.3, jalan ss21/39,47400 petaling jaya selangor",
+      "error_type": "layout_change",
+      "notes": "Heuristic line selection likely picked the wrong region."
+    },
+    {
+      "sample_id": "68f28c61d47a8203ad797fd1",
+      "field": "total",
+      "predicted": "2.00",
+      "ground_truth": "29.30",
+      "error_type": "unknown",
+      "notes": "No deterministic category matched."
+    },
+    {
+      "sample_id": "68f28c67d47a8203ad798123",
+      "field": "company",
+      "predicted": "popular book",
+      "ground_truth": "popular book co. (m) sdn bhd",
+      "error_type": "layout_change",
+      "notes": "Heuristic line selection likely picked the wrong region."
+    },
+    {
+      "sample_id": "68f28c67d47a8203ad798123",
+      "field": "address",
+      "predicted": "(gst reg no. 001492992000)",
+      "ground_truth": "no 8, jalan 7/118b, desa tun razak 56000 kuala lumpur, malaysia kl festival city mall",
+      "error_type": "layout_change",
+      "notes": "Heuristic line selection likely picked the wrong region."
+    },
+    {
+      "sample_id": "68f28c67d47a8203ad798123",
+      "field": "date",
+      "predicted": null,
+      "ground_truth": "07/01/18",
+      "error_type": "regex_rule_miss",
+      "notes": "Regex baseline did not produce a value."
+    },
+    {
+      "sample_id": "68f28c67d47a8203ad798123",
+      "field": "total",
+      "predicted": "31.47",
+      "ground_truth": "31.45",
+      "error_type": "unknown",
+      "notes": "No deterministic category matched."
+    },
+    {
+      "sample_id": "68f28c66d47a8203ad7980e0",
+      "field": "address",
+      "predicted": "no 3, jalan taman jas'a 2;",
+      "ground_truth": "no 3, jalan taman jas'a 2; . section u6, 40150 shah alam.",
+      "error_type": "layout_change",
+      "notes": "Heuristic line selection likely picked the wrong region."
+    },
+    {
+      "sample_id": "68f28c62d47a8203ad798032",
+      "field": "company",
+      "predicted": "posted",
+      "ground_truth": "99 speed mart s/b",
+      "error_type": "layout_change",
+      "notes": "Heuristic line selection likely picked the wrong region."
+    },
+    {
+      "sample_id": "68f28c62d47a8203ad798032",
+      "field": "address",
+      "predicted": "posted",
+      "ground_truth": "lot p.t. 2811, jalan angsa, taman berkeley 41150 klang, selangor 1032-subang perdana",
+      "error_type": "layout_change",
+      "notes": "Heuristic line selection likely picked the wrong region."
+    },
+    {
+      "sample_id": "68f28c62d47a8203ad798032",
+      "field": "date",
+      "predicted": null,
+      "ground_truth": "21-05-17",
+      "error_type": "regex_rule_miss",
+      "notes": "Regex baseline did not produce a value."
+    },
+    {
+      "sample_id": "68f28c62d47a8203ad798032",
+      "field": "total",
+      "predicted": null,
+      "ground_truth": "20.80",
+      "error_type": "regex_rule_miss",
+      "notes": "Regex baseline did not produce a value."
+    },
+    {
+      "sample_id": "68f28c66d47a8203ad79810e",
+      "field": "address",
+      "predicted": "18,jalan permas 10/7",
+      "ground_truth": "18,jalan permas 10/7 bandar baru permas jaya, masai,johor",
+      "error_type": "layout_change",
+      "notes": "Heuristic line selection likely picked the wrong region."
+    },
+    {
+      "sample_id": "68f28c66d47a8203ad79810e",
+      "field": "total",
+      "predicted": "2.00",
+      "ground_truth": "13.80",
+      "error_type": "unknown",
+      "notes": "No deterministic category matched."
+    }
+  ]
+}

@@ -11,9 +11,6 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from procureguard.extraction.error_analysis import errors_to_markdown
-
-
 def main() -> None:
     """读取评测报告并输出错误案例。"""
 
@@ -28,20 +25,29 @@ def main() -> None:
     if args.output.suffix.lower() == ".json":
         args.output.write_text(json.dumps(errors, indent=2, ensure_ascii=False), encoding="utf-8")
     else:
-        args.output.write_text(errors_to_markdown([SimpleError(error) for error in errors]), encoding="utf-8")
-    print(f"errors={len(errors)} output={args.output}")
-
-
-class SimpleError:
-    """把报告里的 dict 包成 errors_to_markdown 需要的属性对象。"""
-
-    def __init__(self, payload: dict[str, object]):
-        self.sample_id = str(payload.get("sample_id", ""))
-        self.field = str(payload.get("field", ""))
-        self.predicted = payload.get("predicted")
-        self.ground_truth = payload.get("ground_truth")
-        self.error_type = str(payload.get("error_type", "unknown"))
-        self.notes = str(payload.get("notes", ""))
+        lines = [
+            "# Phase 1 Baseline Error Analysis",
+            "",
+            f"- error_count: {report.get('error_count', len(errors))}",
+            f"- error_count_by_field: {report.get('error_count_by_field', {})}",
+            f"- error_type_distribution: {report.get('error_type_distribution', {})}",
+            "",
+            "## Representative Cases",
+            "",
+            "| sample_id | field | predicted | ground_truth | error_type | notes |",
+            "| --- | --- | --- | --- | --- | --- |",
+        ]
+        for error in errors[:10]:
+            lines.append(
+                f"| {error.get('sample_id', '')} | {error.get('field', '')} | "
+                f"{error.get('predicted') or ''} | {error.get('ground_truth') or ''} | "
+                f"{error.get('error_type', 'unknown')} | {error.get('notes', '')} |"
+            )
+        args.output.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"error_count={report.get('error_count', len(errors))}")
+    print(f"error_count_by_field={report.get('error_count_by_field', {})}")
+    print(f"error_type_distribution={report.get('error_type_distribution', {})}")
+    print(f"output={args.output}")
 
 
 if __name__ == "__main__":

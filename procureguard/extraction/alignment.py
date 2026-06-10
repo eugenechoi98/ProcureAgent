@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 import re
 
-from procureguard.extraction.baseline import normalize_amount, normalize_date
+from procureguard.extraction.baseline import SroieRegexBaseline, normalize_amount, normalize_date
 from procureguard.extraction.schemas import OCRToken, SROIE_FIELDS, SroieSample
 
 BIO_LABELS = [
@@ -65,6 +65,15 @@ def token_piece(token: OCRToken, field_name: str) -> str:
         date = normalize_date(token.text)
         if date:
             return date.replace("-", "")
+        for pattern in (
+            SroieRegexBaseline.numeric_date_pattern,
+            SroieRegexBaseline.text_date_pattern,
+        ):
+            match = pattern.search(token.text)
+            if match:
+                extracted = normalize_date(match.group(1))
+                if extracted:
+                    return extracted.replace("-", "")
     return normalize_for_alignment(token.text)
 
 

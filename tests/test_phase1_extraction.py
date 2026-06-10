@@ -14,10 +14,21 @@ from procureguard.extraction.datasets import (
     write_processed_jsonl,
 )
 from procureguard.extraction.error_analysis import collect_error_cases
+from procureguard.extraction.hf_sroie_task3 import (
+    convert_task3_row,
+    inspect_task3_metadata,
+    split_task3_samples,
+)
 from procureguard.extraction.layoutlmv3_dataset import SROIELayoutLMv3Dataset, create_layoutlmv3_processor
 from procureguard.extraction.metrics import evaluate_field_f1
 from procureguard.extraction.modelscope_sroie import inspect_modelscope_mirror, organize_modelscope_mirror
-from procureguard.extraction.ocr import build_token, filter_empty_tokens, normalize_bbox, paddleocr_result_to_tokens
+from procureguard.extraction.ocr import (
+    build_token,
+    filter_empty_tokens,
+    normalize_bbox,
+    paddleocr_result_to_tokens,
+    paddleocr_v3_result_to_tokens,
+)
 from procureguard.extraction.schemas import OCRToken, SroieSample
 
 
@@ -310,3 +321,76 @@ def test_unlabeled_sroie_can_be_prepared_without_fake_ground_truth(tmp_path: Pat
     assert errors == []
     assert len(samples) == 1
     assert samples[0].labels == {"company": "", "address": "", "date": "", "total": ""}
+
+
+def build_task3_row(sample_id: str = "sample-1") -> dict:
+    """构造离线 Task 3 fixture。"""
+
+    return {
+        "_id": {"$oid": sample_id},
+        "filepath": f"data/{sample_id}.jpg",
+        "metadata": {"width": 200, "height": 100},
+        "company": "Acme Office",
+        "address": "12 Market Street",
+        "date": "2026-06-10",
+        "total": "$1,200.00",
+        "text_detections": {
+            "detections": [
+                {"label": "Acme Office", "bounding_box": [0.1, 0.1, 0.4, 0.1]},
+                {"label": "12 Market Street", "bounding_box": [0.1, 0.3, 0.5, 0.1]},
+                {"label": "2026-06-10", "bounding_box": [0.1, 0.5, 0.3, 0.1]},
+                {"label": "TOTAL $1,200.00", "bounding_box": [0.1, 0.7, 0.5, 0.1]},
+            ]
+        },
+        "text_polygons": {"polylines": []},
+    }
+
+
+def test_task3_adapter_metadata_bbox_and_fields(tmp_path: Path):
+    row = build_task3_row()
+    samples_path = tmp_path / "samples.json"
+    samples_path.write_text(json.dumps({"samples": [row]}), encoding="utf-8")
+
+    summary = inspect_task3_metadata(samples_path)
+    sample = convert_task3_row(row, tmp_path)
+    labels, unaligned = align_sample_tokens(sample)
+
+    assert summary.sample_count == 1
+    assert summary.missing_fields == {"company": 0, "address": 0, "date": 0, "total": 0}
+    assert sample.tokens[0].bbox == (100, 100, 500, 200)
+    assert sample.labels["company"] == "Acme Office"
+    assert any(label != "O" for label in labels)
+    assert unaligned == []
+
+
+def test_task3_split_seed_is_stable_and_disjoint(tmp_path: Path):
+    samples = [convert_task3_row(build_task3_row(f"sample-{index}"), tmp_path) for index in range(10)]
+
+    first = split_task3_samples(samples, seed=42)
+    second = split_task3_samples(samples, seed=42)
+    train_ids = {sample.sample_id for sample in first.train}
+    validation_ids = {sample.sample_id for sample in first.validation}
+
+    assert [sample.sample_id for sample in first.train] == [sample.sample_id for sample in second.train]
+    assert train_ids.isdisjoint(validation_ids)
+    assert len(first.train) == 8
+    assert len(first.validation) == 2
+
+
+def test_paddleocr_v3_result_conversion():
+    result = [
+        {
+            "rec_texts": ["Acme", ""],
+            "rec_scores": [0.91, 0.8],
+            "rec_polys": [
+                [[0, 0], [100, 0], [100, 20], [0, 20]],
+                [[0, 30], [100, 30], [100, 50], [0, 50]],
+            ],
+        }
+    ]
+
+    tokens = paddleocr_v3_result_to_tokens(result, width=200, height=100)
+
+    assert len(tokens) == 1
+    assert tokens[0].text == "Acme"
+    assert tokens[0].confidence == 0.91

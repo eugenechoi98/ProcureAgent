@@ -69,6 +69,32 @@ data/phase1/sroie/inbox/SROIE/unpacked/sroie
 
 该镜像的 `train_label.jsonl/test_label.jsonl` 是 crop OCR 标签，字段只有 `filename/text`，不是 `company/address/date/total` entity ground truth。要计算真实字段级 F1，还需要人工补充官方 SROIE Task 3 entity JSON，并放入标准目录的 `key/`。
 
+## Hugging Face Task 3
+
+数据源：
+
+```text
+Voxel51/scanned_receipts
+```
+
+用途：
+
+- 提供 `company/address/date/total` entity ground truth。
+- 提供 `text_detections` 和归一化 bbox。
+- 用于真实 baseline F1、BIO alignment、LayoutLMv3 train/validation。
+
+本地实际 metadata 为 712 条。按 seed 42 拆分：
+
+```text
+train: 570
+validation: 142
+evaluation_split: local_validation_split_seed_42
+```
+
+下载数据、图片、缓存和 processed JSONL 都位于被 Git 忽略的 `data/phase1/sroie_task3/`。
+
+ModelScope 镜像继续用于 OCR annotation、真实图片 batch smoke 和 PaddleOCR 端到端 smoke；它不会被伪装成 Task 3 entity 数据。
+
 ## CORD 后续用途
 
 CORD 是补充数据集，用于后续扩展更多票据字段和版式，不混入 SROIE 四字段 benchmark。本阶段不下载 CORD、不伪造 CORD 指标。

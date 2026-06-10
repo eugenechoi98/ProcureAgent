@@ -1,5 +1,8 @@
 # DECISIONS.md
 
+## 2026-06-10：模型抽取依赖与默认后端依赖隔离
+FastAPI 默认运行环境保持轻量，不强制安装 Torch、Transformers、PaddleOCR 和 PaddlePaddle。Phase 1 通过 extraction optional dependency group 安装模型依赖。LayoutLMv3 训练优先使用数据集提供的 OCR annotation，以单独评估字段抽取能力；PaddleOCR 用于端到端真实推理路径和 smoke 验证。
+
 ## 2026-06-10：Phase 1 先做独立抽取模块，不直接接入上传接口
 Phase 2 后端真实规则链已经封板，Phase 1 只产出可替换 API 占位字段的模型抽取能力。这样可以先完成 OCR、LayoutLMv3、字段级 F1 和错误分析，不影响已通过的后端接口、工具签名和 Risk Engine。
 

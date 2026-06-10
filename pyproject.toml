@@ -13,8 +13,9 @@ dependencies = [
 [project.optional-dependencies]
 extraction = [
     "datasets>=2.19,<4.0",
-    "paddleocr>=2.7,<3.0",
-    "paddlepaddle>=2.6,<3.0",
+    "huggingface-hub>=0.24,<1.0",
+    "paddleocr>=3.0,<4.0",
+    "paddlepaddle>=3.0,<4.0",
     "pillow>=10.0,<12.0",
     "seqeval>=1.2,<2.0",
     "torch>=2.2,<3.0",
@@ -22,8 +23,9 @@ extraction = [
 ]
 phase1 = [
     "datasets>=2.19,<4.0",
-    "paddleocr>=2.7,<3.0",
-    "paddlepaddle>=2.6,<3.0",
+    "huggingface-hub>=0.24,<1.0",
+    "paddleocr>=3.0,<4.0",
+    "paddlepaddle>=3.0,<4.0",
     "pillow>=10.0,<12.0",
     "seqeval>=1.2,<2.0",
     "torch>=2.2,<3.0",
@@ -37,3 +39,6 @@ test = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+
+[tool.setuptools.packages.find]
+include = ["procureguard*"]

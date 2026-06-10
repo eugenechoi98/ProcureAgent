@@ -42,6 +42,7 @@ def main() -> None:
         print(f"{key}_shape={tuple(value.shape)}")
     labels = batch["labels"]
     print(f"labels_non_ignore_count={int((labels != -100).sum().item())}")
+    print(f"labels_non_o_count={int(((labels != -100) & (labels != LABEL2ID['O'])).sum().item())}")
 
 
 if __name__ == "__main__":

@@ -41,10 +41,17 @@ def main() -> None:
         id2label=ID2LABEL,
         label2id=LABEL2ID,
     )
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = model.to(device)
+    batch = {key: value.to(device) for key, value in batch.items()}
     model.eval()
     with torch.no_grad():
         outputs = model(**batch)
+    labels = batch["labels"]
+    print(f"device={device}")
     print(f"loss={float(outputs.loss):.6f}")
+    print(f"logits_shape={tuple(outputs.logits.shape)}")
+    print(f"labels_non_o_count={int(((labels != -100) & (labels != LABEL2ID['O'])).sum().item())}")
 
 
 if __name__ == "__main__":
