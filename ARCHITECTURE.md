@@ -21,3 +21,4 @@
 - BIO alignment 把 SROIE 字段对齐到 OCR token，标签只包含 company、address、date、total。
 - LayoutLMv3 Dataset 读取 processed JSONL、图片、bbox 和 BIO labels，并使用 `apply_ocr=False` 的 processor。
 - Notebook 保留手写 PyTorch 训练循环，用于后续真实 fine-tuning 和 checkpoint。
+- ModelScope 适配层只负责识别镜像并复制整图和 OCR annotation；crop OCR 标签不会被伪装成四字段 entity ground truth。

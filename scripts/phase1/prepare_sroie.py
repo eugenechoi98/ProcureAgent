@@ -19,6 +19,11 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Prepare SROIE processed JSONL.")
     parser.add_argument("--input", required=True, help="SROIE raw directory.")
     parser.add_argument("--output", required=True, help="Output processed JSONL path.")
+    parser.add_argument(
+        "--allow-missing-labels",
+        action="store_true",
+        help="Prepare OCR samples with empty labels when entity ground truth is absent.",
+    )
     args = parser.parse_args()
 
     check = check_sroie_dataset(args.input)
@@ -26,7 +31,11 @@ def main() -> None:
         raise SystemExit(
             "SROIE input is missing or empty. Expected img/, box/, key/ or entities/ under the input path."
         )
-    samples, errors = iter_sroie_samples(args.input, strict=False)
+    samples, errors = iter_sroie_samples(
+        args.input,
+        strict=False,
+        allow_missing_labels=args.allow_missing_labels,
+    )
     write_processed_jsonl(samples, args.output)
     for error in errors:
         print(f"warning={error}")

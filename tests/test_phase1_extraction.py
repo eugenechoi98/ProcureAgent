@@ -1,6 +1,7 @@
 """Phase 1A OCR baseline 与 SROIE 最小闭环测试。"""
 
 from pathlib import Path
+import json
 
 import pytest
 
@@ -15,6 +16,7 @@ from procureguard.extraction.datasets import (
 from procureguard.extraction.error_analysis import collect_error_cases
 from procureguard.extraction.layoutlmv3_dataset import SROIELayoutLMv3Dataset, create_layoutlmv3_processor
 from procureguard.extraction.metrics import evaluate_field_f1
+from procureguard.extraction.modelscope_sroie import inspect_modelscope_mirror, organize_modelscope_mirror
 from procureguard.extraction.ocr import build_token, filter_empty_tokens, normalize_bbox, paddleocr_result_to_tokens
 from procureguard.extraction.schemas import OCRToken, SroieSample
 
@@ -260,3 +262,51 @@ def test_layoutlmv3_processor_dependency_error_is_clear(monkeypatch):
     monkeypatch.setattr(builtins, "__import__", fake_import)
     with pytest.raises(ImportError, match="extraction"):
         create_layoutlmv3_processor()
+
+
+def test_modelscope_mirror_inspection_and_idempotent_organization(tmp_path: Path):
+    source = tmp_path / "mirror"
+    for split in ["training", "test"]:
+        (source / "imgs" / split).mkdir(parents=True)
+        (source / "annotations" / split).mkdir(parents=True)
+        (source / "imgs" / split / f"{split}_1.jpg").write_bytes(b"image")
+        (source / "annotations" / split / f"{split}_1.txt").write_text(
+            "0,0,10,0,10,10,0,10,Acme\n", encoding="utf-8"
+        )
+    for name, split in [("train_label.jsonl", "training"), ("test_label.jsonl", "test")]:
+        (source / name).write_text(
+            json.dumps({"filename": f"{split}/{split}_1_1.png", "text": "Acme"}) + "\n",
+            encoding="utf-8",
+        )
+    for name, split in [("instances_training.json", "training"), ("instances_test.json", "test")]:
+        (source / name).write_text(
+            json.dumps({"images": [{"file_name": f"{split}_1.jpg"}], "annotations": [], "categories": []}),
+            encoding="utf-8",
+        )
+
+    inspection = inspect_modelscope_mirror(source)
+    first = organize_modelscope_mirror(source, tmp_path / "raw")
+    second = organize_modelscope_mirror(source, tmp_path / "raw")
+
+    assert inspection["contains_entity_fields"] is False
+    assert first.copied_images == 2
+    assert first.copied_boxes == 2
+    assert first.copied_keys == 0
+    assert second.skipped_existing == 4
+    assert first.train.instance_image_count == 1
+
+
+def test_unlabeled_sroie_can_be_prepared_without_fake_ground_truth(tmp_path: Path):
+    raw = tmp_path / "raw"
+    (raw / "img").mkdir(parents=True)
+    (raw / "box").mkdir()
+    (raw / "key").mkdir()
+    (raw / "box" / "sample.txt").write_text(
+        "0,0,10,0,10,10,0,10,Acme\n", encoding="utf-8"
+    )
+
+    samples, errors = iter_sroie_samples(raw, strict=False, allow_missing_labels=True)
+
+    assert errors == []
+    assert len(samples) == 1
+    assert samples[0].labels == {"company": "", "address": "", "date": "", "total": ""}

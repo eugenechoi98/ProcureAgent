@@ -41,22 +41,28 @@ def read_sroie_box_file(path: str | Path, image_width: int = 1000, image_height:
     """读取 SROIE OCR 标注文本，格式为 8 个坐标加文本。"""
 
     tokens: list[OCRToken] = []
-    with Path(path).open("r", encoding="utf-8") as handle:
-        for line_number, line in enumerate(handle, start=1):
-            raw = line.rstrip("\n")
-            if not raw.strip():
-                continue
-            parts = raw.split(",", 8)
-            if len(parts) < 9:
-                raise ValueError(f"Invalid SROIE box line {path}:{line_number}: expected 9 columns.")
-            try:
-                coords = [float(value) for value in parts[:8]]
-            except ValueError as exc:
-                raise ValueError(f"Invalid bbox coordinate {path}:{line_number}.") from exc
-            points = [[coords[i], coords[i + 1]] for i in range(0, 8, 2)]
-            token = build_token(parts[8], normalize_bbox(points, image_width, image_height), 1.0)
-            if token:
-                tokens.append(token)
+    source = Path(path)
+    raw = source.read_bytes()
+    try:
+        text_content = raw.decode("utf-8")
+    except UnicodeDecodeError:
+        print(f"warning={source} is not UTF-8; decoded with cp1252 fallback.")
+        text_content = raw.decode("cp1252")
+    for line_number, line in enumerate(text_content.splitlines(), start=1):
+        raw_line = line.rstrip("\n")
+        if not raw_line.strip():
+            continue
+        parts = raw_line.split(",", 8)
+        if len(parts) < 9:
+            raise ValueError(f"Invalid SROIE box line {path}:{line_number}: expected 9 columns.")
+        try:
+            coords = [float(value) for value in parts[:8]]
+        except ValueError as exc:
+            raise ValueError(f"Invalid bbox coordinate {path}:{line_number}.") from exc
+        points = [[coords[i], coords[i + 1]] for i in range(0, 8, 2)]
+        token = build_token(parts[8], normalize_bbox(points, image_width, image_height), 1.0)
+        if token:
+            tokens.append(token)
     return tokens
 
 
@@ -104,14 +110,26 @@ def check_sroie_dataset(raw_dir: str | Path) -> SroieDatasetCheck:
     box_count = len(list(box_dir.glob("*.txt"))) if box_dir else len(list(root.glob("*.txt")))
     image_count = sum(len(list(image_dir.glob(f"*{suffix}"))) for suffix in IMAGE_SUFFIXES) if image_dir else 0
     stems = set()
-    if key_dir:
+    if key_dir and key_count:
         stems = {path.stem for path in key_dir.glob("*.json")}
     elif key_count:
         stems = {path.stem for path in root.glob("*.json")}
+    elif image_dir and box_dir:
+        image_stems = {
+            path.stem
+            for suffix in IMAGE_SUFFIXES
+            for path in image_dir.glob(f"*{suffix}")
+        }
+        box_stems = {path.stem for path in box_dir.glob("*.txt")}
+        stems = image_stems & box_stems
     return SroieDatasetCheck(True, len(stems), missing, key_count, box_count, image_count)
 
 
-def iter_sroie_samples(raw_dir: str | Path, strict: bool = True) -> tuple[list[SroieSample], list[str]] | list[SroieSample]:
+def iter_sroie_samples(
+    raw_dir: str | Path,
+    strict: bool = True,
+    allow_missing_labels: bool = False,
+) -> tuple[list[SroieSample], list[str]] | list[SroieSample]:
     """读取一个 SROIE raw 目录，坏样本报清楚但不吞错。"""
 
     root = Path(raw_dir)
@@ -120,6 +138,9 @@ def iter_sroie_samples(raw_dir: str | Path, strict: bool = True) -> tuple[list[S
 
     key_root = next((root / name for name in ["key", "entities"] if (root / name).exists()), None)
     key_files = sorted(key_root.glob("*.json")) if key_root else sorted(root.glob("*.json"))
+    if not key_files and allow_missing_labels:
+        box_root = next((root / name for name in ["box", "ocr", "txt"] if (root / name).exists()), None)
+        key_files = sorted(box_root.glob("*.txt")) if box_root else []
     samples: list[SroieSample] = []
     errors: list[str] = []
     for key_file in key_files:
@@ -130,7 +151,11 @@ def iter_sroie_samples(raw_dir: str | Path, strict: bool = True) -> tuple[list[S
                 raise FileNotFoundError(f"Missing OCR box file for sample {stem}.")
             image_file = find_sroie_file(root, ["img", "image", "images", "."], stem, IMAGE_SUFFIXES)
             image_path = str(image_file if image_file else root / "img" / f"{stem}.jpg")
-            labels = read_sroie_key_file(key_file)
+            labels = (
+                {field: "" for field in SROIE_FIELDS}
+                if key_file.suffix.lower() == ".txt"
+                else read_sroie_key_file(key_file)
+            )
             width, height = image_size(image_file)
             tokens = read_sroie_box_file(box_file, image_width=width, image_height=height)
             samples.append(SroieSample(sample_id=stem, image_path=image_path, tokens=tokens, labels=labels))

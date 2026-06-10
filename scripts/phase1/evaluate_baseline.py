@@ -30,6 +30,11 @@ def main() -> None:
 
     started_at = time.perf_counter()
     samples = read_processed_jsonl(args.input)
+    if not any(any(value for value in sample.labels.values()) for sample in samples):
+        raise SystemExit(
+            "No company/address/date/total ground truth found. "
+            "Refusing to calculate field F1 for unlabeled data."
+        )
     baseline = SroieRegexBaseline()
     predictions = [baseline.extract(sample.tokens).values() for sample in samples]
     references = [sample.labels for sample in samples]
