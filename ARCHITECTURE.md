@@ -24,3 +24,5 @@
 - ModelScope 适配层只负责识别镜像并复制整图和 OCR annotation；crop OCR 标签不会被伪装成四字段 entity ground truth。
 - Hugging Face Task 3 适配层读取 FiftyOne `samples.json` 中的 entity metadata 和 OCR detections，生成固定 seed 的 train/validation processed JSONL。
 - LayoutLMv3 训练优先使用数据集 OCR annotation，PaddleOCR 单独验证端到端图片推理路径。
+- GPU Notebook 在 ModelScope 与 Colab 共享同一训练主体，环境差异只放在初始化单元格。
+- 训练输出按 best field macro F1 保存 checkpoint，并导出日志、loss 曲线、token F1、field F1 和错误分析。

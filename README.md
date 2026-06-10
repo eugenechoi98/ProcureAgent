@@ -140,6 +140,42 @@ PaddleOCR 端到端 smoke：
   --limit 3
 ```
 
+## GPU Fine-tuning Notebook
+
+训练入口：
+
+```text
+notebooks/phase1_layoutlmv3_training.ipynb
+```
+
+支持：
+
+```python
+RUNTIME = "modelscope"  # 或 "colab"
+```
+
+默认参数：
+
+```text
+model: microsoft/layoutlmv3-base
+max_length: 512
+batch_size: 2
+gradient_accumulation_steps: 4
+epochs: 5
+learning_rate: 1e-5
+weight_decay: 0.01
+max_grad_norm: 1.0
+seed: 42
+```
+
+Notebook 包含手写 PyTorch train/validation loop、训练 guard、token/field F1、best checkpoint、loss PNG，以及 JSON/CSV/Markdown 训练报告导出。
+
+运行手册：
+
+[docs/PHASE1_GPU_NOTEBOOK_RUNBOOK.md](docs/PHASE1_GPU_NOTEBOOK_RUNBOOK.md)
+
+当前尚未执行完整 fine-tuning，fine-tuned validation F1 为 `待真实训练`。
+
 LayoutLMv3 Dataset/DataLoader smoke：
 
 ```powershell

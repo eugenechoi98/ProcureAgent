@@ -1,27 +1,22 @@
 # CONTEXT.md
 
 ## 当前目标
-完成 Phase 1 带实体标签的数据准备与有效 LayoutLMv3 训练前验证。
+在 GPU Notebook 中运行 LayoutLMv3 完整 fine-tuning。
 
 ## 当前进度
 - Phase 2 已封板。
-- Phase 1A 已完成 OCR baseline fixture 闭环。
-- Phase 1B 已完成 LayoutLMv3 数据管线和训练 Notebook。
-- Phase 1C 已完成 ModelScope 镜像适配、真实图片预测和单 batch smoke。
-- Phase 1D 已接入带 company/address/date/total 实体标签的 Voxel51/scanned_receipts。
-- 真实 validation baseline、BIO alignment 和有效单 batch forward 已完成。
-- PaddleOCR 3.6.0 + PaddlePaddle 3.3.1 端到端 smoke 已完成。
+- Phase 1A-D 已完成：OCR baseline、Task 3 数据、BIO alignment、Dataset、DataLoader、单 batch forward 和 PaddleOCR smoke。
+- GPU 训练 Notebook 与运行手册已准备完成。
+- 当前尚未运行完整 fine-tuning。
 
 ## 下一步
-在 Colab 或 ModelScope GPU Notebook 中运行 LayoutLMv3 完整 fine-tuning，记录 loss 曲线、真实 validation 字段级 F1 和错误案例。
+用户在 ModelScope GPU Notebook 或 Colab 中运行训练 Notebook，记录 loss 曲线、fine-tuned validation 字段级 F1、错误案例和最佳 checkpoint。
 
 ## 注意事项
-- 默认后端依赖与 extraction 重型依赖保持隔离。
-- validation 是固定 seed 本地拆分，不是官方 test。
-- 不提交真实数据集、模型权重或缓存。
-- Phase 1 不修改后端共享契约。
-- 当前模型尚未接入 API。
-- fixture 分数不能作为简历指标。
+- 当前 baseline macro F1 为 0.4387。
+- validation 使用 local_validation_split_seed_42，不是 official test。
+- checkpoint、模型权重和真实数据不提交 Git。
+- 模型训练完成后再决定是否接入 API。
 
 ## 最后更新时间
 2026-06-10

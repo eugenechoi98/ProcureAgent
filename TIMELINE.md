@@ -15,3 +15,4 @@
 - 2026-06-10：完成 Phase 1B LayoutLMv3 数据管线，补齐 BIO 对齐、Dataset、DataLoader 和训练 Notebook。
 - 2026-06-10：完成 Phase 1C ModelScope SROIE 镜像适配和 987 样本 baseline 预测，确认镜像缺少四字段实体 ground truth。
 - 2026-06-10：完成 Phase 1D Task 3 实体标签数据接入，补齐真实 baseline、有效 BIO 对齐和训练前验证。
+- 2026-06-10：完成 Phase 1E GPU Notebook 训练准备，补齐运行手册、训练日志、checkpoint 和评测导出。

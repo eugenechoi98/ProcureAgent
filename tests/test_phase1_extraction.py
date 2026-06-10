@@ -30,6 +30,17 @@ from procureguard.extraction.ocr import (
     paddleocr_v3_result_to_tokens,
 )
 from procureguard.extraction.schemas import OCRToken, SroieSample
+from procureguard.extraction.training import (
+    EpochLog,
+    LayoutLMv3TrainingConfig,
+    TrainingGuardState,
+    build_training_report,
+    save_loss_curve,
+    select_best_epoch,
+    training_report_to_markdown,
+    validate_training_guard,
+    write_training_outputs,
+)
 
 
 def token(text: str, y: int) -> OCRToken:
@@ -394,3 +405,104 @@ def test_paddleocr_v3_result_conversion():
     assert len(tokens) == 1
     assert tokens[0].text == "Acme"
     assert tokens[0].confidence == 0.91
+
+
+def test_training_config_defaults():
+    config = LayoutLMv3TrainingConfig()
+
+    assert config.model_name == "microsoft/layoutlmv3-base"
+    assert config.max_length == 512
+    assert config.batch_size == 2
+    assert config.gradient_accumulation_steps == 4
+    assert config.epochs == 5
+    assert config.learning_rate == 1e-5
+    assert config.weight_decay == 0.01
+    assert config.max_grad_norm == 1.0
+    assert config.seed == 42
+
+
+def test_training_guard_accepts_ready_state_and_rejects_cpu():
+    validate_training_guard(
+        TrainingGuardState(
+            cuda_available=True,
+            train_samples=570,
+            validation_samples=142,
+            labels_non_o_count=6,
+            baseline_report_exists=True,
+        )
+    )
+
+    with pytest.raises(RuntimeError, match="cuda_available"):
+        validate_training_guard(
+            TrainingGuardState(
+                cuda_available=False,
+                train_samples=570,
+                validation_samples=142,
+                labels_non_o_count=6,
+                baseline_report_exists=True,
+            )
+        )
+
+
+def sample_epoch_logs() -> list[EpochLog]:
+    """构造训练日志 fixture。"""
+
+    return [
+        EpochLog(1, 1.2, 1.1, 0.50, 0.48, 1e-5, 60.0),
+        EpochLog(2, 0.9, 0.8, 0.65, 0.62, 8e-6, 62.0),
+        EpochLog(3, 0.7, 0.9, 0.68, 0.62, 6e-6, 61.0),
+    ]
+
+
+def test_epoch_log_schema_best_epoch_and_report_format():
+    logs = sample_epoch_logs()
+    best = select_best_epoch(logs)
+    report = build_training_report(
+        config=LayoutLMv3TrainingConfig(epochs=3),
+        logs=logs,
+        baseline_macro_f1=0.4387,
+    )
+    markdown = training_report_to_markdown(report)
+
+    assert set(logs[0].__dict__) == {
+        "epoch",
+        "train_loss",
+        "validation_loss",
+        "token_f1",
+        "field_macro_f1",
+        "learning_rate",
+        "elapsed_time",
+    }
+    assert best.epoch == 2
+    assert report["best_epoch"] == 2
+    assert report["improvement"] == pytest.approx(0.1813)
+    assert "local_validation_split_seed_42" in markdown
+    assert "baseline_macro_f1: 0.4387" in markdown
+
+
+def test_loss_curve_output_function_without_matplotlib(tmp_path: Path):
+    output = tmp_path / "loss.png"
+
+    def fake_plotter(logs, path):
+        assert len(logs) == 3
+        path.write_bytes(b"png")
+
+    result = save_loss_curve(sample_epoch_logs(), output, plotter=fake_plotter)
+
+    assert result == output
+    assert output.read_bytes() == b"png"
+
+
+def test_training_outputs_write_json_csv_and_markdown(tmp_path: Path):
+    report = build_training_report(
+        config=LayoutLMv3TrainingConfig(epochs=3),
+        logs=sample_epoch_logs(),
+        baseline_macro_f1=0.4387,
+    )
+
+    paths = write_training_outputs(report, tmp_path)
+
+    assert set(paths) == {"json", "csv", "markdown"}
+    assert all(path.exists() for path in paths.values())
+    assert "field_macro_f1" in paths["csv"].read_text(encoding="utf-8")
+    assert "fine_tuned_macro_f1" in paths["markdown"].read_text(encoding="utf-8")
