@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environment
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Local data
+*.db
+*.sqlite
+*.sqlite3
+data/
+uploads/
+
+# Model artifacts
+checkpoints/
+models_cache/
+*.pt
+*.pth
+*.bin
+*.safetensors
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Notebook temporary files
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
