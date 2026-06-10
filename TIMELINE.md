@@ -8,3 +8,5 @@
 - 2026-06-10：完成 Phase 2 后端基础服务验收，准备进入 Agent 与规则开发。
 - 2026-06-10：完成 Phase 2 Agent 与规则闭环，新增真实工具调用主链、Risk Engine 和 Agent 测试。
 - 2026-06-10：完成 Phase 2 Agent 与规则模块验收，打通三单匹配、重复检测、Policy RAG、确定性风险判断和 Audit Trace。
+- 2026-06-10：完成 Phase 2 集成收口，上传接口默认接入真实 AgentInvoiceProcessor 并保留显式 mock 模式。
+- 2026-06-10：完成 Phase 2 总验收，真实链写入 AuditReport 和 Audit Trace，全量测试通过。
