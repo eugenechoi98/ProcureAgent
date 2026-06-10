@@ -1,21 +1,22 @@
 # CONTEXT.md
 
 ## 当前目标
-Phase 2 后端基础服务。
+完成 Phase 2 真实规则链与 FastAPI 的集成收口。
 
 ## 当前进度
-- FastAPI 应用入口已完成。
-- SQLite 接入、上传/查询、mock 处理链、人工审核基础闭环和接口测试已完成。
-- 最小 smoke test 已打通：上传发票、查询轨迹、查询审核队列、提交 approved 决定。
-- 全量测试通过：`22 passed`。
+- 共享契约已完成。
+- FastAPI 后端基础 mock 闭环已完成。
+- Agent 与规则模块已完成：三单匹配、重复检测、Policy RAG、5 个工具执行、Risk Engine 和 Audit Trace。
+- 当前 API 上传入口仍走 `mock_processor`，尚未切换至真实规则链。
+- 当前基线：待提交 Agent 与规则验收 commit。
 
 ## 下一步
-回到审查与总控对话验收，再决定是否进入 Agent 与规则模块。
+新开 Phase 2 集成收口对话，将真实 `agent_processor` 接入 API，保留 mock 模式，并补充端到端测试。
 
 ## 注意事项
-- 共享契约已冻结。
-- 当前处理链是 mock，不代表真实审核逻辑。
-- 本轮没有实现 OCR、LayoutLMv3、Agent 主链、完整 Risk Engine、LoRA、Docker 或 CI。
+- 共享契约保持冻结。
+- `mock_processor` 不删除。
+- 不在总控对话直接实现业务代码。
 
 ## 最后更新时间
 2026-06-10

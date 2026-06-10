@@ -4,7 +4,7 @@ import sqlite3
 import time
 from typing import Any
 
-from procureguard.db.json_utils import loads_json
+from procureguard.db.json_utils import dumps_json, loads_json
 from procureguard.models.state_flow import validate_invoice_transition
 from procureguard.models.status import InvoiceStatus
 
@@ -100,6 +100,65 @@ class InvoiceRepository:
             (file_hash,),
         ).fetchone()
         return self._row_to_invoice(row) if row else None
+
+    def update_extracted_fields(
+        self,
+        invoice_id: str,
+        extracted_fields: dict[str, Any],
+    ) -> dict[str, Any]:
+        """写入模型抽取字段。"""
+
+        self._ensure_invoice_exists(invoice_id)
+        self.conn.execute(
+            "UPDATE invoices SET extracted_fields_json = ? WHERE id = ?",
+            (dumps_json(extracted_fields), invoice_id),
+        )
+        self.conn.commit()
+        return self._get_existing_invoice(invoice_id)
+
+    def update_validation_result(
+        self,
+        invoice_id: str,
+        validation_result: dict[str, Any],
+    ) -> dict[str, Any]:
+        """写入确定性校验结果。"""
+
+        self._ensure_invoice_exists(invoice_id)
+        self.conn.execute(
+            "UPDATE invoices SET validation_result_json = ? WHERE id = ?",
+            (dumps_json(validation_result), invoice_id),
+        )
+        self.conn.commit()
+        return self._get_existing_invoice(invoice_id)
+
+    def update_audit_report(
+        self,
+        invoice_id: str,
+        audit_report: dict[str, Any],
+    ) -> dict[str, Any]:
+        """写入最终审计报告。"""
+
+        self._ensure_invoice_exists(invoice_id)
+        self.conn.execute(
+            "UPDATE invoices SET audit_report_json = ? WHERE id = ?",
+            (dumps_json(audit_report), invoice_id),
+        )
+        self.conn.commit()
+        return self._get_existing_invoice(invoice_id)
+
+    def _ensure_invoice_exists(self, invoice_id: str) -> None:
+        """确认发票存在，避免静默写入 0 行。"""
+
+        if self.get_invoice(invoice_id) is None:
+            raise LookupError(f"Invoice {invoice_id} was not found.")
+
+    def _get_existing_invoice(self, invoice_id: str) -> dict[str, Any]:
+        """返回已经确认存在的发票。"""
+
+        invoice = self.get_invoice(invoice_id)
+        if invoice is None:
+            raise RuntimeError(f"Invoice {invoice_id} disappeared after update.")
+        return invoice
 
     def _row_to_invoice(self, row: sqlite3.Row) -> dict[str, Any]:
         """把 SQLite 行转换成 API 友好的字典。"""

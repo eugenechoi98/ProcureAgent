@@ -11,3 +11,6 @@ Policy RAG 需要真实可检索的数据表与初始化数据，MVP 使用 `pol
 
 ## 2026-06-10：业务输出使用 AuditReport schema，不套 ContextPack
 ContextPack 属于 ContextGraph Studio 的 AI Coding Agent 输出格式。ProcureGuard 是采购审核业务系统，最终结构化输出统一使用 `AuditReport` schema。
+
+## 2026-06-10：重复发票采用确定性直接拒绝
+重复发票属于高风险硬规则。检测到相同供应商与发票号重复提交后，将 `ValidationResult.duplicate_check` 写为 `False`，风险等级设为 `high`，建议动作设为 `reject`，不进入普通人工审核队列。
