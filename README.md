@@ -148,7 +148,7 @@ PaddleOCR 端到端 smoke：
 notebooks/phase1_layoutlmv3_training.ipynb
 ```
 
-支持：
+Notebook 首个代码单元统一运行 GPU bootstrap，支持：
 
 ```python
 RUNTIME = "modelscope"  # 或 "colab"
@@ -168,7 +168,23 @@ max_grad_norm: 1.0
 seed: 42
 ```
 
-Notebook 包含手写 PyTorch train/validation loop、训练 guard、token/field F1、best checkpoint、loss PNG，以及 JSON/CSV/Markdown 训练报告导出。
+GPU 环境固定规则：
+
+- 所有依赖安装使用 Notebook Kernel 的 `sys.executable`。
+- Terminal Python 与 Kernel 不一致时，以 Kernel 为训练真源。
+- 模型默认从本地目录加载，并使用 `local_files_only=True`。
+- bootstrap 自动备份并修复 processed JSONL 图片路径。
+- 只有 `training_guard_passed=true` 才进入训练。
+
+环境文件：
+
+```text
+requirements/phase1-gpu.txt
+scripts/phase1/bootstrap_gpu_notebook.py
+scripts/phase1/verify_gpu_notebook_env.py
+```
+
+Notebook 包含手写 PyTorch train/validation loop、token/field F1、best checkpoint、loss PNG，以及 JSON/CSV/Markdown 训练报告导出。
 
 运行手册：
 

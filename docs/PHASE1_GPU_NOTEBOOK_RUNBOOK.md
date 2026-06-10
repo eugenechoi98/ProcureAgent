@@ -1,96 +1,196 @@
 # Phase 1 GPU Notebook Runbook
 
-## ModelScope Notebook
+## ModelScope 最少步骤
 
-1. 打开 ModelScope Notebook 页面，新建一个 Notebook 实例。
-2. 在页面提供的资源中选择 GPU。可用型号以页面实际显示为准。
-3. 打开终端并 clone 项目：
+### 1. 启动 GPU Notebook
+
+在 ModelScope Notebook 页面选择可用 GPU 并启动实例。GPU 型号以页面实际资源为准。
+
+### 2. clone 仓库
 
 ```bash
+cd /mnt/workspace
 git clone YOUR_GIT_REPOSITORY_URL ProcureAgent
-cd ProcureAgent
 ```
 
-4. 安装 extraction 依赖：
+已有仓库时跳过 clone。
+
+### 3. 准备本地模型
+
+将已经下载好的 `microsoft/layoutlmv3-base` 上传或解压到：
+
+```text
+/mnt/workspace/models/layoutlmv3-base
+```
+
+目录至少应包含模型配置、processor 配置和模型权重。训练 Notebook 使用
+`local_files_only=True`，不会重新访问 Hugging Face。
+
+如果云端镜像可以访问，也可以先在可联网环境下载，再复制整个目录：
+
+```python
+from huggingface_hub import snapshot_download
+
+snapshot_download(
+    "microsoft/layoutlmv3-base",
+    local_dir="/mnt/workspace/models/layoutlmv3-base",
+)
+```
+
+### 4. 上传 processed JSONL
+
+上传 `sroie_task3_processed.tar.gz`，解压后确认存在：
+
+```text
+/mnt/workspace/ProcureAgent/data/phase1/sroie_task3/processed/train.jsonl
+/mnt/workspace/ProcureAgent/data/phase1/sroie_task3/processed/validation.jsonl
+```
+
+### 5. 准备 ModelScope 图片
+
+通过 ModelScope 镜像获取 SROIE 图片并解压到：
+
+```text
+/mnt/workspace/SROIE/unpacked/sroie/imgs
+```
+
+不需要手工修改 JSONL 中的 Windows 路径，也不要手工处理 `(1)`、`(2)`、`(3)`。
+
+### 6. 更新仓库
 
 ```bash
-python -m pip install -e ".[extraction]"
+cd /mnt/workspace/ProcureAgent
+git pull
 ```
 
-5. 打开：
+### 7. 打开 Notebook
+
+打开：
 
 ```text
 notebooks/phase1_layoutlmv3_training.ipynb
 ```
 
-6. 保持：
+### 8. 运行统一 bootstrap
+
+运行 Notebook 第一个代码单元。它等价于使用当前 Kernel 执行：
 
 ```python
-RUNTIME = "modelscope"
+import sys
+import subprocess
+
+subprocess.run(
+    [
+        sys.executable,
+        "scripts/phase1/bootstrap_gpu_notebook.py",
+        "--project-root", "/mnt/workspace/ProcureAgent",
+        "--processed-dir", "/mnt/workspace/ProcureAgent/data/phase1/sroie_task3/processed",
+        "--image-root", "/mnt/workspace/SROIE/unpacked/sroie/imgs",
+        "--model-dir", "/mnt/workspace/models/layoutlmv3-base",
+        "--runtime", "modelscope",
+    ],
+    cwd="/mnt/workspace/ProcureAgent",
+    check=True,
+)
 ```
 
-7. 从第 1 节开始顺序执行，不跳过 GPU guard、数据转换或单 batch smoke。
+bootstrap 会：
 
-## Google Colab 备用方式
+- 使用 `sys.executable` 检查和安装依赖。
+- 显式使用 `https://pypi.org/simple`，不使用异常的默认镜像。
+- 将项目安装到当前 Kernel。
+- 备份并修复 train/validation JSONL 图片路径。
+- 安全匹配文件名末尾的 `(1)`、`(2)`、`(3)`。
+- 检查本地模型、样本数量、图片、BIO 标签和 baseline。
+- 输出 `reports/phase1/gpu_notebook_bootstrap.json`。
 
-1. 新建启用 GPU 的 Colab Notebook。
-2. clone 项目并进入根目录。
-3. 打开或上传项目中的训练 Notebook。
-4. 修改：
+如果 PyPI 也无法访问，bootstrap 会停止并给出 wheelhouse 离线安装命令，不会继续训练。
 
-```python
-RUNTIME = "colab"
-```
+### 9. 确认 guard
 
-5. 从头顺序执行。训练代码与 ModelScope 相同，环境差异只在初始化部分。
-
-## 正常训练表现
-
-每个 epoch 应输出：
+必须看到：
 
 ```text
-epoch
-train_loss
-validation_loss
-token_f1
-field_macro_f1
-learning_rate
-elapsed_time
+training_guard_passed=true
 ```
 
-正常情况下：
+也可以使用当前 Notebook Kernel 单独执行只读验证：
 
-- train loss 能持续计算，不出现 `nan`。
-- validation loss 能完成。
-- token F1 和 field macro F1 能输出。
-- 最佳 field macro F1 提升时，checkpoint 会更新。
+```python
+subprocess.run(
+    [
+        sys.executable,
+        "scripts/phase1/verify_gpu_notebook_env.py",
+        "--project-root", "/mnt/workspace/ProcureAgent",
+        "--processed-dir", "/mnt/workspace/ProcureAgent/data/phase1/sroie_task3/processed",
+        "--image-root", "/mnt/workspace/SROIE/unpacked/sroie/imgs",
+        "--model-dir", "/mnt/workspace/models/layoutlmv3-base",
+        "--runtime", "modelscope",
+    ],
+    cwd="/mnt/workspace/ProcureAgent",
+    check=True,
+)
+```
 
-不要只看 loss。loss 下降但 F1 不提升，说明模型可能没有学到正确字段边界。
+guard 为 false 时不要运行训练单元格。
 
-## OOM 处理
+### 10. 顺序运行训练
 
-如果出现 CUDA out of memory：
+从 Notebook 第二节开始顺序执行。不要再手工新增依赖安装、路径重写、loader 或变量补丁。
 
-1. 先将 `BATCH_SIZE` 从 `2` 调为 `1`。
-2. 保持 `GRAD_ACCUMULATION_STEPS=4`，必要时再提高。
-3. 重启运行环境，释放上一次失败残留的显存。
-4. 不要第一次训练就修改模型结构或进行复杂超参数搜索。
+## Kernel 与 Terminal
 
-## 训练输出
+ModelScope Terminal 和 Notebook Kernel 可能是两个 Python 环境。
 
-报告目录：
+训练只认 Notebook Kernel：
+
+```text
+sys.executable
+Python version
+torch version
+transformers version
+CUDA available
+GPU name
+```
+
+Terminal 的 `python` 只用于文件操作参考，不能证明 Notebook 已安装依赖。
+
+当前实际验证目标环境是：
+
+```text
+Python 3.12
+torch 2.10.0+cu128
+NVIDIA A10
+```
+
+实际运行时仍以 Notebook 首个单元打印的结果为准。
+
+## seqeval 安装说明
+
+`seqeval` 最新版本仍为 `1.2.2`，它依赖 distribution 名 `scikit-learn`。
+GPU requirements 显式声明现代 `scikit-learn`，并从 PyPI 安装，避免使用旧的
+`sklearn` 占位包或异常镜像导致 `setup.py egg_info` 失败。
+
+## OOM
+
+出现 CUDA out of memory 时：
+
+1. 将 `BATCH_SIZE` 从 `2` 改为 `1`。
+2. 保留 `GRAD_ACCUMULATION_STEPS=4`，必要时再提高。
+3. 重启 Kernel 释放显存，然后重新运行 bootstrap。
+
+## 输出位置
+
+最佳 checkpoint：
+
+```text
+checkpoints/phase1/layoutlmv3_best/
+```
+
+训练报告：
 
 ```text
 reports/phase1/gpu_training/
-```
-
-预期包含：
-
-```text
-layoutlmv3_training_report.json
-layoutlmv3_training_log.csv
-layoutlmv3_training_report.md
-layoutlmv3_loss_curve.png
 ```
 
 错误分析：
@@ -99,39 +199,15 @@ layoutlmv3_loss_curve.png
 reports/phase1/layoutlmv3_validation_errors.md
 ```
 
-最佳 checkpoint：
+训练完成后手动下载 checkpoint 和 reports，模型权重不要提交 Git。
 
-```text
-checkpoints/phase1/layoutlmv3_best/
+## Colab 备用路径
+
+将 Notebook 第一格改为：
+
+```python
+RUNTIME = "colab"
 ```
 
-## 保存 checkpoint 和 reports
-
-Notebook 最后会生成 checkpoint zip。训练结束后：
-
-1. 手动下载 checkpoint zip，或复制到云端持久化存储。
-2. 下载 `reports/phase1/gpu_training/`。
-3. 不要把模型权重提交到 Git。
-4. 精简后的 Markdown、JSON、CSV 和 loss PNG 可以回传项目审查。
-
-## 回传总控对话
-
-回到审查与总控对话时提供：
-
-- 运行环境与 GPU 名称。
-- 每个 epoch 的训练日志。
-- best epoch。
-- baseline macro F1 `0.4387`。
-- fine-tuned validation macro F1。
-- baseline vs fine-tuned 对比表。
-- loss 曲线。
-- 错误分析。
-- checkpoint 保存位置。
-
-必须明确：
-
-```text
-evaluation_split = local_validation_split_seed_42
-```
-
-这不是 official test。
+并按实际挂载位置调整 `PROJECT_ROOT`、`PROCESSED_DIR`、`IMAGE_ROOT`、`MODEL_DIR`。
+其余 bootstrap、训练和评测代码保持一致。

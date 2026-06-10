@@ -29,6 +29,7 @@ uploads/
 tmp/
 .cache/
 paddleocr/
+reports/phase1/gpu_notebook_bootstrap.json
 
 # Model artifacts
 checkpoints/

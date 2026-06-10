@@ -7,7 +7,11 @@ from procureguard.extraction.alignment import LABEL2ID, align_sample_tokens
 from procureguard.extraction.schemas import SroieSample
 
 
-def create_layoutlmv3_processor(model_name: str = "microsoft/layoutlmv3-base") -> Any:
+def create_layoutlmv3_processor(
+    model_name: str | Path = "microsoft/layoutlmv3-base",
+    *,
+    local_files_only: bool = False,
+) -> Any:
     """延迟创建 LayoutLMv3Processor，避免默认后端依赖 transformers。"""
 
     try:
@@ -17,7 +21,11 @@ def create_layoutlmv3_processor(model_name: str = "microsoft/layoutlmv3-base") -
             "Transformers is not installed. Install Phase 1 extraction dependencies: "
             'pip install -e ".[extraction]"'
         ) from exc
-    return LayoutLMv3Processor.from_pretrained(model_name, apply_ocr=False)
+    return LayoutLMv3Processor.from_pretrained(
+        str(model_name),
+        apply_ocr=False,
+        local_files_only=local_files_only,
+    )
 
 
 class SROIELayoutLMv3Dataset:
