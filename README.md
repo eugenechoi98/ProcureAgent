@@ -22,11 +22,13 @@ All public datasets are used for research purposes only.
 
 ## Phase 1A OCR Baseline
 
-可选安装 Phase 1 依赖：
+可选安装 Phase 1 / extraction 依赖：
 
 ```powershell
-.\.venv\Scripts\python.exe -m pip install -e ".[phase1]"
+.\.venv\Scripts\python.exe -m pip install -e ".[extraction]"
 ```
+
+Windows 下 PaddleOCR / PaddlePaddle 可能需要按官方说明选择对应安装包；本项目不在脚本里自动修复本地深度学习环境。
 
 fixture smoke 闭环：
 
@@ -49,6 +51,9 @@ fixture smoke 闭环：
 真实 SROIE baseline 命令示例：
 
 ```powershell
+.\.venv\Scripts\python.exe scripts/phase1/check_sroie_dataset.py `
+  --input data/phase1/sroie/raw
+
 .\.venv\Scripts\python.exe scripts/phase1/prepare_sroie.py `
   --input data/phase1/sroie/raw/train `
   --output data/phase1/sroie/processed/train.jsonl
@@ -59,12 +64,47 @@ fixture smoke 闭环：
   --data-source sroie_train
 ```
 
+LayoutLMv3 Dataset/DataLoader smoke：
+
+```powershell
+.\.venv\Scripts\python.exe scripts/phase1/smoke_layoutlmv3_batch.py `
+  --input tests/fixtures/sroie_minimal/processed.jsonl `
+  --batch-size 1
+```
+
+可选单 batch forward：
+
+```powershell
+.\.venv\Scripts\python.exe scripts/phase1/smoke_layoutlmv3_forward.py `
+  --input tests/fixtures/sroie_minimal/processed.jsonl `
+  --batch-size 1
+```
+
+SROIE token classification 标签固定为：
+
+```text
+O
+B-COMPANY / I-COMPANY
+B-ADDRESS / I-ADDRESS
+B-DATE / I-DATE
+B-TOTAL / I-TOTAL
+```
+
+训练 Notebook：
+
+```text
+notebooks/phase1_layoutlmv3_training.ipynb
+```
+
+Notebook 包含手写 PyTorch 训练循环、validation 和 best checkpoint 代码。尚未在真实 SROIE 上运行的指标标记为 `待真实训练`。
+
 限制：
 
 - fixture 分数只是 smoke result，不能作为最终模型效果或简历指标。
 - 当前 baseline 只评测 SROIE 的 `company`、`address`、`date`、`total`。
 - PaddleOCR 是可选依赖，不进入默认后端运行环境。
-- 本轮不接入后端 API，不开始 LayoutLMv3 正式训练。
+- 当前不接入后端 API。
+- LayoutLMv3 真实训练指标仍待真实数据和合适 GPU 环境运行。
 
 ## 本地测试
 

@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from procureguard.extraction.alignment import BIO_LABELS, LABEL2ID, align_sample_tokens, align_samples
 from procureguard.extraction.baseline import SroieRegexBaseline
 from procureguard.extraction.datasets import (
     iter_sroie_samples,
@@ -12,9 +13,10 @@ from procureguard.extraction.datasets import (
     write_processed_jsonl,
 )
 from procureguard.extraction.error_analysis import collect_error_cases
+from procureguard.extraction.layoutlmv3_dataset import SROIELayoutLMv3Dataset, create_layoutlmv3_processor
 from procureguard.extraction.metrics import evaluate_field_f1
 from procureguard.extraction.ocr import build_token, filter_empty_tokens, normalize_bbox, paddleocr_result_to_tokens
-from procureguard.extraction.schemas import OCRToken
+from procureguard.extraction.schemas import OCRToken, SroieSample
 
 
 def token(text: str, y: int) -> OCRToken:
@@ -134,3 +136,127 @@ def test_sroie_fields_map_to_existing_procureguard_schema_only():
         "invoice_date": "2026-06-10",
         "total_amount": "1200.00",
     }
+
+
+def test_bio_label_mapping_is_fixed():
+    assert BIO_LABELS == [
+        "O",
+        "B-COMPANY",
+        "I-COMPANY",
+        "B-ADDRESS",
+        "I-ADDRESS",
+        "B-DATE",
+        "I-DATE",
+        "B-TOTAL",
+        "I-TOTAL",
+    ]
+    assert LABEL2ID["B-COMPANY"] == 1
+    assert "B-PO_NUMBER" not in LABEL2ID
+
+
+def test_alignment_single_and_multi_token_fields():
+    sample = SroieSample(
+        sample_id="align_ok",
+        image_path="missing.jpg",
+        tokens=[
+            token("Acme", 10),
+            token("Office", 20),
+            token("12", 30),
+            token("Market", 40),
+            token("Street", 50),
+            token("2026-06-10", 60),
+            token("1200.00", 70),
+        ],
+        labels={
+            "company": "Acme Office",
+            "address": "12 Market Street",
+            "date": "2026-06-10",
+            "total": "1200.00",
+        },
+    )
+
+    labels, unaligned = align_sample_tokens(sample)
+
+    assert labels == [
+        "B-COMPANY",
+        "I-COMPANY",
+        "B-ADDRESS",
+        "I-ADDRESS",
+        "I-ADDRESS",
+        "B-DATE",
+        "B-TOTAL",
+    ]
+    assert unaligned == []
+    assert len(labels) == len(sample.tokens)
+
+
+def test_alignment_repeated_token_is_deterministic_and_normalized():
+    sample = SroieSample(
+        sample_id="repeat",
+        image_path="missing.jpg",
+        tokens=[token("ACME", 10), token("acme", 20), token("  1,200.00 ", 30)],
+        labels={"company": " acme ", "address": "", "date": "", "total": "1200.00"},
+    )
+
+    labels, unaligned = align_sample_tokens(sample)
+
+    assert labels == ["B-COMPANY", "O", "B-TOTAL"]
+    assert unaligned == []
+
+
+def test_alignment_records_unaligned_warning():
+    sample = SroieSample(
+        sample_id="missing",
+        image_path="missing.jpg",
+        tokens=[token("Receipt", 10)],
+        labels={"company": "Acme", "address": "", "date": "", "total": ""},
+    )
+
+    all_labels, summary = align_samples([sample])
+
+    assert all_labels == [["O"]]
+    assert summary.total_fields == 1
+    assert summary.aligned_fields == 0
+    assert summary.unaligned_cases[0].field == "company"
+
+
+def test_layoutlmv3_dataset_with_fake_processor_outputs_expected_keys():
+    class FakeProcessor:
+        def __call__(self, image, words, boxes, word_labels, **kwargs):
+            max_length = kwargs["max_length"]
+            padded_labels = word_labels + [-100] * (max_length - len(word_labels))
+            return {
+                "input_ids": [[101] + [1] * (max_length - 1)],
+                "attention_mask": [[1] * max_length],
+                "bbox": [[boxes[0]] * max_length],
+                "pixel_values": [[[0]]],
+                "labels": [padded_labels],
+            }
+
+    sample = SroieSample(
+        sample_id="dataset",
+        image_path="missing.jpg",
+        tokens=[token("Acme", 10), token("Total 10.00", 20)],
+        labels={"company": "Acme", "address": "", "date": "", "total": "10.00"},
+    )
+    dataset = SROIELayoutLMv3Dataset([sample], FakeProcessor(), LABEL2ID, max_length=8)
+    item = dataset[0]
+
+    assert set(item) == {"input_ids", "attention_mask", "bbox", "pixel_values", "labels"}
+    assert len(item["labels"]) == 8
+    assert sum(label != -100 for label in item["labels"]) == 2
+
+
+def test_layoutlmv3_processor_dependency_error_is_clear(monkeypatch):
+    import builtins
+
+    real_import = builtins.__import__
+
+    def fake_import(name, *args, **kwargs):
+        if name == "transformers":
+            raise ImportError("missing")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", fake_import)
+    with pytest.raises(ImportError, match="extraction"):
+        create_layoutlmv3_processor()

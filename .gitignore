@@ -25,6 +25,9 @@ data/*
 data/phase1/*
 !data/phase1/README.md
 uploads/
+tmp/
+.cache/
+paddleocr/
 
 # Model artifacts
 checkpoints/

@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+from typing import NamedTuple
 
 from procureguard.extraction.ocr import build_token, normalize_bbox
 from procureguard.extraction.schemas import OCRToken, SROIE_FIELDS, SroieSample
@@ -12,6 +13,17 @@ PROCUREGUARD_FIELD_MAP = {
     "total": "total_amount",
 }
 IMAGE_SUFFIXES = [".jpg", ".jpeg", ".png", ".tif", ".tiff", ".bmp"]
+
+
+class SroieDatasetCheck(NamedTuple):
+    """SROIE 数据目录检查结果。"""
+
+    exists: bool
+    sample_count: int
+    missing_dirs: list[str]
+    key_count: int
+    box_count: int
+    image_count: int
 
 
 def read_sroie_key_file(path: str | Path) -> dict[str, str]:
@@ -48,6 +60,19 @@ def read_sroie_box_file(path: str | Path, image_width: int = 1000, image_height:
     return tokens
 
 
+def image_size(path: Path | None) -> tuple[int, int]:
+    """读取图片尺寸；fixture 没有图片时使用 1000 坐标空间。"""
+
+    if path is None or not path.exists():
+        return 1000, 1000
+    try:
+        from PIL import Image
+    except ImportError as exc:
+        raise ImportError("Pillow is required to read real SROIE image sizes. Install extraction extras.") from exc
+    with Image.open(path) as image:
+        return image.size
+
+
 def find_sroie_file(root: Path, folder_names: list[str], stem: str, suffixes: list[str]) -> Path | None:
     """在常见 SROIE 子目录里查找同名文件。"""
 
@@ -60,14 +85,41 @@ def find_sroie_file(root: Path, folder_names: list[str], stem: str, suffixes: li
     return None
 
 
-def iter_sroie_samples(raw_dir: str | Path) -> list[SroieSample]:
+def check_sroie_dataset(raw_dir: str | Path) -> SroieDatasetCheck:
+    """检查常见 SROIE raw 目录结构和样本数量。"""
+
+    root = Path(raw_dir)
+    if not root.exists():
+        return SroieDatasetCheck(False, 0, [str(root)], 0, 0, 0)
+
+    key_dir = next((root / name for name in ["key", "entities"] if (root / name).exists()), None)
+    box_dir = next((root / name for name in ["box", "ocr", "txt"] if (root / name).exists()), None)
+    image_dir = next((root / name for name in ["img", "image", "images"] if (root / name).exists()), None)
+    missing = [
+        label
+        for label, folder in [("key_or_entities", key_dir), ("box_or_ocr", box_dir), ("img_or_images", image_dir)]
+        if folder is None
+    ]
+    key_count = len(list(key_dir.glob("*.json"))) if key_dir else len(list(root.glob("*.json")))
+    box_count = len(list(box_dir.glob("*.txt"))) if box_dir else len(list(root.glob("*.txt")))
+    image_count = sum(len(list(image_dir.glob(f"*{suffix}"))) for suffix in IMAGE_SUFFIXES) if image_dir else 0
+    stems = set()
+    if key_dir:
+        stems = {path.stem for path in key_dir.glob("*.json")}
+    elif key_count:
+        stems = {path.stem for path in root.glob("*.json")}
+    return SroieDatasetCheck(True, len(stems), missing, key_count, box_count, image_count)
+
+
+def iter_sroie_samples(raw_dir: str | Path, strict: bool = True) -> tuple[list[SroieSample], list[str]] | list[SroieSample]:
     """读取一个 SROIE raw 目录，坏样本报清楚但不吞错。"""
 
     root = Path(raw_dir)
     if not root.exists():
         raise FileNotFoundError(f"SROIE raw directory does not exist: {root}")
 
-    key_files = sorted((root / "key").glob("*.json")) if (root / "key").exists() else sorted(root.glob("*.json"))
+    key_root = next((root / name for name in ["key", "entities"] if (root / name).exists()), None)
+    key_files = sorted(key_root.glob("*.json")) if key_root else sorted(root.glob("*.json"))
     samples: list[SroieSample] = []
     errors: list[str] = []
     for key_file in key_files:
@@ -79,13 +131,16 @@ def iter_sroie_samples(raw_dir: str | Path) -> list[SroieSample]:
             image_file = find_sroie_file(root, ["img", "image", "images", "."], stem, IMAGE_SUFFIXES)
             image_path = str(image_file if image_file else root / "img" / f"{stem}.jpg")
             labels = read_sroie_key_file(key_file)
-            tokens = read_sroie_box_file(box_file)
+            width, height = image_size(image_file)
+            tokens = read_sroie_box_file(box_file, image_width=width, image_height=height)
             samples.append(SroieSample(sample_id=stem, image_path=image_path, tokens=tokens, labels=labels))
         except Exception as exc:  # noqa: BLE001 - 批处理需要带样本号聚合报错
             errors.append(f"{stem}: {exc}")
-    if errors:
+    if errors and strict:
         raise ValueError("Failed to parse some SROIE samples:\n" + "\n".join(errors))
-    return samples
+    if strict:
+        return samples
+    return samples, errors
 
 
 def sample_to_json(sample: SroieSample) -> dict[str, object]:

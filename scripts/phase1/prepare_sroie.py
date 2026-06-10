@@ -10,7 +10,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from procureguard.extraction.datasets import iter_sroie_samples, write_processed_jsonl
+from procureguard.extraction.datasets import check_sroie_dataset, iter_sroie_samples, write_processed_jsonl
 
 
 def main() -> None:
@@ -21,9 +21,21 @@ def main() -> None:
     parser.add_argument("--output", required=True, help="Output processed JSONL path.")
     args = parser.parse_args()
 
-    samples = iter_sroie_samples(args.input)
+    check = check_sroie_dataset(args.input)
+    if not check.exists or check.sample_count == 0:
+        raise SystemExit(
+            "SROIE input is missing or empty. Expected img/, box/, key/ or entities/ under the input path."
+        )
+    samples, errors = iter_sroie_samples(args.input, strict=False)
     write_processed_jsonl(samples, args.output)
-    print(f"prepared_samples={len(samples)} output={args.output}")
+    for error in errors:
+        print(f"warning={error}")
+    if not samples:
+        raise SystemExit("No valid SROIE samples were prepared.")
+    print(
+        f"total_samples={check.sample_count} success={len(samples)} failed={len(errors)} "
+        f"output={args.output}"
+    )
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 # ocr-regex-sroie-baseline-v1 Field F1
 
 - sample_count: 2
-- runtime_seconds: 0.0079
+- runtime_seconds: 0.0056
 - data_source: tests/fixtures/sroie_minimal
 - is_fixture: True
 - matching: normalized_exact_match
