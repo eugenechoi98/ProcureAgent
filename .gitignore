@@ -19,6 +19,11 @@ venv/
 *.sqlite
 *.sqlite3
 data/
+!data/
+data/*
+!data/phase1/
+data/phase1/*
+!data/phase1/README.md
 uploads/
 
 # Model artifacts

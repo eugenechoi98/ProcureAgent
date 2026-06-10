@@ -10,3 +10,5 @@
 - 2026-06-10：完成 Phase 2 Agent 与规则模块验收，打通三单匹配、重复检测、Policy RAG、确定性风险判断和 Audit Trace。
 - 2026-06-10：完成 Phase 2 集成收口，上传接口默认接入真实 AgentInvoiceProcessor 并保留显式 mock 模式。
 - 2026-06-10：完成 Phase 2 总验收，真实链写入 AuditReport 和 Audit Trace，全量测试通过。
+- 2026-06-10：搭建 Phase 1 模型抽取骨架，新增 PaddleOCR 适配、OCR Regex baseline、字段级 F1、错误分析和 LayoutLMv3 Notebook。
+- 2026-06-10：完成 Phase 1A OCR Baseline 与 SROIE 最小闭环，支持字段级 F1 和错误分析。

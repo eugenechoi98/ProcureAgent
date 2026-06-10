@@ -1,0 +1,110 @@
+{
+  "baseline_name": "ocr-regex-sroie-baseline-v1",
+  "sample_count": 2,
+  "runtime_seconds": 0.0079,
+  "data_source": "tests/fixtures/sroie_minimal",
+  "is_fixture": true,
+  "matching": "normalized_exact_match",
+  "metrics": [
+    {
+      "field": "company",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 2,
+      "true_positive": 2,
+      "false_positive": 0,
+      "false_negative": 0
+    },
+    {
+      "field": "address",
+      "precision": 0.5,
+      "recall": 0.5,
+      "f1": 0.5,
+      "support": 2,
+      "true_positive": 1,
+      "false_positive": 1,
+      "false_negative": 1
+    },
+    {
+      "field": "date",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 2,
+      "true_positive": 2,
+      "false_positive": 0,
+      "false_negative": 0
+    },
+    {
+      "field": "total",
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1": 0.6666666666666666,
+      "support": 2,
+      "true_positive": 1,
+      "false_positive": 0,
+      "false_negative": 1
+    },
+    {
+      "field": "macro",
+      "precision": 0.875,
+      "recall": 0.75,
+      "f1": 0.7916666666666666,
+      "support": 8,
+      "true_positive": 6,
+      "false_positive": 1,
+      "false_negative": 2
+    }
+  ],
+  "predictions": [
+    {
+      "company": "Northwind Industrial",
+      "address": "Northwind Industrial",
+      "date": "2026-06-10",
+      "total": null
+    },
+    {
+      "company": "Acme Office Supplies",
+      "address": "12 Market Street",
+      "date": "2026-06-10",
+      "total": "1200.00"
+    }
+  ],
+  "references": [
+    {
+      "company": "Northwind Industrial",
+      "address": "88 River Road",
+      "date": "10 Jun 2026",
+      "total": "600.00"
+    },
+    {
+      "company": "Acme Office Supplies",
+      "address": "12 Market Street",
+      "date": "2026-06-10",
+      "total": "1200.00"
+    }
+  ],
+  "sample_ids": [
+    "receipt_error",
+    "receipt_ok"
+  ],
+  "errors": [
+    {
+      "sample_id": "receipt_error",
+      "field": "address",
+      "predicted": "northwind industrial",
+      "ground_truth": "88 river road",
+      "error_type": "layout_change",
+      "notes": "Heuristic line selection likely picked the wrong region."
+    },
+    {
+      "sample_id": "receipt_error",
+      "field": "total",
+      "predicted": null,
+      "ground_truth": "600.00",
+      "error_type": "regex_rule_miss",
+      "notes": "Regex baseline did not produce a value."
+    }
+  ]
+}
