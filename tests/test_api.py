@@ -5,9 +5,11 @@ from collections.abc import Iterator
 import pytest
 from fastapi.testclient import TestClient
 
+from procureguard.api.routes import invoice as invoice_route
 from procureguard.api.main import create_app
 from procureguard.config import Settings
 from procureguard.db import get_connection, initialize_database
+from procureguard.models.invoice import ExtractedFields, LineItem
 from procureguard.models.status import InvoiceStatus
 from procureguard.repositories import InvoiceRepository
 
@@ -26,11 +28,50 @@ def client(tmp_path) -> Iterator[TestClient]:
 
 
 def upload_mock_pdf(client: TestClient, content: bytes = b"%PDF-1.4 mock invoice"):
-    """上传一份最小 mock PDF。"""
+    """以显式 mock 模式上传一份最小 PDF。"""
+
+    return client.post(
+        "/invoices/upload",
+        params={"processing_mode": "mock"},
+        files={"file": ("invoice.pdf", content, "application/pdf")},
+    )
+
+
+def upload_real_pdf(client: TestClient, content: bytes = b"%PDF-1.4 real invoice"):
+    """以默认真实规则链上传一份最小 PDF。"""
 
     return client.post(
         "/invoices/upload",
         files={"file": ("invoice.pdf", content, "application/pdf")},
+    )
+
+
+def build_extracted_fields(
+    *,
+    invoice_number: str = "INV-API-TEST",
+    vendor_name: str = "Acme Office Supplies",
+    po_number: str = "PO-1001",
+    total_amount: float = 1200.0,
+    line_items: list[LineItem] | None = None,
+) -> ExtractedFields:
+    """构造 API 集成测试使用的已抽取字段。"""
+
+    return ExtractedFields(
+        vendor_name=vendor_name,
+        invoice_number=invoice_number,
+        invoice_date="2026-06-10",
+        po_number=po_number,
+        subtotal=total_amount,
+        tax=0.0,
+        total_amount=total_amount,
+        currency="USD",
+        line_items=line_items
+        or [
+            LineItem(item="Printer Paper", qty=100, unit_price=8.0, amount=800.0),
+            LineItem(item="Toner Cartridge", qty=4, unit_price=100.0, amount=400.0),
+        ],
+        extraction_confidence=0.96,
+        extraction_model="api-test-placeholder",
     )
 
 
@@ -67,6 +108,109 @@ def test_uploaded_invoice_can_query_trace_with_mock_steps(client: TestClient):
     assert "extraction" in steps
     assert "validation" in steps
     assert all(output["mode"] == "mock" for output in outputs)
+
+
+def test_upload_defaults_to_real_agent_chain_and_persists_report(client: TestClient):
+    response = upload_real_pdf(client)
+
+    assert response.status_code == 200
+    payload = response.json()
+    invoice = client.get(f"/invoices/{payload['invoice_id']}").json()
+    trace_response = client.get(f"/invoices/{payload['invoice_id']}/trace")
+    traces = trace_response.json()["items"]
+    steps = [item["step_name"] for item in traces]
+    agent_trace = [item for item in traces if item["step_name"] == "agent_call"][0]
+    tool_names = [call["name"] for call in agent_trace["tool_calls"]]
+
+    assert payload["processing_mode"] == "real"
+    assert payload["status"] == "approved"
+    assert invoice["status"] == "approved"
+    assert invoice["validation_result"]["po_match"] is True
+    assert invoice["validation_result"]["grn_match"] is True
+    assert invoice["validation_result"]["duplicate_check"] is True
+    assert invoice["audit_report"]["recommended_action"] == "auto_approve"
+    assert invoice["audit_report"]["risk_level"] == "low"
+    assert steps == ["extraction", "validation", "agent_call", "risk_calc"]
+    assert tool_names == [
+        "lookup_purchase_order",
+        "lookup_goods_receipt",
+        "check_duplicate_invoice",
+        "retrieve_policy",
+    ]
+    assert client.get("/review/queue").json()["items"] == []
+
+
+def test_real_upload_quantity_mismatch_enters_review_queue(client: TestClient, monkeypatch):
+    monkeypatch.setattr(
+        invoice_route,
+        "_build_upload_extracted_fields",
+        lambda invoice_id: build_extracted_fields(
+            invoice_number=f"INV-MISMATCH-{invoice_id[-8:].upper()}",
+            vendor_name="Northwind Industrial",
+            po_number="PO-2001",
+            total_amount=12500.0,
+            line_items=[
+                LineItem(item="Safety Gloves", qty=500),
+                LineItem(item="Machine Parts", qty=10),
+            ],
+        ),
+    )
+
+    response = upload_real_pdf(client, b"%PDF real quantity mismatch")
+    payload = response.json()
+    invoice = client.get(f"/invoices/{payload['invoice_id']}").json()
+    reviews = client.get("/review/queue").json()["items"]
+    traces = client.get(f"/invoices/{payload['invoice_id']}/trace").json()["items"]
+    agent_trace = [item for item in traces if item["step_name"] == "agent_call"][0]
+    tool_names = [call["name"] for call in agent_trace["tool_calls"]]
+
+    assert response.status_code == 200
+    assert payload["processing_mode"] == "real"
+    assert invoice["status"] == "review"
+    assert invoice["audit_report"]["recommended_action"] == "request_human_approval"
+    assert invoice["audit_report"]["risk_level"] in {"medium", "high"}
+    assert any(item["field"] == "quantity" for item in invoice["validation_result"]["mismatches"])
+    assert any(review["invoice_id"] == payload["invoice_id"] for review in reviews)
+    assert tool_names == [
+        "lookup_purchase_order",
+        "lookup_goods_receipt",
+        "check_duplicate_invoice",
+        "retrieve_policy",
+        "submit_manual_review",
+    ]
+
+
+def test_real_upload_duplicate_invoice_is_rejected(client: TestClient, monkeypatch):
+    fixed_fields = build_extracted_fields(invoice_number="INV-API-DUPLICATE")
+    monkeypatch.setattr(
+        invoice_route,
+        "_build_upload_extracted_fields",
+        lambda invoice_id: fixed_fields,
+    )
+
+    first = upload_real_pdf(client, b"%PDF first duplicate")
+    second = upload_real_pdf(client, b"%PDF second duplicate")
+    second_payload = second.json()
+    duplicate_invoice = client.get(f"/invoices/{second_payload['invoice_id']}").json()
+
+    assert first.status_code == 200
+    assert second.status_code == 200
+    assert second_payload["processing_mode"] == "real"
+    assert duplicate_invoice["status"] == "rejected"
+    assert duplicate_invoice["validation_result"]["duplicate_check"] is False
+    assert duplicate_invoice["audit_report"]["risk_level"] == "high"
+    assert duplicate_invoice["audit_report"]["recommended_action"] == "reject"
+    assert client.get("/review/queue").json()["items"] == []
+
+
+def test_invalid_processing_mode_returns_clear_error(client: TestClient):
+    response = client.post(
+        "/invoices/upload",
+        params={"processing_mode": "invalid"},
+        files={"file": ("invoice.pdf", b"%PDF invalid mode", "application/pdf")},
+    )
+
+    assert response.status_code == 422
 
 
 def test_upload_creates_pending_review(client: TestClient):

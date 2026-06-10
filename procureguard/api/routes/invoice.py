@@ -2,13 +2,16 @@
 
 import sqlite3
 from pathlib import Path
+from typing import Literal
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile
 
 from procureguard.api.dependencies import get_db
+from procureguard.models.invoice import ExtractedFields, LineItem
 from procureguard.models.status import InvoiceStatus
 from procureguard.repositories import AuditTraceRepository, InvoiceRepository
+from procureguard.services import AgentInvoiceProcessor
 from procureguard.services.mock_processor import MockInvoiceProcessor
 from procureguard.storage import save_invoice_upload
 from procureguard.storage.uploads import UploadValidationError
@@ -20,9 +23,10 @@ router = APIRouter()
 async def upload_invoice(
     request: Request,
     file: UploadFile = File(...),
+    processing_mode: Literal["real", "mock"] = Query("real"),
     conn: sqlite3.Connection = Depends(get_db),
 ) -> dict:
-    """上传发票文件并同步执行 mock 处理链。"""
+    """上传发票文件并同步执行真实规则链，可显式切换 mock 模式。"""
 
     invoice_id = f"invoice_{uuid4().hex}"
     upload_dir: Path = request.app.state.settings.upload_dir
@@ -49,7 +53,22 @@ async def upload_invoice(
             file_path=str(saved.file_path),
             file_hash=saved.file_hash,
         )
-        result = MockInvoiceProcessor(conn).process(invoice_id)
+        if processing_mode == "mock":
+            result = MockInvoiceProcessor(conn).process(invoice_id)
+        else:
+            report = AgentInvoiceProcessor(conn).process_extracted_invoice(
+                invoice_id,
+                _build_upload_extracted_fields(invoice_id),
+            )
+            stored = invoices.get_invoice(invoice_id)
+            if stored is None:
+                raise RuntimeError(f"Invoice {invoice_id} disappeared after processing.")
+            result = {
+                "invoice_id": invoice_id,
+                "status": stored["status"],
+                "risk_level": report.risk_level.value,
+                "processing_mode": "real",
+            }
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
@@ -61,6 +80,27 @@ async def upload_invoice(
         "file_hash": saved.file_hash,
         "processing_mode": result["processing_mode"],
     }
+
+
+def _build_upload_extracted_fields(invoice_id: str) -> ExtractedFields:
+    """在 OCR 接入前，为 API 集成测试提供稳定的已抽取字段。"""
+
+    return ExtractedFields(
+        vendor_name="Acme Office Supplies",
+        invoice_number=f"INV-API-{invoice_id[-8:].upper()}",
+        invoice_date="2026-06-10",
+        po_number="PO-1001",
+        subtotal=1100.0,
+        tax=100.0,
+        total_amount=1200.0,
+        currency="USD",
+        line_items=[
+            LineItem(item="Printer Paper", qty=100, unit_price=8.0, amount=800.0),
+            LineItem(item="Toner Cartridge", qty=4, unit_price=100.0, amount=400.0),
+        ],
+        extraction_confidence=0.96,
+        extraction_model="api-placeholder-v1",
+    )
 
 
 @router.get("/invoices/{invoice_id}")
