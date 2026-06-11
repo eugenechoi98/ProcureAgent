@@ -74,6 +74,7 @@ export HF_HOME=/mnt/workspace/.cache/huggingface
 export PHASE3_MODEL_CACHE=/mnt/workspace/models/phase3
 export PHASE3_MODEL_DIR=/mnt/workspace/models/phase3/Qwen2.5-0.5B-Instruct
 export PHASE3_KERNEL_PYTHON=/mnt/workspace/ProcureAgent/.venv-phase3/bin/python
+export PROCUREGUARD_PROJECT_ROOT=/mnt/workspace/ProcureAgent
 
 # 情况一：模型目录已经存在，直接验证。
 python scripts/phase3/prepare_qwen_model.py --verify-only --model-dir "$PHASE3_MODEL_DIR"
@@ -108,6 +109,8 @@ python -m pip install -e .
 4. base inference：先按 `RUN_BASE_SMOKE=False` dry-run；需要再次 smoke 时只改这个布尔值。
 5. `RUN_TRAINING=True` 后执行 LoRA 训练。
 6. 训练完成后 `RUN_FULL_EVAL=True`，自动执行 base/fine-tuned inference、评测和 manifest 导出。
+
+Notebook 的项目根目录由 `procureguard.phase3.paths.resolve_project_root` 统一解析。它会优先读取 `PROCUREGUARD_PROJECT_ROOT`，并兼容 Kernel cwd 为 `/mnt/workspace`、仓库位于 `/mnt/workspace/ProcureAgent` 的 ModelScope 场景。不要在 Notebook 中手工写死项目路径。
 
 ## 5. Qwen 模型准备
 

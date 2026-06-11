@@ -1,5 +1,8 @@
 # DECISIONS.md
 
+## 2026-06-12：Phase 3 Notebook 使用统一 project-root resolver
+ModelScope Notebook Kernel 的 cwd 可能是 `/mnt/workspace`，而仓库在 `/mnt/workspace/ProcureAgent`。Phase 3D.2 将项目根目录解析收口到 `procureguard.phase3.paths.resolve_project_root`，支持环境变量、cwd/parents、cwd 下的 `ProcureAgent`、Notebook 路径和 ModelScope 默认候选，避免 Notebook 手工写死路径。
+
 ## 2026-06-11：Phase 3D 独立环境先安装项目默认依赖
 ModelScope `.venv-phase3` 先执行 `python -m pip install -e .`，再安装 `requirements/phase3-lora.txt`。这样 pydantic 等 ProcureGuard 默认依赖进入 Notebook 环境，同时 LoRA 重型依赖仍不混入默认后端依赖。
 

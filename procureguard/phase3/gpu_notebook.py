@@ -12,6 +12,7 @@ import random
 import sys
 from typing import Any
 
+from procureguard.phase3.paths import resolve_project_root
 from procureguard.phase3.runtime import build_runtime_context, runtime_config_dict
 
 
@@ -47,11 +48,7 @@ class Phase3Paths:
 def find_project_root(start: Path | None = None) -> Path:
     """从当前目录向上寻找项目根目录。"""
 
-    current = (start or Path.cwd()).resolve()
-    for candidate in (current, *current.parents):
-        if (candidate / "pyproject.toml").exists() and (candidate / "procureguard").exists():
-            return candidate
-    raise FileNotFoundError("未找到 ProcureGuard 项目根目录")
+    return resolve_project_root(start)
 
 
 def default_model_cache_dir(project_root: Path) -> Path:

@@ -17,6 +17,7 @@ from procureguard.phase3.gpu_notebook import (
     verify_dataset_hashes,
     verify_notebook_env,
 )
+from procureguard.phase3.paths import resolve_project_root
 from procureguard.phase3.runtime import write_artifacts_manifest
 
 
@@ -27,6 +28,72 @@ def write_minimum_model_files(model_dir: Path) -> None:
     (model_dir / "config.json").write_text("{}", encoding="utf-8")
     (model_dir / "tokenizer_config.json").write_text("{}", encoding="utf-8")
     (model_dir / "tokenizer.json").write_text("{}", encoding="utf-8")
+
+
+def write_project_markers(root: Path) -> None:
+    """写入 resolver 识别项目根目录所需的最小标记。"""
+
+    root.mkdir(parents=True, exist_ok=True)
+    (root / "pyproject.toml").write_text("[project]\nname='x'\n", encoding="utf-8")
+    (root / "procureguard").mkdir()
+
+
+def test_resolve_project_root_from_repo_root(tmp_path: Path):
+    repo = tmp_path / "ProcureAgent"
+    write_project_markers(repo)
+
+    assert resolve_project_root(repo, environ={}) == repo.resolve()
+
+
+def test_resolve_project_root_from_repo_child(tmp_path: Path):
+    repo = tmp_path / "ProcureAgent"
+    write_project_markers(repo)
+    child = repo / "notebooks"
+    child.mkdir()
+
+    assert resolve_project_root(child, environ={}) == repo.resolve()
+
+
+def test_resolve_project_root_from_parent_with_procureagent_child(tmp_path: Path):
+    repo = tmp_path / "ProcureAgent"
+    write_project_markers(repo)
+
+    assert resolve_project_root(tmp_path, environ={}) == repo.resolve()
+
+
+def test_resolve_project_root_from_explicit_env(tmp_path: Path):
+    repo = tmp_path / "CustomRepo"
+    write_project_markers(repo)
+
+    assert (
+        resolve_project_root(
+            tmp_path / "elsewhere",
+            environ={"PROCUREGUARD_PROJECT_ROOT": str(repo)},
+        )
+        == repo.resolve()
+    )
+
+
+def test_resolve_project_root_from_notebook_path(tmp_path: Path):
+    repo = tmp_path / "ProcureAgent"
+    write_project_markers(repo)
+    notebook = repo / "notebooks" / "phase3_lora_explainer_training.ipynb"
+    notebook.parent.mkdir()
+    notebook.write_text("{}", encoding="utf-8")
+
+    assert resolve_project_root(tmp_path / "other", notebook_path=notebook, environ={}) == repo.resolve()
+
+
+def test_resolve_project_root_failure_lists_attempted_paths(tmp_path: Path):
+    try:
+        resolve_project_root(tmp_path, environ={})
+    except FileNotFoundError as exc:
+        message = str(exc)
+    else:
+        raise AssertionError("resolve_project_root should fail without project markers")
+
+    assert "Attempted paths" in message
+    assert str(tmp_path.resolve()) in message
 
 
 def test_dataset_sha_guard_matches_summary():
@@ -276,6 +343,8 @@ def test_notebook_uses_unified_runtime_guard_and_default_no_training():
 
     assert "RUN_TRAINING = False" in text
     assert "RUN_BASE_SMOKE = False" in text
+    assert "from procureguard.phase3.paths import resolve_project_root" in text
+    assert "def resolve_project_root" not in text
     assert "bootstrap_notebook" in text
     assert "hydrate_runtime_context" in text
     assert "run_base_inference_smoke" in text

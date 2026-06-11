@@ -28,3 +28,4 @@
 - 2026-06-11：补齐 Phase 3C ModelScope preflight 顺序、Notebook 训练后预测评测导出和 artifacts manifest。
 - 2026-06-11：补齐 Phase 3C.1 Qwen 显式模型准备脚本、Kernel 注册说明和模型分片完整性 guard。
 - 2026-06-11：收口 Phase 3D.1 ModelScope 安装顺序、项目依赖 guard 和 `.venv-phase3` 忽略规则。
+- 2026-06-12：收口 Phase 3D.2 Notebook project-root resolver，兼容 ModelScope cwd 位于仓库父目录。
