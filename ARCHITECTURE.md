@@ -7,10 +7,13 @@
 - `procureguard.services`：后端真实规则链、三单匹配、Policy RAG 和 Risk Engine。
 - `procureguard.tools`：Agent 可调用的 5 个固定工具。
 - `procureguard.extraction`：Phase 1 模型抽取模块，负责 OCR token 契约、PaddleOCR 可选适配、SROIE reader、OCR baseline、字段级 F1、错误分析和后续 LayoutLMv3 训练输入。
+- `procureguard.phase3`：Phase 3 独立异常说明数据契约、synthetic 生成逻辑和统一解释评测，不修改共享业务 schema。
 
 ## 调用关系
 
 当前主链仍由 API 层提供占位 ExtractedFields，再交给 AgentInvoiceProcessor 审核。Phase 1 暂时不接入 API，只产出独立抽取能力。后续替换时，应让上传接口调用抽取模块生成 ExtractedFields，然后复用现有 AgentInvoiceProcessor。
+
+Phase 3A 暂不接入主链。它读取 Phase 2 已确定的异常事实作为离线训练输入，输出解释文本；Risk Engine、建议动作和工具调用结果始终是上游只读事实。
 
 ## Phase 1 设计
 
@@ -34,3 +37,12 @@
 - Phase 1 MVP 默认离线策略为 corrected pure LayoutLMv3；同一 142 条本地 validation 上 date F1 从 0.1423 提升到 0.8764，macro F1=0.8067。Hybrid macro F1=0.7949，仅保留为 fallback 思路。
 - `compare_date_reconstruction.py` 复用同一 checkpoint token predictions，对比旧/新日期重建并输出实际 F1 恢复，不触发训练。
 - Phase 1G 结果属于 `offline_checkpoint_inference` 和 `local_validation_split_seed_42`，不是 official test，尚未接入 API。
+
+## Phase 3 设计
+
+- `schemas.py` 定义独立 `AnomalySample` 和 `InputFacts`，不修改 `AuditReport`、`ValidationResult` 或其他共享契约。
+- `dataset.py` 使用 seed 42 生成 8 类共 200 条 synthetic 样本，固定拆分为 160/20/20。
+- `evaluation.py` 统一计算 format compliance、factual consistency、action consistency、anomaly coverage 和 hallucination rate。
+- Notebook 优先使用 Unsloth 微调 `Qwen/Qwen2.5-0.5B-Instruct`，并保留 Transformers + PEFT + TRL fallback。
+- Notebook 默认关闭训练，只执行路径、数据、依赖和 CUDA smoke guard；真实预测存在后才调用统一评测脚本。
+- adapter、checkpoint、模型缓存、训练日志和推理结果写入 `artifacts/phase3/`，不提交 Git。

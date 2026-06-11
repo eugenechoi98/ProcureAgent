@@ -25,6 +25,11 @@ data/*
 !data/phase1/
 data/phase1/*
 !data/phase1/README.md
+!data/phase3/
+data/phase3/*
+!data/phase3/README.md
+!data/phase3/generated/
+!data/phase3/generated/*.jsonl
 uploads/
 tmp/
 .cache/
@@ -42,6 +47,9 @@ models_cache/
 /artifacts/
 /local_artifacts/
 /*_LocalArtifacts/
+/artifacts/phase3/
+/checkpoints/phase3/
+/models_cache/phase3/
 *.pt
 *.pth
 *.bin

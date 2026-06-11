@@ -1,5 +1,17 @@
 # DECISIONS.md
 
+## 2026-06-11：Phase 3 小模型只解释确定性异常事实
+风险等级、建议动作、金额匹配和异常类型继续由 Phase 2 确定性规则链产生。LoRA 模型只把这些输入事实整理成固定结构的审核说明，避免小模型改变审核结论或承担金额计算。
+
+## 2026-06-11：Phase 3 使用独立数据契约和固定 synthetic split
+不修改共享 Pydantic schema，训练样本放在 `procureguard.phase3` 独立契约中。数据使用 seed 42 生成 200 条 synthetic 样本，并固定为 160 train / 20 validation / 20 test，便于复现和公平比较 base 与 fine-tuned。
+
+## 2026-06-11：Phase 3 评测以事实和动作一致性为主
+base 与 fine-tuned 必须在同一 test split 上比较格式合规、事实一致、动作一致、多异常覆盖和幻觉率。没有真实推理文件时不生成指标，避免用主观文本观感或占位数字代替评测。
+
+## 2026-06-11：LoRA GPU 依赖与默认后端环境隔离
+默认 FastAPI 环境继续保持轻量。Phase 3 使用 `requirements/phase3-lora.txt` 和独立 GPU 虚拟环境；Notebook 优先 Unsloth，并保留 Transformers + PEFT + TRL fallback。
+
 ## 2026-06-11：corrected pure LayoutLMv3 作为 Phase 1 MVP 默认离线策略
 同一 `local_validation_split_seed_42` 的 142 条 checkpoint inference 中，日期清洗使 date F1 从 0.1423 提升到 0.8764，corrected pure LayoutLMv3 macro F1 达到 0.8067，高于 Hybrid 的 0.7949。因此 Phase 1 MVP 默认采用 pure LayoutLMv3 离线抽取，Hybrid 只保留为 fallback 思路；该结果不是 official test，且尚未接入 API。
 

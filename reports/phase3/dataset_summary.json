@@ -1,0 +1,58 @@
+{
+  "anomaly_type_counts": {
+    "amount_discrepancy": 25,
+    "duplicate_invoice": 25,
+    "high_value_approval_required": 25,
+    "missing_goods_receipt": 25,
+    "missing_po_number": 25,
+    "multi_issue_combination": 25,
+    "quantity_mismatch": 25,
+    "vendor_name_mismatch": 25
+  },
+  "dataset_name": "procureguard_phase3_synthetic_anomaly_explanations",
+  "sample_count": 200,
+  "seed": 42,
+  "sha256": {
+    "test.jsonl": "6a2e7a15a1ab63b5609bf55d5375aacc466cb02889b7a5c80e79751031feaf01",
+    "train.jsonl": "cb7ce75f402acda4318ea4236a031ffe706a20307311cc26626ad5843ee87ff2",
+    "validation.jsonl": "6898d3c3a8feba5c72f9308f8cda26409fa52e9379e2b024a53fc4f02837348e"
+  },
+  "split_anomaly_type_counts": {
+    "test": {
+      "amount_discrepancy": 2,
+      "duplicate_invoice": 2,
+      "high_value_approval_required": 3,
+      "missing_goods_receipt": 3,
+      "missing_po_number": 2,
+      "multi_issue_combination": 3,
+      "quantity_mismatch": 2,
+      "vendor_name_mismatch": 3
+    },
+    "train": {
+      "amount_discrepancy": 20,
+      "duplicate_invoice": 20,
+      "high_value_approval_required": 20,
+      "missing_goods_receipt": 20,
+      "missing_po_number": 20,
+      "multi_issue_combination": 20,
+      "quantity_mismatch": 20,
+      "vendor_name_mismatch": 20
+    },
+    "validation": {
+      "amount_discrepancy": 3,
+      "duplicate_invoice": 3,
+      "high_value_approval_required": 2,
+      "missing_goods_receipt": 2,
+      "missing_po_number": 3,
+      "multi_issue_combination": 2,
+      "quantity_mismatch": 3,
+      "vendor_name_mismatch": 2
+    }
+  },
+  "split_counts": {
+    "test": 20,
+    "train": 160,
+    "validation": 20
+  },
+  "synthetic_only": true
+}

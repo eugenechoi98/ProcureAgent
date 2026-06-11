@@ -1,32 +1,22 @@
 # CONTEXT.md
 
 ## 当前目标
-完成 Phase 1 文档与证据封板。
+验收 Phase 3A LoRA 数据契约、synthetic 数据、解释评测和 Notebook 骨架。
 
 ## 当前进度
-- Phase 2 已封板。
-- Phase 1A-D 已完成：OCR baseline、Task 3 数据、BIO alignment、Dataset、DataLoader、单 batch forward 和 PaddleOCR smoke。
-- Phase 1E.1 已完成可复现 bootstrap、依赖、本地模型和 JSONL 路径修复。
-- Notebook 已新增当前 Kernel hydrate 和统一 preflight，训练变量不再依赖子进程注入。
-- 首次 NVIDIA A10 完整 fine-tuning 已完成，best epoch=5，token F1=0.8647，field macro F1=0.6231。
-- Hybrid 离线 macro F1=0.7949；日期金标 BIO 重建错误经清洗从 122 降至 25，与 25 个 alignment miss 对齐。
-- Phase 1F 验收修复已完成，报告字段和本地数据忽略规则已收口。
-- Phase 1G 已完成 142 条 checkpoint validation inference，date F1 从 0.1423 提升到 0.8764。
-- 修复后 pure LayoutLMv3 macro F1=0.8067，高于 Hybrid macro F1=0.7949。
-- Phase 1 MVP 默认离线策略为 `pure_layoutlmv3_date_path`，Hybrid 仅保留为 fallback 思路。
+- Phase 1 已封板，默认离线策略为 `pure_layoutlmv3_date_path`，尚未接入 API。
+- Phase 2 已封板，真实确定性审核链保持不变。
+- Phase 3A 已进入本地验收：独立数据契约、200 条 synthetic 数据、统一评测脚本和 LoRA Notebook 骨架已完成。
+- 尚未执行 Qwen2.5-0.5B-Instruct LoRA GPU 训练，也没有 base vs fine-tuned 真实指标。
 
 ## 下一步
-完成本轮证据提交后结束 Phase 1，回到总控对话决定后续阶段。
+完成 Phase 3A 本地数据与 Notebook 骨架验收后，回到审查与总控对话确认是否进入 GPU 训练。
 
 ## 注意事项
-- 当前 baseline macro F1 为 0.4387。
-- checkpoint inference 属于 `local_validation_split_seed_42` 离线评测，不是 official test。
-- Phase 1 模型抽取尚未接入 API。
-- 本地模型必须包含 model.safetensors，不允许回退 pytorch_model.bin。
-- Terminal 与 Notebook Kernel 可能不同，训练环境以 Kernel 的 `sys.executable` 为准。
-- bootstrap 验证外部环境，hydrate 恢复当前 Kernel 的 Python 训练上下文。
-- 网络受限时使用本地模型目录和上传的 processed JSONL。
-- checkpoint、模型权重、真实数据和本地 artifacts 不提交 Git。
+- Phase 3 模型只生成异常说明，不计算金额、不决定风险等级、不改变建议动作。
+- Phase 3 数据全部为固定 seed synthetic 数据，不包含真实企业数据。
+- LoRA 训练依赖与默认 FastAPI 环境隔离。
+- checkpoint、adapter、模型缓存和本地 artifacts 不提交 Git。
 
 ## 最后更新时间
 2026-06-11
