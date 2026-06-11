@@ -91,6 +91,10 @@ def test_local_model_directory_check(tmp_path: Path):
 
     assert not model_directory_exists(model_dir)
     model_dir.mkdir()
+    assert not model_directory_exists(model_dir)
+    (model_dir / "pytorch_model.bin").write_bytes(b"legacy")
+    assert not model_directory_exists(model_dir)
+    (model_dir / "model.safetensors").write_bytes(b"safe")
     assert model_directory_exists(model_dir)
 
 

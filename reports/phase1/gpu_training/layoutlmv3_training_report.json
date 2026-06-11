@@ -1,0 +1,108 @@
+{
+  "data_source": "Voxel51/scanned_receipts",
+  "evaluation_split": "local_validation_split_seed_42",
+  "model_name": "microsoft/layoutlmv3-base",
+  "seed": 42,
+  "batch_size": 2,
+  "gradient_accumulation_steps": 4,
+  "epochs": 5,
+  "learning_rate": 1e-05,
+  "best_epoch": 5,
+  "baseline_macro_f1": 0.43872030739086737,
+  "fine_tuned_macro_f1": 0.6231337901366925,
+  "improvement": 0.18441348274582509,
+  "epoch_logs": [
+    {
+      "epoch": 1,
+      "train_loss": 0.7666405623419243,
+      "validation_loss": 0.1868693458152489,
+      "token_f1": 0.612942612942613,
+      "field_macro_f1": 0.2727845398248986,
+      "learning_rate": 8.888888888888888e-06,
+      "elapsed_time": 127.64075681194663
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.13186411524289532,
+      "validation_loss": 0.08232416700519307,
+      "token_f1": 0.820763956904995,
+      "field_macro_f1": 0.5673369395358037,
+      "learning_rate": 6.666666666666667e-06,
+      "elapsed_time": 117.57254588231444
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.07848083919012233,
+      "validation_loss": 0.06808421690620377,
+      "token_f1": 0.846081208687441,
+      "field_macro_f1": 0.5987341826702939,
+      "learning_rate": 4.444444444444444e-06,
+      "elapsed_time": 117.68678881041706
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.0615527684457208,
+      "validation_loss": 0.06136300898826038,
+      "token_f1": 0.8538899430740038,
+      "field_macro_f1": 0.6071122566464308,
+      "learning_rate": 2.222222222222222e-06,
+      "elapsed_time": 118.3314143884927
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.052901825828379705,
+      "validation_loss": 0.059224570878374745,
+      "token_f1": 0.8647114474929044,
+      "field_macro_f1": 0.6231337901366925,
+      "learning_rate": 0.0,
+      "elapsed_time": 118.65647425316274
+    }
+  ],
+  "run_name": "first_gpu_fine_tuning_run",
+  "result_source": "user_confirmed_modelscope_gpu_run",
+  "gpu": "NVIDIA A10",
+  "checkpoint_path": "checkpoints/phase1/layoutlmv3_best",
+  "official_test": false,
+  "field_metrics": [
+    {
+      "field": "company",
+      "precision": 0.822429906542056,
+      "recall": 0.6197183098591549,
+      "f1": 0.7068273092369478,
+      "support": 142,
+      "true_positive": 88,
+      "false_positive": 19,
+      "false_negative": 54
+    },
+    {
+      "field": "address",
+      "precision": 0.7428571428571429,
+      "recall": 0.7323943661971831,
+      "f1": 0.7375886524822696,
+      "support": 142,
+      "true_positive": 104,
+      "false_positive": 36,
+      "false_negative": 38
+    },
+    {
+      "field": "date",
+      "precision": 0.152,
+      "recall": 0.13380281690140844,
+      "f1": 0.14232209737827717,
+      "support": 142,
+      "true_positive": 19,
+      "false_positive": 106,
+      "false_negative": 123
+    },
+    {
+      "field": "total",
+      "precision": 0.9328358208955224,
+      "recall": 0.8802816901408451,
+      "f1": 0.9057971014492754,
+      "support": 142,
+      "true_positive": 125,
+      "false_positive": 9,
+      "false_negative": 17
+    }
+  ]
+}

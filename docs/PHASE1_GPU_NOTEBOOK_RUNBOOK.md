@@ -23,8 +23,15 @@ git clone YOUR_GIT_REPOSITORY_URL ProcureAgent
 /mnt/workspace/models/layoutlmv3-base
 ```
 
-目录至少应包含模型配置、processor 配置和模型权重。训练 Notebook 使用
-`local_files_only=True`，不会重新访问 Hugging Face。
+目录必须包含模型配置、processor 配置和：
+
+```text
+model.safetensors
+```
+
+训练 Notebook 显式使用 `local_files_only=True` 和 `use_safetensors=True`，不会重新
+访问 Hugging Face，也不会回退到 `pytorch_model.bin`。缺少 Safetensors 时 bootstrap
+会在训练前停止。
 
 如果云端镜像可以访问，也可以先在可联网环境下载，再复制整个目录：
 
@@ -35,6 +42,13 @@ snapshot_download(
     "microsoft/layoutlmv3-base",
     local_dir="/mnt/workspace/models/layoutlmv3-base",
 )
+```
+
+只补权重文件也可以使用：
+
+```bash
+huggingface-cli download microsoft/layoutlmv3-base model.safetensors \
+  --local-dir /mnt/workspace/models/layoutlmv3-base
 ```
 
 ### 4. 上传 processed JSONL
@@ -186,6 +200,14 @@ CUDA available
 GPU name
 ```
 
+Notebook 第一格还会设置：
+
+```python
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+```
+
+用于减少 DataLoader/fork 场景中的 tokenizer 并行 warning。
+
 Terminal 的 `python` 只用于文件操作参考，不能证明 Notebook 已安装依赖。
 
 当前实际验证目标环境是：
@@ -203,6 +225,12 @@ NVIDIA A10
 `seqeval` 最新版本仍为 `1.2.2`，它依赖 distribution 名 `scikit-learn`。
 GPU requirements 显式声明现代 `scikit-learn`，并从 PyPI 安装，避免使用旧的
 `sklearn` 占位包或异常镜像导致 `setup.py egg_info` 失败。
+
+## Transformers Warning
+
+云端曾出现 `device argument deprecated` FutureWarning。当前训练流程没有自行传递
+已废弃的 `device` 参数，因此本轮不做大范围依赖改造；记录 warning，后续随
+Transformers/processor API 升级单独处理。
 
 ## OOM
 
@@ -233,6 +261,22 @@ reports/phase1/layoutlmv3_validation_errors.md
 ```
 
 训练完成后手动下载 checkpoint 和 reports，模型权重不要提交 Git。
+
+## First GPU Fine-tuning Run
+
+首次 NVIDIA A10 完整运行已完成：
+
+```text
+evaluation_split=local_validation_split_seed_42
+official_test=false
+best_epoch=5
+token_f1=0.8647
+field_macro_f1=0.6231
+```
+
+日期字段的 OCR token 覆盖完整，但旧字段重建会把 `DATE:`、时间和其他文本拼入结果。
+统一日期 span 清洗后，金标 BIO 重建错误从 122 降至 25；剩余 25 条与 alignment miss
+对应。下一步先用现有 checkpoint 重跑 validation inference，不直接修改训练参数。
 
 ## Colab 备用路径
 

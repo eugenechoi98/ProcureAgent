@@ -87,6 +87,7 @@ def context_fixture(tmp_path: Path):
     baseline = root / "reports" / "phase1" / "baseline.json"
     processed.mkdir(parents=True)
     model.mkdir(parents=True)
+    (model / "model.safetensors").write_bytes(b"fixture")
     baseline.parent.mkdir(parents=True)
     (root / "pyproject.toml").write_text("[project]\nname='fixture'\n", encoding="utf-8")
     write_processed_sample(processed / "train.jsonl", "train-1")
@@ -150,9 +151,10 @@ def test_context_uses_real_sroie_loader_and_baseline_f1(context_fixture):
 
 def test_missing_local_model_directory_stops_hydration(context_fixture):
     root, processed, model, baseline = context_fixture
+    (model / "model.safetensors").unlink()
     model.rmdir()
 
-    with pytest.raises(FileNotFoundError, match="will not access Hugging Face"):
+    with pytest.raises(FileNotFoundError, match="Do not fall back to pytorch_model.bin"):
         build_gpu_notebook_context(
             project_root=root,
             processed_dir=processed,

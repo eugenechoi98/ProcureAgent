@@ -1,5 +1,14 @@
 # DECISIONS.md
 
+## 2026-06-11：LayoutLMv3 训练只允许加载 Safetensors
+本地模型目录必须包含 `model.safetensors`，训练与验证显式使用 `use_safetensors=True` 和 `local_files_only=True`。不允许回退到 `pytorch_model.bin`，避免触发 `torch.load` 安全限制。
+
+## 2026-06-11：首次 GPU 微调采用固定本地 validation split
+首次 NVIDIA A10 微调结果使用 `local_validation_split_seed_42`，macro F1 为 0.6231。该结果用于 baseline 对比和工程决策，不表述为 official test。
+
+## 2026-06-11：Phase 1 先保留 hybrid 离线策略
+同一 validation split 上，LayoutLMv3 抽取 company/address/total、Regex 抽取 date 的 hybrid macro F1 为 0.7949。先将其作为可展示的离线方案，不接入 API；第二轮先用现有 checkpoint 验证日期重建修复，不调整 epoch 或学习率。
+
 ## 2026-06-11：GPU Notebook 将环境验证与 Kernel 状态恢复分离
 bootstrap 子进程只负责依赖、路径、模型和 guard，不能承担 Notebook 变量注入。当前 Kernel 统一调用 runtime context 构建函数恢复标签、样本、processor、Torch、device 和训练参数，并在 Dataset 前一次性 preflight，避免逐个 NameError。
 

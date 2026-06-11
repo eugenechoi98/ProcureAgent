@@ -349,9 +349,25 @@ def load_baseline_macro_f1(path: str | Path) -> float | None:
 
 
 def model_directory_exists(path: str | Path) -> bool:
-    """检查本地模型目录，训练时不触发 Hugging Face 网络访问。"""
+    """检查本地模型目录包含 Safetensors，禁止回退到 bin 权重。"""
 
-    return Path(path).is_dir()
+    model_dir = Path(path)
+    return model_dir.is_dir() and (model_dir / "model.safetensors").is_file()
+
+
+def require_safetensors_model(path: str | Path) -> Path:
+    """要求本地模型存在 model.safetensors，否则给出明确下载命令。"""
+
+    model_dir = Path(path).resolve()
+    safetensors_path = model_dir / "model.safetensors"
+    if not safetensors_path.is_file():
+        raise FileNotFoundError(
+            f"Required Safetensors weights are missing: {safetensors_path}. "
+            "Do not fall back to pytorch_model.bin. Download with: "
+            f"huggingface-cli download microsoft/layoutlmv3-base model.safetensors "
+            f"--local-dir {model_dir}"
+        )
+    return safetensors_path
 
 
 def evaluate_training_guard(

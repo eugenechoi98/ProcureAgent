@@ -29,3 +29,6 @@
 - `gpu_notebook.py` 统一负责 Kernel 依赖验证、跨平台图片路径修复、本地模型检查和训练 guard。
 - bootstrap 脚本可写修复与环境摘要，verify 脚本只读检查；Notebook 只调用统一入口，不重复环境逻辑。
 - `gpu_notebook_context.py` 在当前 Notebook Kernel 内一次性恢复真实 BIO 标签、样本、processor、Torch、device 和训练配置，避免依赖子进程注入变量。
+- 本地 LayoutLMv3 只接受 `model.safetensors`，processor 和模型均离线加载，不回退到 `pytorch_model.bin`。
+- 字段重建统一经过 `field_reconstruction.py`；日期 span 会去掉 `DATE:`、时间和其他非日期文本。
+- Phase 1 离线 hybrid 采用 LayoutLMv3 抽取 company/address/total、Regex 抽取 date，尚未接入 API。

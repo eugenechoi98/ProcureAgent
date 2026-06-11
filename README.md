@@ -192,7 +192,41 @@ Notebook 包含手写 PyTorch train/validation loop、token/field F1、best chec
 
 [docs/PHASE1_GPU_NOTEBOOK_RUNBOOK.md](docs/PHASE1_GPU_NOTEBOOK_RUNBOOK.md)
 
-当前尚未执行完整 fine-tuning，fine-tuned validation F1 为 `待真实训练`。
+完整 fine-tuning 已执行，结果见下方 First GPU Fine-tuning Run。该结果来自固定本地 validation，不是 official test。
+
+### First GPU Fine-tuning Run
+
+首次完整 GPU 微调已在 NVIDIA A10 上完成：
+
+```text
+evaluation_split = local_validation_split_seed_42
+official_test = false
+epochs = 5
+batch_size = 2
+gradient_accumulation_steps = 4
+learning_rate = 1e-5
+best_epoch = 5
+token_f1 = 0.8647
+field_macro_f1 = 0.6231
+baseline_macro_f1 = 0.4387
+improvement = 0.1844
+```
+
+字段 F1：
+
+| field | Regex baseline | LayoutLMv3 | Hybrid |
+| --- | ---: | ---: | ---: |
+| company | 0.5704 | 0.7068 | 0.7068 |
+| address | 0.0070 | 0.7376 | 0.7376 |
+| date | 0.8293 | 0.1423 | 0.8293 |
+| total | 0.3481 | 0.9058 | 0.9058 |
+| macro | 0.4387 | 0.6231 | 0.7949 |
+
+Hybrid 仅为同一 validation split 上的离线评估：company/address/total 使用
+LayoutLMv3，date 使用 OCR + Regex baseline。当前没有接入 API。
+
+训练报告见 [reports/phase1/gpu_training](reports/phase1/gpu_training)，日期专项分析见
+[layoutlmv3_date_error_analysis.md](reports/phase1/layoutlmv3_date_error_analysis.md)。
 
 LayoutLMv3 Dataset/DataLoader smoke：
 

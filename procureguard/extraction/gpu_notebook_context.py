@@ -9,7 +9,10 @@ from typing import Any, Callable, Mapping
 
 from procureguard.extraction.alignment import ID2LABEL, LABEL2ID
 from procureguard.extraction.datasets import read_processed_jsonl
-from procureguard.extraction.gpu_notebook import load_baseline_macro_f1
+from procureguard.extraction.gpu_notebook import (
+    load_baseline_macro_f1,
+    require_safetensors_model,
+)
 from procureguard.extraction.layoutlmv3_dataset import create_layoutlmv3_processor
 
 
@@ -58,11 +61,7 @@ def build_gpu_notebook_context(
 
     if not (root / "pyproject.toml").is_file():
         raise FileNotFoundError(f"Invalid project root: {root}")
-    if not model.is_dir():
-        raise FileNotFoundError(
-            "Local LayoutLMv3 model directory does not exist: "
-            f"{model}. Hydration will not access Hugging Face."
-        )
+    require_safetensors_model(model)
     if not train_path.is_file() or not validation_path.is_file():
         raise FileNotFoundError(
             f"Processed train/validation JSONL is incomplete under: {processed}"

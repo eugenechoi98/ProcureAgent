@@ -18,3 +18,4 @@
 - 2026-06-10：完成 Phase 1E GPU Notebook 训练准备，补齐运行手册、训练日志、checkpoint 和评测导出。
 - 2026-06-11：完成 Phase 1E.1 GPU Notebook 可复现环境修复，统一 Kernel bootstrap、依赖验证、本地模型和 JSONL 路径处理。
 - 2026-06-11：修复 GPU Notebook 子进程无法注入变量的问题，新增 runtime context hydrate、统一 preflight 和变量顺序审计。
+- 2026-06-11：固化首次 A10 GPU 微调结果，新增 Safetensors 强制加载、日期重建分析与 hybrid 离线评测。

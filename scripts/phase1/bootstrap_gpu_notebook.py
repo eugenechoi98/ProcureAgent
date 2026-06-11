@@ -39,6 +39,7 @@ def main() -> None:
         print_summary,
         read_requirement_names,
         repair_processed_jsonl_paths,
+        require_safetensors_model,
         require_successful_repairs,
         terminal_python_executable,
         verify_dependency_imports,
@@ -68,6 +69,7 @@ def main() -> None:
     print("dependencies_import_verified=true")
 
     install_project_for_kernel(project_root, python_executable=sys.executable)
+    require_safetensors_model(args.model_dir)
     train_repair = repair_processed_jsonl_paths(args.processed_dir / "train.jsonl", args.image_root)
     validation_repair = repair_processed_jsonl_paths(
         args.processed_dir / "validation.jsonl",
@@ -91,8 +93,8 @@ def main() -> None:
     print(f"bootstrap_report={report_path}")
     if not summary.model_dir_exists:
         raise SystemExit(
-            "Local LayoutLMv3 model directory is missing. Download microsoft/layoutlmv3-base "
-            f"to {args.model_dir} before training; bootstrap will not contact Hugging Face."
+            "Local LayoutLMv3 model.safetensors is missing. Download it before training; "
+            "bootstrap will not use pytorch_model.bin or contact Hugging Face automatically."
         )
     if not summary.training_guard_passed:
         raise SystemExit("training_guard_passed=false; fix the reported checks before training.")
