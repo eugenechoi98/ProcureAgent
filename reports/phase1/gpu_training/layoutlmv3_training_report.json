@@ -62,6 +62,8 @@
   "result_source": "user_confirmed_modelscope_gpu_run",
   "gpu": "NVIDIA A10",
   "checkpoint_path": "checkpoints/phase1/layoutlmv3_best",
+  "train_samples": 570,
+  "validation_samples": 142,
   "official_test": false,
   "field_metrics": [
     {

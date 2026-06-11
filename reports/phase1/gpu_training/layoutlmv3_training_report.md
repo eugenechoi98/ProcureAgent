@@ -5,6 +5,8 @@
 - official_test: false
 
 - data_source: Voxel51/scanned_receipts
+- train_samples: 570
+- validation_samples: 142
 - evaluation_split: local_validation_split_seed_42
 - model_name: microsoft/layoutlmv3-base
 - seed: 42

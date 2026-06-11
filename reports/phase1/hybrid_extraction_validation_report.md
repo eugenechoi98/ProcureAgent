@@ -1,7 +1,9 @@
 # Hybrid Extraction Validation Report
 
+- evaluation_type: offline
 - evaluation_split: local_validation_split_seed_42
 - official_test: false
+- integrated_into_api: false
 - strategy: company/address/total=LayoutLMv3, date=OCR+Regex baseline
 
 | field | regex_baseline_f1 | layoutlmv3_f1 | hybrid_f1 |

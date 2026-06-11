@@ -56,6 +56,8 @@ def test_first_gpu_report_contains_real_metrics_and_split():
     assert report["fine_tuned_macro_f1"] == pytest.approx(0.6231337901)
     assert report["evaluation_split"] == "local_validation_split_seed_42"
     assert report["official_test"] is False
+    assert report["train_samples"] == 570
+    assert report["validation_samples"] == 142
     assert len(report["epoch_logs"]) == 5
 
 
@@ -101,6 +103,8 @@ def test_hybrid_extraction_metrics_and_markdown():
     assert macro["hybrid_f1"] > macro["layoutlmv3_f1"]
     assert macro["hybrid_f1"] > macro["baseline_f1"]
     assert "company/address/total=LayoutLMv3" in markdown
+    assert "evaluation_type: offline" in markdown
+    assert "integrated_into_api: false" in markdown
     assert "| macro | 0.4387 | 0.6231 | 0.7949 |" in markdown
 
 

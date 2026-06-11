@@ -31,6 +31,11 @@ tmp/
 paddleocr/
 reports/phase1/gpu_notebook_bootstrap.json
 
+# Local SROIE archives
+/sroie_task3.tar.gz
+/sroie_task3.tar.gz.part*
+/sroie_task3_processed.tar.gz
+
 # Model artifacts
 checkpoints/
 models_cache/

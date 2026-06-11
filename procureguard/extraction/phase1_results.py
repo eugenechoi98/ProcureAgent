@@ -76,6 +76,8 @@ def first_gpu_training_report() -> dict[str, object]:
             "result_source": "user_confirmed_modelscope_gpu_run",
             "gpu": "NVIDIA A10",
             "checkpoint_path": "checkpoints/phase1/layoutlmv3_best",
+            "train_samples": 570,
+            "validation_samples": 142,
             "evaluation_split": "local_validation_split_seed_42",
             "official_test": False,
             "field_metrics": [asdict(metric) for metric in FIRST_GPU_FIELD_METRICS],
@@ -96,6 +98,13 @@ def write_first_gpu_outputs(output_dir: str | Path) -> dict[str, Path]:
         "- gpu: NVIDIA A10\n"
         "- result_source: user_confirmed_modelscope_gpu_run\n"
         "- official_test: false\n",
+        1,
+    )
+    markdown = markdown.replace(
+        "- data_source: Voxel51/scanned_receipts\n",
+        "- data_source: Voxel51/scanned_receipts\n"
+        "- train_samples: 570\n"
+        "- validation_samples: 142\n",
         1,
     )
     field_lines = [
@@ -340,8 +349,10 @@ def hybrid_report_to_markdown(rows: Iterable[dict[str, object]]) -> str:
     lines = [
         "# Hybrid Extraction Validation Report",
         "",
+        "- evaluation_type: offline",
         "- evaluation_split: local_validation_split_seed_42",
         "- official_test: false",
+        "- integrated_into_api: false",
         "- strategy: company/address/total=LayoutLMv3, date=OCR+Regex baseline",
         "",
         "| field | regex_baseline_f1 | layoutlmv3_f1 | hybrid_f1 |",
