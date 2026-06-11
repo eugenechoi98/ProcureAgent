@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+import hashlib
 import json
 from pathlib import Path
 import random
@@ -124,6 +125,42 @@ def write_predictions_jsonl(
                 )
                 + "\n"
             )
+
+
+def write_artifacts_manifest(
+    output_path: Path,
+    artifact_paths: dict[str, Path],
+    adapter_dir: Path | None = None,
+) -> dict[str, Any]:
+    """导出 Phase 3 训练产物清单，避免误把大文件提交到 Git。"""
+
+    manifest: dict[str, Any] = {"files": {}, "adapter_dir": None}
+    for name, path in artifact_paths.items():
+        exists = path.exists()
+        manifest["files"][name] = {
+            "path": str(path),
+            "exists": exists,
+            "size_bytes": path.stat().st_size if exists and path.is_file() else None,
+            "sha256": hashlib.sha256(path.read_bytes()).hexdigest()
+            if exists and path.is_file()
+            else None,
+        }
+    if adapter_dir is not None:
+        files = sorted(item for item in adapter_dir.rglob("*") if item.is_file())
+        manifest["adapter_dir"] = {
+            "path": str(adapter_dir),
+            "exists": adapter_dir.exists(),
+            "file_count": len(files),
+            "size_bytes": sum(item.stat().st_size for item in files),
+            "files": [str(item.relative_to(adapter_dir)) for item in files],
+        }
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    return manifest
 
 
 def build_runtime_context(

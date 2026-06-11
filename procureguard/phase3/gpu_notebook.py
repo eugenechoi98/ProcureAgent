@@ -192,18 +192,41 @@ def model_dir_guard(model_dir: Path | None) -> dict[str, Any]:
         }
     required = ("config.json", "tokenizer_config.json")
     has_required = {name: (model_dir / name).exists() for name in required}
+    tokenizer_candidates = ("tokenizer.json", "tokenizer.model", "vocab.json")
+    tokenizer_files = {
+        name: (model_dir / name).exists() for name in tokenizer_candidates
+    }
     safetensors = sorted(path.name for path in model_dir.glob("*.safetensors"))
-    safetensors_index = (model_dir / "model.safetensors.index.json").exists()
+    safetensors_index_path = model_dir / "model.safetensors.index.json"
+    safetensors_index = safetensors_index_path.exists()
+    indexed_shards: list[str] = []
+    missing_indexed_shards: list[str] = []
+    if safetensors_index:
+        try:
+            index = json.loads(safetensors_index_path.read_text(encoding="utf-8"))
+            indexed_shards = sorted(set(index.get("weight_map", {}).values()))
+            missing_indexed_shards = [
+                name for name in indexed_shards if not (model_dir / name).exists()
+            ]
+        except json.JSONDecodeError:
+            missing_indexed_shards = ["<invalid model.safetensors.index.json>"]
+    weights_ready = bool(safetensors) or (
+        safetensors_index and bool(indexed_shards) and not missing_indexed_shards
+    )
     return {
         "configured": True,
         "path": str(model_dir),
         "exists": model_dir.exists(),
         "required_files": has_required,
+        "tokenizer_files": tokenizer_files,
         "safetensors_files": safetensors,
         "safetensors_index": safetensors_index,
+        "indexed_shards": indexed_shards,
+        "missing_indexed_shards": missing_indexed_shards,
         "ready": model_dir.exists()
         and all(has_required.values())
-        and (bool(safetensors) or safetensors_index),
+        and any(tokenizer_files.values())
+        and weights_ready,
     }
 
 
@@ -334,6 +357,7 @@ def build_base_inference_plan(
     model_dir: str | None = None,
     sample_count: int = 1,
     artifact_dir: Path | None = None,
+    output_name: str = "base_smoke.jsonl",
 ) -> dict[str, Any]:
     """生成 base inference smoke 的可执行计划。"""
 
@@ -343,7 +367,7 @@ def build_base_inference_plan(
         "model_id": DEFAULT_MODEL_ID,
         "model_dir": model_guard,
         "input_path": str(paths.data_dir / "test.jsonl"),
-        "output_path": str(paths.prediction_dir / "base_smoke.jsonl"),
+        "output_path": str(paths.prediction_dir / output_name),
         "sample_count": sample_count,
         "generation": {"max_new_tokens": 256, "do_sample": False},
         "dry_run_safe": True,
@@ -356,10 +380,17 @@ def run_base_inference_smoke(
     sample_count: int = 1,
     run: bool = False,
     artifact_dir: Path | None = None,
+    output_name: str = "base_smoke.jsonl",
 ) -> dict[str, Any]:
     """默认 dry-run；显式 run=True 时才加载 base model 生成少量预测。"""
 
-    plan = build_base_inference_plan(project_root, model_dir, sample_count, artifact_dir)
+    plan = build_base_inference_plan(
+        project_root,
+        model_dir,
+        sample_count,
+        artifact_dir,
+        output_name=output_name,
+    )
     if not run:
         plan["status"] = "dry_run"
         return plan

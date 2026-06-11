@@ -2,6 +2,8 @@
 
 import json
 from pathlib import Path
+import subprocess
+import sys
 
 from procureguard.phase3.gpu_notebook import (
     bootstrap_notebook,
@@ -13,6 +15,7 @@ from procureguard.phase3.gpu_notebook import (
     verify_dataset_hashes,
     verify_notebook_env,
 )
+from procureguard.phase3.runtime import write_artifacts_manifest
 
 
 def test_dataset_sha_guard_matches_summary():
@@ -54,11 +57,31 @@ def test_model_dir_guard_requires_config_tokenizer_and_safetensors(tmp_path: Pat
     (model_dir / "config.json").write_text("{}", encoding="utf-8")
     incomplete = model_dir_guard(model_dir)
     (model_dir / "tokenizer_config.json").write_text("{}", encoding="utf-8")
-    (model_dir / "model.safetensors.index.json").write_text("{}", encoding="utf-8")
+    (model_dir / "tokenizer.json").write_text("{}", encoding="utf-8")
+    (model_dir / "model.safetensors").write_bytes(b"fake")
     ready = model_dir_guard(model_dir)
 
     assert missing["ready"] is False
     assert incomplete["ready"] is False
+    assert ready["ready"] is True
+
+
+def test_model_dir_guard_checks_indexed_shards(tmp_path: Path):
+    model_dir = tmp_path / "qwen"
+    model_dir.mkdir()
+    (model_dir / "config.json").write_text("{}", encoding="utf-8")
+    (model_dir / "tokenizer_config.json").write_text("{}", encoding="utf-8")
+    (model_dir / "tokenizer.json").write_text("{}", encoding="utf-8")
+    (model_dir / "model.safetensors.index.json").write_text(
+        json.dumps({"weight_map": {"a": "model-00001-of-00002.safetensors"}}),
+        encoding="utf-8",
+    )
+    missing_shard = model_dir_guard(model_dir)
+    (model_dir / "model-00001-of-00002.safetensors").write_bytes(b"fake")
+    ready = model_dir_guard(model_dir)
+
+    assert missing_shard["ready"] is False
+    assert missing_shard["missing_indexed_shards"] == ["model-00001-of-00002.safetensors"]
     assert ready["ready"] is True
 
 
@@ -78,12 +101,56 @@ def test_hydrate_runtime_context_loads_fixed_splits(tmp_path: Path):
 def test_base_inference_plan_is_dry_run_without_model_dir(tmp_path: Path):
     root = find_project_root(Path.cwd())
 
-    plan = build_base_inference_plan(root, sample_count=1, artifact_dir=tmp_path)
+    plan = build_base_inference_plan(
+        root,
+        sample_count=1,
+        artifact_dir=tmp_path,
+        output_name="base.jsonl",
+    )
 
     assert plan["dry_run_safe"] is True
     assert plan["sample_count"] == 1
     assert plan["model_dir"]["ready"] is False
-    assert plan["output_path"].endswith("base_smoke.jsonl")
+    assert plan["output_path"].endswith("base.jsonl")
+
+
+def test_artifacts_manifest_records_files_and_adapter_dir(tmp_path: Path):
+    output_file = tmp_path / "predictions" / "base.jsonl"
+    output_file.parent.mkdir()
+    output_file.write_text('{"sample_id":"x","explanation":"ok"}\n', encoding="utf-8")
+    adapter_dir = tmp_path / "adapter"
+    adapter_dir.mkdir()
+    (adapter_dir / "adapter_config.json").write_text("{}", encoding="utf-8")
+
+    manifest = write_artifacts_manifest(
+        tmp_path / "artifacts_manifest.json",
+        {"base_predictions": output_file, "missing_report": tmp_path / "missing.json"},
+        adapter_dir=adapter_dir,
+    )
+
+    assert manifest["files"]["base_predictions"]["exists"] is True
+    assert manifest["files"]["base_predictions"]["sha256"]
+    assert manifest["files"]["missing_report"]["exists"] is False
+    assert manifest["adapter_dir"]["file_count"] == 1
+
+
+def test_prepare_qwen_model_is_dry_run_by_default(tmp_path: Path):
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/phase3/prepare_qwen_model.py",
+            "--model-dir",
+            str(tmp_path / "qwen"),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    payload = json.loads(result.stdout)
+
+    assert payload["download_requested"] is False
+    assert payload["guard"]["ready"] is False
+    assert "offline_upload_instructions" in payload
 
 
 def test_notebook_uses_unified_runtime_guard_and_default_no_training():

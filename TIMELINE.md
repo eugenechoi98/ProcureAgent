@@ -25,3 +25,5 @@
 - 2026-06-11：完成 142 条 checkpoint validation inference、日期重建修复验证和 Phase 1 证据封板。
 - 2026-06-11：完成 Phase 3A 异常说明数据契约、200 条 synthetic 数据、统一评测框架和 LoRA Notebook 骨架。
 - 2026-06-11：完成 Phase 3B LoRA Notebook bootstrap、verify、runtime context、数据 SHA guard、模型目录 guard 和 base smoke dry-run 准备。
+- 2026-06-11：补齐 Phase 3C ModelScope preflight 顺序、Notebook 训练后预测评测导出和 artifacts manifest。
+- 2026-06-11：补齐 Phase 3C.1 Qwen 显式模型准备脚本、Kernel 注册说明和模型分片完整性 guard。

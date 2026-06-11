@@ -1,5 +1,11 @@
 # DECISIONS.md
 
+## 2026-06-11：Phase 3C 模型准备必须显式执行
+Qwen2.5-0.5B-Instruct 不由 verify、bootstrap、base smoke 或 Notebook 静默下载。云端用户必须先用 `prepare_qwen_model.py --verify-only` 验证已有目录，或显式执行 `--download`，网络不可用时上传完整模型目录或压缩包，避免训练中途才暴露缺文件。
+
+## 2026-06-11：Phase 3C 训练产物必须导出 manifest
+首次 LoRA 训练后，Notebook 统一写出 base/fine-tuned predictions、evaluation report 和 `artifacts_manifest.json`。manifest 只记录文件路径、大小、SHA 和 adapter 目录清单，不提交模型权重或缓存，便于总控验收时核对真实产物。
+
 ## 2026-06-11：Phase 3 Notebook 采用 bootstrap / verify / runtime context 分层
 Phase 3B 将 Notebook 中零散的路径、依赖、数据 SHA、模型目录和输出目录检查沉淀为可复用脚本。bootstrap 负责创建 artifacts 并写 guard，verify 只读检查环境，runtime context 恢复当前 Kernel 的数据、prompt、训练参数和导出路径，避免云端手工补路径。
 
