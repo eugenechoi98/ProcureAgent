@@ -14,10 +14,11 @@
 - Phase 3D.2 已统一 Phase 3 project-root resolver，兼容 ModelScope Kernel cwd 为 `/mnt/workspace` 且仓库在 `/mnt/workspace/ProcureAgent`。
 - Phase 3D.3 已收口 Notebook 环境变量继承问题：Notebook 默认使用 ModelScope Qwen 模型目录和 Kernel Python，并写独立 `notebook_runtime_guard.json`。
 - Phase 3D.4 已将 `preflight_ready` 与 `training_ready` 分离，训练门禁始终检查 CUDA、device count 和 bitsandbytes，并固定 Phase 3 Torch 为 `2.2.2+cu118`。
+- Phase 3D.5 已固定 `numpy==1.26.4`，并将 NumPy ABI 兼容性纳入 CUDA runtime 诊断和 Notebook 训练门禁。
 - 本地已通过 Phase 3 专项测试和全量测试；真实 ModelScope CUDA verify、base smoke `--run` 和 LoRA 训练尚未执行。
 
 ## 下一步
-用户在 ModelScope 按 runbook 执行 git pull，保留现有 `.venv-phase3`、Qwen 模型目录和 base smoke 产物，在现有环境中重装 Phase 3 requirements 并运行 CUDA runtime 诊断，再重启 Notebook Kernel 后从第一格重新运行配置、guard 和 runtime context。
+用户在 ModelScope 按 runbook 执行 git pull，保留现有 `.venv-phase3`、Qwen 模型目录和 base smoke 产物，在现有环境中重装 Phase 3 requirements，确认 `numpy_abi_ready=true` 且 `training_ready=true`，再重启 Notebook Kernel 后从第一格重新运行配置、guard 和 runtime context。
 
 ## 注意事项
 - Phase 3 模型只生成异常说明，不计算金额、不决定风险等级、不改变建议动作。
@@ -27,4 +28,4 @@
 - checkpoint、adapter、模型缓存和本地 artifacts 不提交 Git；adapter 压缩包保存到仓库外本地 artifacts 目录。
 
 ## 最后更新时间
-2026-06-11
+2026-06-12

@@ -144,16 +144,33 @@ Phase 3D 固定使用 CUDA 11.8 PyTorch wheel：
 ```text
 torch==2.2.2+cu118
 bitsandbytes==0.44.1
+numpy==1.26.4
 ```
 
-原因：浮动 `torch>=2.2,<3.0` 可能在 ModelScope 安装到过新的 CUDA runtime，触发 `NVIDIA driver on your system is too old`。本项目不需要 `torchvision` 或 `torchaudio`，因此不安装也不固定它们。当前唯一推荐方案是在现有 `.venv-phase3` 内重新执行：
+原因：浮动 `torch>=2.2,<3.0` 可能在 ModelScope 安装到过新的 CUDA runtime，触发 `NVIDIA driver on your system is too old`；`torch==2.2.2+cu118` 及相关二进制扩展仍需要 NumPy 1.x ABI，因此固定 `numpy==1.26.4`，避免 NumPy 2.x 的 `_ARRAY_API not found` 警告和后续训练崩溃。本项目不需要 `torchvision` 或 `torchaudio`，因此不安装也不固定它们。
+
+当前唯一推荐方案是在现有 `.venv-phase3` 内重新执行：
 
 ```bash
 python -m pip install -r requirements/phase3-lora.txt
 python scripts/phase3/diagnose_cuda_runtime.py --model-dir "$PHASE3_MODEL_DIR" --expected-kernel-python "$PHASE3_KERNEL_PYTHON"
 ```
 
-不要删除 `.venv-phase3`，不要重新下载 Qwen 模型，不要连续尝试多个 Torch 版本。
+如果诊断输出中出现 `failed_checks` 包含 `numpy_abi`，说明当前环境仍是 NumPy 2.x 或 NumPy ABI 不兼容。继续使用上面的正式 requirements 命令修复，不要手工单独 `pip install numpy`。
+
+更新 requirements 后，不需要重建 `.venv-phase3`，不需要重新下载 Qwen 模型，也不需要重新跑 Terminal bootstrap 或 base smoke。只需要重新运行 `diagnose_cuda_runtime.py`，确认：
+
+```text
+torch_version=2.2.2+cu118
+torch_cuda_version=11.8
+numpy_version=1.26.4
+numpy_abi_ready=true
+bitsandbytes_version=0.44.1
+training_ready=true
+failed_checks=[]
+```
+
+不要删除 `.venv-phase3`，不要重新下载 Qwen 模型，不要连续尝试多个 Torch 或 NumPy 版本。
 
 ## 6. Qwen 模型准备
 

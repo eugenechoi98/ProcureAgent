@@ -18,6 +18,9 @@ Qwen2.5-0.5B-Instruct 不由 verify、bootstrap、base smoke 或 Notebook 静默
 ## 2026-06-11：Phase 3C 训练产物必须导出 manifest
 首次 LoRA 训练后，Notebook 统一写出 base/fine-tuned predictions、evaluation report 和 `artifacts_manifest.json`。manifest 只记录文件路径、大小、SHA 和 adapter 目录清单，不提交模型权重或缓存，便于总控验收时核对真实产物。
 
+## 2026-06-12：Phase 3 CUDA 训练环境固定 NumPy 1.x ABI
+`torch==2.2.2+cu118` 与 bitsandbytes 4-bit QLoRA 路径依赖 NumPy 1.x ABI。Phase 3 GPU requirements 固定 `numpy==1.26.4`，Notebook guard 和 CUDA 诊断在训练前阻断 NumPy 2.x，避免模型加载或训练中途才出现 ABI 崩溃。
+
 ## 2026-06-11：Phase 3 Notebook 采用 bootstrap / verify / runtime context 分层
 Phase 3B 将 Notebook 中零散的路径、依赖、数据 SHA、模型目录和输出目录检查沉淀为可复用脚本。bootstrap 负责创建 artifacts 并写 guard，verify 只读检查环境，runtime context 恢复当前 Kernel 的数据、prompt、训练参数和导出路径，避免云端手工补路径。
 

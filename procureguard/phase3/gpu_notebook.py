@@ -206,6 +206,47 @@ def torch_environment() -> dict[str, Any]:
     }
 
 
+def numpy_environment() -> dict[str, Any]:
+    """检查 NumPy ABI 是否兼容当前 Torch CUDA 运行时。"""
+
+    install_hint = "python -m pip install -r requirements/phase3-lora.txt"
+    if util.find_spec("numpy") is None:
+        return {
+            "installed": False,
+            "import_ok": False,
+            "version": None,
+            "major_version": None,
+            "numpy_abi_ready": False,
+            "error": "numpy is not installed",
+            "install_hint": install_hint,
+        }
+    try:
+        import numpy as np
+
+        version = np.__version__
+        major_version = int(version.split(".", maxsplit=1)[0])
+        return {
+            "installed": True,
+            "import_ok": True,
+            "version": version,
+            "major_version": major_version,
+            "numpy_abi_ready": major_version < 2,
+            "file": str(Path(np.__file__).resolve()),
+            "error": None,
+            "install_hint": install_hint,
+        }
+    except Exception as exc:  # noqa: BLE001
+        return {
+            "installed": True,
+            "import_ok": False,
+            "version": package_versions(("numpy",)).get("numpy"),
+            "major_version": None,
+            "numpy_abi_ready": False,
+            "error": str(exc),
+            "install_hint": install_hint,
+        }
+
+
 def bitsandbytes_environment() -> dict[str, Any]:
     """检查 bitsandbytes 是否满足 4-bit QLoRA 训练路径。"""
 
@@ -319,11 +360,14 @@ def training_failed_checks(
     *,
     preflight_failed: list[str],
     torch_info: dict[str, Any],
+    numpy_info: dict[str, Any],
     bitsandbytes_info: dict[str, Any],
 ) -> list[str]:
-    """汇总真实训练门禁失败项，始终检查 CUDA 与 bitsandbytes。"""
+    """汇总真实训练门禁失败项，始终检查 CUDA、NumPy ABI 与 bitsandbytes。"""
 
     failed = list(preflight_failed)
+    if not numpy_info.get("numpy_abi_ready"):
+        failed.append("numpy_abi")
     if not torch_info.get("cuda_available"):
         failed.append("cuda_available")
     if int(torch_info.get("cuda_device_count") or 0) <= 0:
@@ -432,6 +476,7 @@ def notebook_guard(
     project_dependencies = assert_project_dependencies()
     dataset = verify_dataset_hashes(paths)
     torch_info = torch_environment()
+    numpy_info = numpy_environment()
     bitsandbytes_info = bitsandbytes_environment()
     missing_fallback = module_missing(FALLBACK_MODULES)
     optional_versions = package_versions(OPTIONAL_MODULES)
@@ -453,6 +498,7 @@ def notebook_guard(
     failed_checks = training_failed_checks(
         preflight_failed=preflight_failed,
         torch_info=torch_info,
+        numpy_info=numpy_info,
         bitsandbytes_info=bitsandbytes_info,
     )
     guard = {
@@ -475,6 +521,7 @@ def notebook_guard(
         "optional_versions": optional_versions,
         "project_dependencies": project_dependencies,
         "torch": torch_info,
+        "numpy": numpy_info,
         "bitsandbytes": bitsandbytes_info,
         "dataset": dataset,
         "model_dir": model_guard,
@@ -497,6 +544,7 @@ def cuda_runtime_diagnostics(
     root = project_root or find_project_root()
     paths = phase3_paths(root, model_dir=model_dir)
     torch_info = torch_environment()
+    numpy_info = numpy_environment()
     bitsandbytes_info = bitsandbytes_environment()
     project_dependencies = project_dependency_guard()
     missing_fallback = module_missing(FALLBACK_MODULES)
@@ -513,6 +561,7 @@ def cuda_runtime_diagnostics(
     failed_checks = training_failed_checks(
         preflight_failed=preflight_failed,
         torch_info=torch_info,
+        numpy_info=numpy_info,
         bitsandbytes_info=bitsandbytes_info,
     )
     return {
@@ -523,7 +572,15 @@ def cuda_runtime_diagnostics(
         "phase3_model_dir_env": os.environ.get("PHASE3_MODEL_DIR"),
         "kernel_python": kernel_guard,
         "training_backend": TRAINING_BACKEND,
+        "torch_version": torch_info.get("torch_version"),
+        "torch_cuda_version": torch_info.get("torch_cuda_version"),
+        "cuda_available": torch_info.get("cuda_available"),
+        "cuda_device_count": torch_info.get("cuda_device_count"),
+        "numpy_version": numpy_info.get("version"),
+        "numpy_abi_ready": numpy_info.get("numpy_abi_ready"),
+        "bitsandbytes_version": bitsandbytes_info.get("version"),
         "torch": torch_info,
+        "numpy": numpy_info,
         "nvidia_smi": nvidia_smi_summary(),
         "transformers_version": package_versions(("transformers",)).get("transformers"),
         "peft_version": package_versions(("peft",)).get("peft"),

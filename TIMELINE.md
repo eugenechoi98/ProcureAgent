@@ -31,3 +31,4 @@
 - 2026-06-12：收口 Phase 3D.2 Notebook project-root resolver，兼容 ModelScope cwd 位于仓库父目录。
 - 2026-06-12：收口 Phase 3D.3 Notebook 默认模型路径、Kernel Python guard 和独立 runtime guard 报告。
 - 2026-06-12：收口 Phase 3D.4 CUDA runtime 诊断、训练门禁前移和 cu118 Torch 固定依赖。
+- 2026-06-12：收口 Phase 3D.5 NumPy ABI 兼容 guard，固定 Phase 3 GPU 环境使用 NumPy 1.26.4。
