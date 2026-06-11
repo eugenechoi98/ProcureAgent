@@ -30,3 +30,4 @@
 - 2026-06-11：收口 Phase 3D.1 ModelScope 安装顺序、项目依赖 guard 和 `.venv-phase3` 忽略规则。
 - 2026-06-12：收口 Phase 3D.2 Notebook project-root resolver，兼容 ModelScope cwd 位于仓库父目录。
 - 2026-06-12：收口 Phase 3D.3 Notebook 默认模型路径、Kernel Python guard 和独立 runtime guard 报告。
+- 2026-06-12：收口 Phase 3D.4 CUDA runtime 诊断、训练门禁前移和 cu118 Torch 固定依赖。

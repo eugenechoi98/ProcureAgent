@@ -1,5 +1,8 @@
 # DECISIONS.md
 
+## 2026-06-12：Phase 3D 训练门禁始终检查 CUDA runtime
+`RUN_TRAINING=False` 只能表示不启动训练，不能表示训练环境可用。Phase 3D.4 将 `preflight_ready` 与 `training_ready` 分离：前者检查数据、依赖、模型和 Kernel，后者始终额外检查 CUDA、device count 和 bitsandbytes 4-bit 路径。Phase 3 GPU 依赖固定为 `torch==2.2.2+cu118`，避免浮动安装到需要更高 NVIDIA driver 的 Torch runtime。
+
 ## 2026-06-12：Phase 3 Notebook runtime guard 不覆盖 Terminal bootstrap
 ModelScope Terminal 的环境变量不会自动继承到已启动的 Notebook Kernel。Phase 3D.3 为 Notebook 配置 ModelScope 默认模型目录和 Kernel Python，同时将 Notebook guard 写入 `notebook_runtime_guard.json`，Terminal bootstrap 继续保留 `environment_guard.json`，避免 Notebook 用缺配置报告覆盖正确的 Terminal preflight 证据。
 

@@ -10,6 +10,7 @@ from procureguard.phase3.gpu_notebook import (
     assert_project_dependencies,
     bootstrap_notebook,
     build_base_inference_plan,
+    cuda_runtime_diagnostics,
     find_project_root,
     hydrate_runtime_context,
     model_dir_guard,
@@ -18,6 +19,7 @@ from procureguard.phase3.gpu_notebook import (
     notebook_model_dir_from_env,
     notebook_runtime_guard,
     phase3_paths,
+    preflight_failed_checks,
     training_failed_checks,
     verify_dataset_hashes,
     verify_notebook_env,
@@ -194,15 +196,30 @@ def test_notebook_env_overrides_modelscope_defaults():
     assert notebook_kernel_python_from_env(env) == "/custom/python"
 
 
-def test_training_failed_checks_include_cuda_when_required():
-    failed = training_failed_checks(
+def test_preflight_and_training_ready_are_separate():
+    preflight = preflight_failed_checks(
         dataset={"ok": True},
         project_dependencies={"ok": True},
         missing_fallback=[],
         model_guard={"ready": True},
-        torch_info={"cuda_available": False, "cuda_device_count": 0},
-        require_cuda=True,
         kernel_guard={"matches": True},
+    )
+
+    training = training_failed_checks(
+        preflight_failed=preflight,
+        torch_info={"cuda_available": False, "cuda_device_count": 0},
+        bitsandbytes_info={"import_ok": True, "cuda_available": True},
+    )
+
+    assert preflight == []
+    assert "cuda_available" in training
+
+
+def test_training_failed_checks_include_cuda_even_before_run_training():
+    failed = training_failed_checks(
+        preflight_failed=[],
+        torch_info={"cuda_available": False, "cuda_device_count": 0},
+        bitsandbytes_info={"import_ok": True, "cuda_available": True},
     )
 
     assert "cuda_available" in failed
@@ -210,14 +227,17 @@ def test_training_failed_checks_include_cuda_when_required():
 
 
 def test_training_failed_checks_include_model_dir_when_not_ready():
-    failed = training_failed_checks(
+    preflight = preflight_failed_checks(
         dataset={"ok": True},
         project_dependencies={"ok": True},
         missing_fallback=[],
         model_guard={"ready": False},
-        torch_info={"cuda_available": True, "cuda_device_count": 1},
-        require_cuda=True,
         kernel_guard={"matches": True},
+    )
+    failed = training_failed_checks(
+        preflight_failed=preflight,
+        torch_info={"cuda_available": True, "cuda_device_count": 1},
+        bitsandbytes_info={"import_ok": True, "cuda_available": True},
     )
 
     assert failed == ["model_dir"]
@@ -225,16 +245,23 @@ def test_training_failed_checks_include_model_dir_when_not_ready():
 
 def test_training_failed_checks_ready_when_all_training_guards_pass():
     failed = training_failed_checks(
-        dataset={"ok": True},
-        project_dependencies={"ok": True},
-        missing_fallback=[],
-        model_guard={"ready": True},
+        preflight_failed=[],
         torch_info={"cuda_available": True, "cuda_device_count": 1},
-        require_cuda=True,
-        kernel_guard={"matches": True},
+        bitsandbytes_info={"import_ok": True, "cuda_available": True},
     )
 
     assert failed == []
+
+
+def test_training_failed_checks_include_bitsandbytes_cuda():
+    failed = training_failed_checks(
+        preflight_failed=[],
+        torch_info={"cuda_available": True, "cuda_device_count": 1},
+        bitsandbytes_info={"import_ok": False, "cuda_available": False},
+    )
+
+    assert "bitsandbytes_import" in failed
+    assert "bitsandbytes_cuda" in failed
 
 
 def test_notebook_guard_training_ready_when_all_checks_pass(tmp_path: Path, monkeypatch):
@@ -255,6 +282,11 @@ def test_notebook_guard_training_ready_when_all_checks_pass(tmp_path: Path, monk
             "cuda_device_name": "fake-cuda",
         },
     )
+    monkeypatch.setattr(
+        gpu_notebook,
+        "bitsandbytes_environment",
+        lambda: {"import_ok": True, "cuda_available": True},
+    )
 
     guard = notebook_guard(
         paths,
@@ -263,6 +295,7 @@ def test_notebook_guard_training_ready_when_all_checks_pass(tmp_path: Path, monk
     )
 
     assert guard["training_ready"] is True
+    assert guard["preflight_ready"] is True
     assert guard["failed_checks"] == []
 
 
@@ -284,6 +317,11 @@ def test_notebook_guard_training_not_ready_without_cuda(tmp_path: Path, monkeypa
             "cuda_device_name": None,
         },
     )
+    monkeypatch.setattr(
+        gpu_notebook,
+        "bitsandbytes_environment",
+        lambda: {"import_ok": True, "cuda_available": True},
+    )
 
     guard = notebook_guard(
         paths,
@@ -292,7 +330,83 @@ def test_notebook_guard_training_not_ready_without_cuda(tmp_path: Path, monkeypa
     )
 
     assert guard["training_ready"] is False
+    assert guard["preflight_ready"] is True
     assert "cuda_available" in guard["failed_checks"]
+
+
+def test_cuda_runtime_diagnostics_outputs_required_fields(tmp_path: Path, monkeypatch):
+    root = find_project_root(Path.cwd())
+    model_dir = tmp_path / "qwen"
+    write_minimum_model_files(model_dir)
+    (model_dir / "model.safetensors").write_bytes(b"fake")
+
+    monkeypatch.setattr(
+        gpu_notebook,
+        "torch_environment",
+        lambda: {
+            "torch_import_ok": True,
+            "torch_version": "2.2.2+cu118",
+            "torch_file": "/fake/torch/__init__.py",
+            "torch_cuda_version": "11.8",
+            "cuda_available": False,
+            "cuda_device_count": 0,
+            "cuda_device_name": None,
+            "cuda_error": "driver too old",
+        },
+    )
+    monkeypatch.setattr(
+        gpu_notebook,
+        "bitsandbytes_environment",
+        lambda: {
+            "installed": True,
+            "import_ok": False,
+            "version": "0.44.1",
+            "cuda_available": False,
+            "error": "no cuda",
+        },
+    )
+    monkeypatch.setattr(gpu_notebook, "nvidia_smi_summary", lambda: {"available": False})
+
+    report = cuda_runtime_diagnostics(
+        root,
+        model_dir=str(model_dir),
+        expected_kernel_python=sys.executable,
+    )
+
+    assert report["python_executable"] == sys.executable
+    assert "platform" in report
+    assert report["torch"]["torch_version"] == "2.2.2+cu118"
+    assert "nvidia_smi" in report
+    assert "bitsandbytes" in report
+    assert "transformers_version" in report
+    assert "peft_version" in report
+    assert report["training_backend"] == "qlora_4bit_bitsandbytes"
+    assert report["training_ready"] is False
+    assert "cuda_available" in report["failed_checks"]
+
+
+def test_diagnose_cuda_runtime_script_outputs_json():
+    result = subprocess.run(
+        [sys.executable, "scripts/phase3/diagnose_cuda_runtime.py"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    payload = json.loads(result.stdout)
+
+    for key in (
+        "python_executable",
+        "platform",
+        "torch",
+        "nvidia_smi",
+        "transformers_version",
+        "peft_version",
+        "bitsandbytes",
+        "training_backend",
+        "training_ready",
+        "failed_checks",
+    ):
+        assert key in payload
 
 
 def test_model_dir_guard_requires_config_tokenizer_and_safetensors(tmp_path: Path):
@@ -489,6 +603,8 @@ def test_notebook_uses_unified_runtime_guard_and_default_no_training():
     assert "from procureguard.phase3.paths import resolve_project_root" in text
     assert "def resolve_project_root" not in text
     assert "notebook_runtime_guard" in text
+    assert "require_cuda=REQUIRE_CUDA_FOR_TRAINING" in text
+    assert "require_cuda=RUN_TRAINING and REQUIRE_CUDA_FOR_TRAINING" not in text
     assert "hydrate_runtime_context" in text
     assert "run_base_inference_smoke" in text
     assert "missing_modules = [" not in text

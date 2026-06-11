@@ -9,6 +9,8 @@ import json
 import os
 from pathlib import Path
 import random
+import platform
+import subprocess
 import sys
 from typing import Any
 
@@ -23,6 +25,7 @@ DATASET_FILES = ("train.jsonl", "validation.jsonl", "test.jsonl")
 DEFAULT_MODEL_ID = "Qwen/Qwen2.5-0.5B-Instruct"
 DEFAULT_MODELSCOPE_MODEL_DIR = "/mnt/workspace/models/phase3/Qwen2.5-0.5B-Instruct"
 DEFAULT_MODELSCOPE_KERNEL_PYTHON = "/mnt/workspace/ProcureAgent/.venv-phase3/bin/python"
+TRAINING_BACKEND = "qlora_4bit_bitsandbytes"
 PROJECT_DEPENDENCY_HELP = (
     "Missing ProcureGuard project dependency modules: {missing}. "
     "Activate .venv-phase3, then run: python -m pip install -e ."
@@ -181,14 +184,92 @@ def torch_environment() -> dict[str, Any]:
         return {"torch_import_ok": False, "cuda_available": False}
     import torch
 
+    cuda_available = False
+    cuda_device_count = 0
+    cuda_device_name = None
+    cuda_error = None
+    try:
+        cuda_available = torch.cuda.is_available()
+        cuda_device_count = torch.cuda.device_count() if cuda_available else 0
+        cuda_device_name = torch.cuda.get_device_name(0) if cuda_available else None
+    except Exception as exc:  # noqa: BLE001
+        cuda_error = str(exc)
     return {
         "torch_import_ok": True,
         "torch_version": torch.__version__,
-        "cuda_available": torch.cuda.is_available(),
-        "cuda_device_count": torch.cuda.device_count() if torch.cuda.is_available() else 0,
-        "cuda_device_name": torch.cuda.get_device_name(0)
-        if torch.cuda.is_available()
-        else None,
+        "torch_file": str(Path(torch.__file__).resolve()),
+        "torch_cuda_version": torch.version.cuda,
+        "cuda_available": cuda_available,
+        "cuda_device_count": cuda_device_count,
+        "cuda_device_name": cuda_device_name,
+        "cuda_error": cuda_error,
+    }
+
+
+def bitsandbytes_environment() -> dict[str, Any]:
+    """检查 bitsandbytes 是否满足 4-bit QLoRA 训练路径。"""
+
+    if util.find_spec("bitsandbytes") is None:
+        return {
+            "installed": False,
+            "import_ok": False,
+            "version": None,
+            "cuda_available": False,
+            "error": "bitsandbytes is not installed",
+        }
+    try:
+        import bitsandbytes as bnb
+
+        cuda_available = False
+        cuda_specs = None
+        cuda_error = None
+        try:
+            from bitsandbytes.cuda_specs import get_cuda_specs
+
+            cuda_specs = get_cuda_specs()
+            cuda_available = cuda_specs is not None
+        except Exception as exc:  # noqa: BLE001
+            cuda_error = str(exc)
+        return {
+            "installed": True,
+            "import_ok": True,
+            "version": getattr(bnb, "__version__", None),
+            "file": str(Path(bnb.__file__).resolve()),
+            "cuda_available": cuda_available,
+            "cuda_specs": str(cuda_specs) if cuda_specs is not None else None,
+            "error": cuda_error,
+        }
+    except Exception as exc:  # noqa: BLE001
+        return {
+            "installed": True,
+            "import_ok": False,
+            "version": package_versions(("bitsandbytes",)).get("bitsandbytes"),
+            "cuda_available": False,
+            "error": str(exc),
+        }
+
+
+def nvidia_smi_summary() -> dict[str, Any]:
+    """读取 nvidia-smi 摘要，不修改环境。"""
+
+    command = ["nvidia-smi"]
+    try:
+        result = subprocess.run(
+            command,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except FileNotFoundError:
+        return {"available": False, "error": "nvidia-smi not found"}
+    except Exception as exc:  # noqa: BLE001
+        return {"available": False, "error": str(exc)}
+    return {
+        "available": result.returncode == 0,
+        "returncode": result.returncode,
+        "stdout": result.stdout.strip(),
+        "stderr": result.stderr.strip(),
     }
 
 
@@ -210,17 +291,15 @@ def kernel_python_guard(expected_kernel_python: str | None = None) -> dict[str, 
     }
 
 
-def training_failed_checks(
+def preflight_failed_checks(
     *,
     dataset: dict[str, Any],
     project_dependencies: dict[str, Any],
     missing_fallback: list[str],
     model_guard: dict[str, Any],
-    torch_info: dict[str, Any],
-    require_cuda: bool,
     kernel_guard: dict[str, Any] | None = None,
 ) -> list[str]:
-    """汇总训练前 guard 失败项，供 Notebook fail fast 使用。"""
+    """汇总不依赖 CUDA 的基础 preflight 失败项。"""
 
     failed: list[str] = []
     if not dataset["ok"]:
@@ -231,13 +310,28 @@ def training_failed_checks(
         failed.append("phase3_lora_dependencies")
     if not model_guard["ready"]:
         failed.append("model_dir")
-    if require_cuda:
-        if not torch_info.get("cuda_available"):
-            failed.append("cuda_available")
-        if int(torch_info.get("cuda_device_count") or 0) <= 0:
-            failed.append("cuda_device_count")
     if kernel_guard is not None and not kernel_guard["matches"]:
         failed.append("kernel_python")
+    return failed
+
+
+def training_failed_checks(
+    *,
+    preflight_failed: list[str],
+    torch_info: dict[str, Any],
+    bitsandbytes_info: dict[str, Any],
+) -> list[str]:
+    """汇总真实训练门禁失败项，始终检查 CUDA 与 bitsandbytes。"""
+
+    failed = list(preflight_failed)
+    if not torch_info.get("cuda_available"):
+        failed.append("cuda_available")
+    if int(torch_info.get("cuda_device_count") or 0) <= 0:
+        failed.append("cuda_device_count")
+    if not bitsandbytes_info.get("import_ok"):
+        failed.append("bitsandbytes_import")
+    if not bitsandbytes_info.get("cuda_available"):
+        failed.append("bitsandbytes_cuda")
     return failed
 
 
@@ -338,6 +432,7 @@ def notebook_guard(
     project_dependencies = assert_project_dependencies()
     dataset = verify_dataset_hashes(paths)
     torch_info = torch_environment()
+    bitsandbytes_info = bitsandbytes_environment()
     missing_fallback = module_missing(FALLBACK_MODULES)
     optional_versions = package_versions(OPTIONAL_MODULES)
     fallback_versions = package_versions(FALLBACK_MODULES)
@@ -348,14 +443,17 @@ def notebook_guard(
     )
     model_guard = model_dir_guard(paths.model_dir)
     kernel_guard = kernel_python_guard(expected_kernel_python)
-    failed_checks = training_failed_checks(
+    preflight_failed = preflight_failed_checks(
         dataset=dataset,
         project_dependencies=project_dependencies,
         missing_fallback=missing_fallback,
         model_guard=model_guard,
-        torch_info=torch_info,
-        require_cuda=require_cuda,
         kernel_guard=kernel_guard,
+    )
+    failed_checks = training_failed_checks(
+        preflight_failed=preflight_failed,
+        torch_info=torch_info,
+        bitsandbytes_info=bitsandbytes_info,
     )
     guard = {
         "python_executable": sys.executable,
@@ -370,19 +468,74 @@ def notebook_guard(
         "model_cache_dir": str(paths.model_cache_dir),
         "model_id": DEFAULT_MODEL_ID,
         "backend": backend,
+        "training_backend": TRAINING_BACKEND,
         "prefer_unsloth": prefer_unsloth,
         "fallback_missing": missing_fallback,
         "fallback_versions": fallback_versions,
         "optional_versions": optional_versions,
         "project_dependencies": project_dependencies,
         "torch": torch_info,
+        "bitsandbytes": bitsandbytes_info,
         "dataset": dataset,
         "model_dir": model_guard,
         "require_cuda": require_cuda,
+        "preflight_failed_checks": preflight_failed,
+        "preflight_ready": not preflight_failed,
         "failed_checks": failed_checks,
         "training_ready": not failed_checks,
     }
     return guard
+
+
+def cuda_runtime_diagnostics(
+    project_root: Path | None = None,
+    model_dir: str | None = None,
+    expected_kernel_python: str | None = None,
+) -> dict[str, Any]:
+    """输出 Phase 3 CUDA runtime 只读诊断信息。"""
+
+    root = project_root or find_project_root()
+    paths = phase3_paths(root, model_dir=model_dir)
+    torch_info = torch_environment()
+    bitsandbytes_info = bitsandbytes_environment()
+    project_dependencies = project_dependency_guard()
+    missing_fallback = module_missing(FALLBACK_MODULES)
+    model_guard = model_dir_guard(paths.model_dir)
+    dataset = verify_dataset_hashes(paths)
+    kernel_guard = kernel_python_guard(expected_kernel_python)
+    preflight_failed = preflight_failed_checks(
+        dataset=dataset,
+        project_dependencies=project_dependencies,
+        missing_fallback=missing_fallback,
+        model_guard=model_guard,
+        kernel_guard=kernel_guard,
+    )
+    failed_checks = training_failed_checks(
+        preflight_failed=preflight_failed,
+        torch_info=torch_info,
+        bitsandbytes_info=bitsandbytes_info,
+    )
+    return {
+        "python_executable": sys.executable,
+        "platform": platform.platform(),
+        "project_root": str(paths.project_root),
+        "model_dir": str(paths.model_dir) if paths.model_dir else None,
+        "phase3_model_dir_env": os.environ.get("PHASE3_MODEL_DIR"),
+        "kernel_python": kernel_guard,
+        "training_backend": TRAINING_BACKEND,
+        "torch": torch_info,
+        "nvidia_smi": nvidia_smi_summary(),
+        "transformers_version": package_versions(("transformers",)).get("transformers"),
+        "peft_version": package_versions(("peft",)).get("peft"),
+        "bitsandbytes": bitsandbytes_info,
+        "dataset": dataset,
+        "model_guard": model_guard,
+        "project_dependencies": project_dependencies,
+        "fallback_missing": missing_fallback,
+        "preflight_ready": not preflight_failed,
+        "training_ready": not failed_checks,
+        "failed_checks": failed_checks,
+    }
 
 
 def write_guard_report(paths: Phase3Paths, guard: dict[str, Any], filename: str) -> Path:
