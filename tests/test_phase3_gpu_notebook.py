@@ -13,7 +13,12 @@ from procureguard.phase3.gpu_notebook import (
     find_project_root,
     hydrate_runtime_context,
     model_dir_guard,
+    notebook_guard,
+    notebook_kernel_python_from_env,
+    notebook_model_dir_from_env,
+    notebook_runtime_guard,
     phase3_paths,
+    training_failed_checks,
     verify_dataset_hashes,
     verify_notebook_env,
 )
@@ -128,6 +133,19 @@ def test_bootstrap_creates_output_dirs_and_writes_guard(tmp_path: Path):
     assert isolated_guard["dataset"]["ok"] is True
 
 
+def test_notebook_runtime_guard_does_not_overwrite_bootstrap_report(tmp_path: Path):
+    root = find_project_root(Path.cwd())
+
+    bootstrap = bootstrap_notebook(root, require_cuda=False, artifact_dir=tmp_path)
+    bootstrap_report = Path(bootstrap["guard_report"])
+    before = bootstrap_report.read_text(encoding="utf-8")
+    runtime = notebook_runtime_guard(root, require_cuda=False, artifact_dir=tmp_path)
+
+    assert bootstrap_report.name == "environment_guard.json"
+    assert Path(runtime["guard_report"]).name == "notebook_runtime_guard.json"
+    assert bootstrap_report.read_text(encoding="utf-8") == before
+
+
 def test_project_dependency_guard_reports_missing_pydantic(monkeypatch):
     original_find_spec = gpu_notebook.util.find_spec
 
@@ -153,6 +171,128 @@ def test_phase3_virtualenv_is_gitignored():
     gitignore = Path(".gitignore").read_text(encoding="utf-8")
 
     assert ".venv-phase3/" in gitignore
+
+
+def test_notebook_defaults_modelscope_paths_when_env_missing():
+    assert (
+        notebook_model_dir_from_env({})
+        == "/mnt/workspace/models/phase3/Qwen2.5-0.5B-Instruct"
+    )
+    assert (
+        notebook_kernel_python_from_env({})
+        == "/mnt/workspace/ProcureAgent/.venv-phase3/bin/python"
+    )
+
+
+def test_notebook_env_overrides_modelscope_defaults():
+    env = {
+        "PHASE3_MODEL_DIR": "/custom/model",
+        "PHASE3_KERNEL_PYTHON": "/custom/python",
+    }
+
+    assert notebook_model_dir_from_env(env) == "/custom/model"
+    assert notebook_kernel_python_from_env(env) == "/custom/python"
+
+
+def test_training_failed_checks_include_cuda_when_required():
+    failed = training_failed_checks(
+        dataset={"ok": True},
+        project_dependencies={"ok": True},
+        missing_fallback=[],
+        model_guard={"ready": True},
+        torch_info={"cuda_available": False, "cuda_device_count": 0},
+        require_cuda=True,
+        kernel_guard={"matches": True},
+    )
+
+    assert "cuda_available" in failed
+    assert "cuda_device_count" in failed
+
+
+def test_training_failed_checks_include_model_dir_when_not_ready():
+    failed = training_failed_checks(
+        dataset={"ok": True},
+        project_dependencies={"ok": True},
+        missing_fallback=[],
+        model_guard={"ready": False},
+        torch_info={"cuda_available": True, "cuda_device_count": 1},
+        require_cuda=True,
+        kernel_guard={"matches": True},
+    )
+
+    assert failed == ["model_dir"]
+
+
+def test_training_failed_checks_ready_when_all_training_guards_pass():
+    failed = training_failed_checks(
+        dataset={"ok": True},
+        project_dependencies={"ok": True},
+        missing_fallback=[],
+        model_guard={"ready": True},
+        torch_info={"cuda_available": True, "cuda_device_count": 1},
+        require_cuda=True,
+        kernel_guard={"matches": True},
+    )
+
+    assert failed == []
+
+
+def test_notebook_guard_training_ready_when_all_checks_pass(tmp_path: Path, monkeypatch):
+    root = find_project_root(Path.cwd())
+    model_dir = tmp_path / "qwen"
+    write_minimum_model_files(model_dir)
+    (model_dir / "model.safetensors").write_bytes(b"fake")
+    paths = phase3_paths(root, artifact_dir=tmp_path / "artifacts", model_dir=str(model_dir))
+
+    monkeypatch.setattr(gpu_notebook, "module_missing", lambda names: [])
+    monkeypatch.setattr(
+        gpu_notebook,
+        "torch_environment",
+        lambda: {
+            "torch_import_ok": True,
+            "cuda_available": True,
+            "cuda_device_count": 1,
+            "cuda_device_name": "fake-cuda",
+        },
+    )
+
+    guard = notebook_guard(
+        paths,
+        require_cuda=True,
+        expected_kernel_python=sys.executable,
+    )
+
+    assert guard["training_ready"] is True
+    assert guard["failed_checks"] == []
+
+
+def test_notebook_guard_training_not_ready_without_cuda(tmp_path: Path, monkeypatch):
+    root = find_project_root(Path.cwd())
+    model_dir = tmp_path / "qwen"
+    write_minimum_model_files(model_dir)
+    (model_dir / "model.safetensors").write_bytes(b"fake")
+    paths = phase3_paths(root, artifact_dir=tmp_path / "artifacts", model_dir=str(model_dir))
+
+    monkeypatch.setattr(gpu_notebook, "module_missing", lambda names: [])
+    monkeypatch.setattr(
+        gpu_notebook,
+        "torch_environment",
+        lambda: {
+            "torch_import_ok": True,
+            "cuda_available": False,
+            "cuda_device_count": 0,
+            "cuda_device_name": None,
+        },
+    )
+
+    guard = notebook_guard(
+        paths,
+        require_cuda=True,
+        expected_kernel_python=sys.executable,
+    )
+
+    assert guard["training_ready"] is False
+    assert "cuda_available" in guard["failed_checks"]
 
 
 def test_model_dir_guard_requires_config_tokenizer_and_safetensors(tmp_path: Path):
@@ -343,9 +483,12 @@ def test_notebook_uses_unified_runtime_guard_and_default_no_training():
 
     assert "RUN_TRAINING = False" in text
     assert "RUN_BASE_SMOKE = False" in text
+    assert "notebook_model_dir_from_env" in text
+    assert "notebook_kernel_python_from_env" in text
+    assert "os.environ.get('PHASE3_MODEL_DIR')" not in text
     assert "from procureguard.phase3.paths import resolve_project_root" in text
     assert "def resolve_project_root" not in text
-    assert "bootstrap_notebook" in text
+    assert "notebook_runtime_guard" in text
     assert "hydrate_runtime_context" in text
     assert "run_base_inference_smoke" in text
     assert "missing_modules = [" not in text

@@ -112,6 +112,24 @@ python -m pip install -e .
 
 Notebook 的项目根目录由 `procureguard.phase3.paths.resolve_project_root` 统一解析。它会优先读取 `PROCUREGUARD_PROJECT_ROOT`，并兼容 Kernel cwd 为 `/mnt/workspace`、仓库位于 `/mnt/workspace/ProcureAgent` 的 ModelScope 场景。不要在 Notebook 中手工写死项目路径。
 
+Notebook 的模型目录和 Kernel Python 也有 ModelScope 默认值。即使 Terminal 的 `export` 没有继承到已启动的 Notebook Kernel，第一格也会使用：
+
+```text
+PHASE3_MODEL_DIR=/mnt/workspace/models/phase3/Qwen2.5-0.5B-Instruct
+PHASE3_KERNEL_PYTHON=/mnt/workspace/ProcureAgent/.venv-phase3/bin/python
+```
+
+环境变量仍然优先于默认值；不要在 Notebook 中手工写死路径。
+
+Terminal bootstrap 报告和 Notebook runtime guard 报告分开保存：
+
+```text
+artifacts/phase3/logs/environment_guard.json
+artifacts/phase3/logs/notebook_runtime_guard.json
+```
+
+Notebook 只写 `notebook_runtime_guard.json`，不会覆盖 Terminal 已生成的 `environment_guard.json`。当 `RUN_TRAINING=True` 时，Notebook guard 必须同时通过数据 SHA、项目依赖、LoRA 依赖、模型目录、CUDA、CUDA device count 和 Kernel Python 检查；失败时会在 `failed_checks` 中列出具体原因。
+
 ## 5. Qwen 模型准备
 
 模型目录统一使用：

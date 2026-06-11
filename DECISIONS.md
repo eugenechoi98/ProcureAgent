@@ -1,5 +1,8 @@
 # DECISIONS.md
 
+## 2026-06-12：Phase 3 Notebook runtime guard 不覆盖 Terminal bootstrap
+ModelScope Terminal 的环境变量不会自动继承到已启动的 Notebook Kernel。Phase 3D.3 为 Notebook 配置 ModelScope 默认模型目录和 Kernel Python，同时将 Notebook guard 写入 `notebook_runtime_guard.json`，Terminal bootstrap 继续保留 `environment_guard.json`，避免 Notebook 用缺配置报告覆盖正确的 Terminal preflight 证据。
+
 ## 2026-06-12：Phase 3 Notebook 使用统一 project-root resolver
 ModelScope Notebook Kernel 的 cwd 可能是 `/mnt/workspace`，而仓库在 `/mnt/workspace/ProcureAgent`。Phase 3D.2 将项目根目录解析收口到 `procureguard.phase3.paths.resolve_project_root`，支持环境变量、cwd/parents、cwd 下的 `ProcureAgent`、Notebook 路径和 ModelScope 默认候选，避免 Notebook 手工写死路径。
 

@@ -21,6 +21,8 @@ OPTIONAL_MODULES = ("unsloth", "bitsandbytes")
 PROJECT_DEPENDENCY_MODULES = ("pydantic",)
 DATASET_FILES = ("train.jsonl", "validation.jsonl", "test.jsonl")
 DEFAULT_MODEL_ID = "Qwen/Qwen2.5-0.5B-Instruct"
+DEFAULT_MODELSCOPE_MODEL_DIR = "/mnt/workspace/models/phase3/Qwen2.5-0.5B-Instruct"
+DEFAULT_MODELSCOPE_KERNEL_PYTHON = "/mnt/workspace/ProcureAgent/.venv-phase3/bin/python"
 PROJECT_DEPENDENCY_HELP = (
     "Missing ProcureGuard project dependency modules: {missing}. "
     "Activate .venv-phase3, then run: python -m pip install -e ."
@@ -73,6 +75,20 @@ def resolve_model_dir(project_root: Path, explicit_model_dir: str | None = None)
         project_root / "models_cache" / "Qwen2.5-0.5B-Instruct",
     ]
     return next((path.resolve() for path in candidates if path.exists()), None)
+
+
+def notebook_model_dir_from_env(environ: dict[str, str] | None = None) -> str:
+    """Notebook 使用环境变量优先、ModelScope 默认值兜底的模型目录。"""
+
+    env = os.environ if environ is None else environ
+    return env.get("PHASE3_MODEL_DIR", DEFAULT_MODELSCOPE_MODEL_DIR)
+
+
+def notebook_kernel_python_from_env(environ: dict[str, str] | None = None) -> str:
+    """Notebook 使用环境变量优先、ModelScope 默认值兜底的 Kernel Python。"""
+
+    env = os.environ if environ is None else environ
+    return env.get("PHASE3_KERNEL_PYTHON", DEFAULT_MODELSCOPE_KERNEL_PYTHON)
 
 
 def phase3_paths(
@@ -176,6 +192,55 @@ def torch_environment() -> dict[str, Any]:
     }
 
 
+def kernel_python_guard(expected_kernel_python: str | None = None) -> dict[str, Any]:
+    """检查 Notebook Kernel Python 是否和预期虚拟环境一致。"""
+
+    actual = Path(sys.executable).expanduser().resolve()
+    if not expected_kernel_python:
+        return {
+            "expected": None,
+            "actual": str(actual),
+            "matches": True,
+        }
+    expected = Path(expected_kernel_python).expanduser().resolve()
+    return {
+        "expected": str(expected),
+        "actual": str(actual),
+        "matches": actual == expected,
+    }
+
+
+def training_failed_checks(
+    *,
+    dataset: dict[str, Any],
+    project_dependencies: dict[str, Any],
+    missing_fallback: list[str],
+    model_guard: dict[str, Any],
+    torch_info: dict[str, Any],
+    require_cuda: bool,
+    kernel_guard: dict[str, Any] | None = None,
+) -> list[str]:
+    """汇总训练前 guard 失败项，供 Notebook fail fast 使用。"""
+
+    failed: list[str] = []
+    if not dataset["ok"]:
+        failed.append("data_sha_guard")
+    if not project_dependencies["ok"]:
+        failed.append("project_dependencies")
+    if missing_fallback:
+        failed.append("phase3_lora_dependencies")
+    if not model_guard["ready"]:
+        failed.append("model_dir")
+    if require_cuda:
+        if not torch_info.get("cuda_available"):
+            failed.append("cuda_available")
+        if int(torch_info.get("cuda_device_count") or 0) <= 0:
+            failed.append("cuda_device_count")
+    if kernel_guard is not None and not kernel_guard["matches"]:
+        failed.append("kernel_python")
+    return failed
+
+
 def verify_dataset_hashes(paths: Phase3Paths) -> dict[str, Any]:
     """核对 generated JSONL 与 dataset_summary.json 中的 SHA-256。"""
 
@@ -264,6 +329,7 @@ def notebook_guard(
     require_cuda: bool = False,
     prefer_unsloth: bool = True,
     write: bool = False,
+    expected_kernel_python: str | None = None,
 ) -> dict[str, Any]:
     """生成 Notebook bootstrap/verify 统一 guard。"""
 
@@ -281,8 +347,19 @@ def notebook_guard(
         else "transformers_peft"
     )
     model_guard = model_dir_guard(paths.model_dir)
+    kernel_guard = kernel_python_guard(expected_kernel_python)
+    failed_checks = training_failed_checks(
+        dataset=dataset,
+        project_dependencies=project_dependencies,
+        missing_fallback=missing_fallback,
+        model_guard=model_guard,
+        torch_info=torch_info,
+        require_cuda=require_cuda,
+        kernel_guard=kernel_guard,
+    )
     guard = {
         "python_executable": sys.executable,
+        "kernel_python": kernel_guard,
         "project_root": str(paths.project_root),
         "requirements_path": str(paths.requirements_path),
         "artifact_dir": str(paths.artifact_dir),
@@ -302,10 +379,8 @@ def notebook_guard(
         "dataset": dataset,
         "model_dir": model_guard,
         "require_cuda": require_cuda,
-        "training_ready": dataset["ok"]
-        and not missing_fallback
-        and model_guard["ready"]
-        and (torch_info["cuda_available"] or not require_cuda),
+        "failed_checks": failed_checks,
+        "training_ready": not failed_checks,
     }
     return guard
 
@@ -341,6 +416,30 @@ def bootstrap_notebook(
     return guard
 
 
+def notebook_runtime_guard(
+    project_root: Path | None = None,
+    require_cuda: bool = False,
+    model_dir: str | None = None,
+    expected_kernel_python: str | None = None,
+    artifact_dir: Path | None = None,
+) -> dict[str, Any]:
+    """Notebook 专用 runtime guard，写独立报告，不覆盖 Terminal bootstrap。"""
+
+    assert_project_dependencies()
+    paths = phase3_paths(project_root=project_root, artifact_dir=artifact_dir, model_dir=model_dir)
+    guard = notebook_guard(
+        paths,
+        require_cuda=require_cuda,
+        write=True,
+        expected_kernel_python=expected_kernel_python,
+    )
+    guard["created_output_dirs"] = ensure_output_dirs(paths)
+    guard["guard_report"] = str(
+        write_guard_report(paths, guard, "notebook_runtime_guard.json")
+    )
+    return guard
+
+
 def verify_notebook_env(
     project_root: Path | None = None,
     require_cuda: bool = False,
@@ -359,12 +458,23 @@ def hydrate_runtime_context(
     model_dir: str | None = None,
     prefer_unsloth: bool = True,
     artifact_dir: Path | None = None,
+    require_cuda: bool = False,
+    expected_kernel_python: str | None = None,
 ) -> dict[str, Any]:
     """恢复 Notebook Kernel 的数据、配置与输出目录上下文。"""
 
     assert_project_dependencies()
     paths = phase3_paths(project_root=project_root, artifact_dir=artifact_dir, model_dir=model_dir)
-    guard = notebook_guard(paths, prefer_unsloth=prefer_unsloth, write=True)
+    guard = notebook_guard(
+        paths,
+        require_cuda=require_cuda,
+        prefer_unsloth=prefer_unsloth,
+        write=True,
+        expected_kernel_python=expected_kernel_python,
+    )
+    guard["guard_report"] = str(
+        write_guard_report(paths, guard, "notebook_runtime_guard.json")
+    )
     context = build_runtime_context(
         paths.project_root,
         backend=guard["backend"],
