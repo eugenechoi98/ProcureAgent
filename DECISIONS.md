@@ -1,5 +1,11 @@
 # DECISIONS.md
 
+## 2026-06-11：Phase 3 Notebook 采用 bootstrap / verify / runtime context 分层
+Phase 3B 将 Notebook 中零散的路径、依赖、数据 SHA、模型目录和输出目录检查沉淀为可复用脚本。bootstrap 负责创建 artifacts 并写 guard，verify 只读检查环境，runtime context 恢复当前 Kernel 的数据、prompt、训练参数和导出路径，避免云端手工补路径。
+
+## 2026-06-11：Phase 3 base inference smoke 默认 dry-run
+base 推理入口只生成可执行计划，只有显式 `--run` 且本地 Qwen 模型目录 guard 通过时才加载模型。这样可以先验证路径和数据口径，不在本地或验收阶段误触发大模型推理。
+
 ## 2026-06-11：Phase 3 小模型只解释确定性异常事实
 风险等级、建议动作、金额匹配和异常类型继续由 Phase 2 确定性规则链产生。LoRA 模型只把这些输入事实整理成固定结构的审核说明，避免小模型改变审核结论或承担金额计算。
 
