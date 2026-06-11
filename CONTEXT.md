@@ -10,10 +10,11 @@
 - Phase 3B 已通过验收：bootstrap、verify、runtime context、数据 SHA guard、模型目录 guard 和 base inference smoke dry-run 已完成。
 - Phase 3C 已补齐 Notebook 训练后导出闭环：base/fine-tuned predictions、evaluation report 和 artifacts manifest。
 - Phase 3C.1 已新增显式 Qwen 模型准备脚本和 ModelScope Kernel 注册说明；模型不会由 guard 静默下载。
+- Phase 3D.1 已收口 ModelScope `.venv-phase3` 安装顺序：先 `pip install -e .` 安装项目默认依赖，再安装 Phase 3 LoRA 依赖；verify 会提前检查 pydantic。
 - 本地已通过 Phase 3 专项测试和全量测试；真实 ModelScope CUDA verify、base smoke `--run` 和 LoRA 训练尚未执行。
 
 ## 下一步
-用户在 ModelScope 按 runbook 先执行 git pull、创建 `.venv-phase3`、注册 Kernel、显式准备或验证 Qwen 模型，再执行 verify、bootstrap、base smoke dry-run、base smoke `--run`，全部通过后再打开 Notebook 执行 guard、训练和导出。
+用户在 ModelScope 按 runbook 先执行 git pull、激活现有 `.venv-phase3`、补执行 `python -m pip install -e .`、确认 Kernel、显式准备或验证 Qwen 模型，再执行 verify、bootstrap、base smoke dry-run、base smoke `--run`，全部通过后再打开 Notebook 执行 guard、训练和导出。
 
 ## 注意事项
 - Phase 3 模型只生成异常说明，不计算金额、不决定风险等级、不改变建议动作。

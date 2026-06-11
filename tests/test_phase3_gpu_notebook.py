@@ -5,7 +5,9 @@ from pathlib import Path
 import subprocess
 import sys
 
+import procureguard.phase3.gpu_notebook as gpu_notebook
 from procureguard.phase3.gpu_notebook import (
+    assert_project_dependencies,
     bootstrap_notebook,
     build_base_inference_plan,
     find_project_root,
@@ -57,6 +59,33 @@ def test_bootstrap_creates_output_dirs_and_writes_guard(tmp_path: Path):
     assert guard["dataset"]["ok"] is True
     assert Path(guard["guard_report"]).exists()
     assert isolated_guard["dataset"]["ok"] is True
+
+
+def test_project_dependency_guard_reports_missing_pydantic(monkeypatch):
+    original_find_spec = gpu_notebook.util.find_spec
+
+    def fake_find_spec(name: str):
+        if name == "pydantic":
+            return None
+        return original_find_spec(name)
+
+    monkeypatch.setattr(gpu_notebook.util, "find_spec", fake_find_spec)
+
+    try:
+        assert_project_dependencies()
+    except RuntimeError as exc:
+        message = str(exc)
+    else:
+        raise AssertionError("assert_project_dependencies should fail when pydantic is missing")
+
+    assert "pydantic" in message
+    assert "python -m pip install -e ." in message
+
+
+def test_phase3_virtualenv_is_gitignored():
+    gitignore = Path(".gitignore").read_text(encoding="utf-8")
+
+    assert ".venv-phase3/" in gitignore
 
 
 def test_model_dir_guard_requires_config_tokenizer_and_safetensors(tmp_path: Path):

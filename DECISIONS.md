@@ -1,5 +1,8 @@
 # DECISIONS.md
 
+## 2026-06-11：Phase 3D 独立环境先安装项目默认依赖
+ModelScope `.venv-phase3` 先执行 `python -m pip install -e .`，再安装 `requirements/phase3-lora.txt`。这样 pydantic 等 ProcureGuard 默认依赖进入 Notebook 环境，同时 LoRA 重型依赖仍不混入默认后端依赖。
+
 ## 2026-06-11：Phase 3C 模型准备必须显式执行
 Qwen2.5-0.5B-Instruct 不由 verify、bootstrap、base smoke 或 Notebook 静默下载。云端用户必须先用 `prepare_qwen_model.py --verify-only` 验证已有目录，或显式执行 `--download`，网络不可用时上传完整模型目录或压缩包，避免训练中途才暴露缺文件。
 

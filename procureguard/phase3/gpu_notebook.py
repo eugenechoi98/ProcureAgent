@@ -17,8 +17,13 @@ from procureguard.phase3.runtime import build_runtime_context, runtime_config_di
 
 FALLBACK_MODULES = ("torch", "transformers", "datasets", "accelerate", "peft", "trl")
 OPTIONAL_MODULES = ("unsloth", "bitsandbytes")
+PROJECT_DEPENDENCY_MODULES = ("pydantic",)
 DATASET_FILES = ("train.jsonl", "validation.jsonl", "test.jsonl")
 DEFAULT_MODEL_ID = "Qwen/Qwen2.5-0.5B-Instruct"
+PROJECT_DEPENDENCY_HELP = (
+    "Missing ProcureGuard project dependency modules: {missing}. "
+    "Activate .venv-phase3, then run: python -m pip install -e ."
+)
 
 
 @dataclass(frozen=True)
@@ -133,6 +138,29 @@ def module_missing(names: tuple[str, ...]) -> list[str]:
     return [name for name in names if util.find_spec(name) is None]
 
 
+def project_dependency_guard() -> dict[str, Any]:
+    """检查 ProcureGuard 默认项目依赖是否已安装。"""
+
+    missing = module_missing(PROJECT_DEPENDENCY_MODULES)
+    return {
+        "required_modules": list(PROJECT_DEPENDENCY_MODULES),
+        "missing": missing,
+        "ok": not missing,
+        "install_hint": "python -m pip install -e .",
+    }
+
+
+def assert_project_dependencies() -> dict[str, Any]:
+    """缺少默认项目依赖时给出明确安装提示。"""
+
+    guard = project_dependency_guard()
+    if not guard["ok"]:
+        raise RuntimeError(
+            PROJECT_DEPENDENCY_HELP.format(missing=", ".join(guard["missing"]))
+        )
+    return guard
+
+
 def torch_environment() -> dict[str, Any]:
     """读取 Torch/CUDA 状态，不强制要求本机有 GPU。"""
 
@@ -244,6 +272,7 @@ def notebook_guard(
 
     if write:
         ensure_output_dirs(paths)
+    project_dependencies = assert_project_dependencies()
     dataset = verify_dataset_hashes(paths)
     torch_info = torch_environment()
     missing_fallback = module_missing(FALLBACK_MODULES)
@@ -271,6 +300,7 @@ def notebook_guard(
         "fallback_missing": missing_fallback,
         "fallback_versions": fallback_versions,
         "optional_versions": optional_versions,
+        "project_dependencies": project_dependencies,
         "torch": torch_info,
         "dataset": dataset,
         "model_dir": model_guard,
@@ -304,6 +334,7 @@ def bootstrap_notebook(
 ) -> dict[str, Any]:
     """可写 bootstrap：创建 artifacts，设置随机种子并写 guard。"""
 
+    assert_project_dependencies()
     paths = phase3_paths(project_root=project_root, artifact_dir=artifact_dir, model_dir=model_dir)
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
     random.seed(42)
@@ -321,6 +352,7 @@ def verify_notebook_env(
 ) -> dict[str, Any]:
     """只读 verify：不创建目录、不安装依赖、不下载模型。"""
 
+    assert_project_dependencies()
     paths = phase3_paths(project_root=project_root, artifact_dir=artifact_dir, model_dir=model_dir)
     return notebook_guard(paths, require_cuda=require_cuda, write=False)
 
@@ -333,6 +365,7 @@ def hydrate_runtime_context(
 ) -> dict[str, Any]:
     """恢复 Notebook Kernel 的数据、配置与输出目录上下文。"""
 
+    assert_project_dependencies()
     paths = phase3_paths(project_root=project_root, artifact_dir=artifact_dir, model_dir=model_dir)
     guard = notebook_guard(paths, prefer_unsloth=prefer_unsloth, write=True)
     context = build_runtime_context(
@@ -365,6 +398,7 @@ def build_base_inference_plan(
 ) -> dict[str, Any]:
     """生成 base inference smoke 的可执行计划。"""
 
+    assert_project_dependencies()
     paths = phase3_paths(project_root=project_root, artifact_dir=artifact_dir, model_dir=model_dir)
     model_guard = model_dir_guard(paths.model_dir)
     return {
@@ -388,6 +422,7 @@ def run_base_inference_smoke(
 ) -> dict[str, Any]:
     """默认 dry-run；显式 run=True 时才加载 base model 生成少量预测。"""
 
+    assert_project_dependencies()
     plan = build_base_inference_plan(
         project_root,
         model_dir,

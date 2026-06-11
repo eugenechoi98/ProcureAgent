@@ -9,6 +9,7 @@ htmlcov/
 
 # Virtual environment
 .venv/
+.venv-phase3/
 venv/
 
 # IDE

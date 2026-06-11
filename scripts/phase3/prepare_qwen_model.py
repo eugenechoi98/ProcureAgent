@@ -13,6 +13,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from procureguard.phase3.gpu_notebook import (  # noqa: E402
     DEFAULT_MODEL_ID,
+    assert_project_dependencies,
     model_dir_guard,
 )
 
@@ -81,6 +82,7 @@ def main() -> None:
         "verify_only": args.verify_only,
         "offline_upload_instructions": offline_upload_instructions(model_dir),
     }
+    result["project_dependencies"] = assert_project_dependencies()
 
     if args.download:
         try:
