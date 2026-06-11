@@ -6,6 +6,11 @@ import json
 import pytest
 
 from procureguard.extraction.schemas import OCRToken, SroieSample
+from procureguard.extraction.phase1g_paths import (
+    build_phase1g_paths,
+    require_phase1g_paths,
+    resolve_project_root,
+)
 from procureguard.extraction.validation_inference import (
     compare_reconstruction,
     comparison_to_markdown,
@@ -89,6 +94,35 @@ def test_resolve_sample_images_does_not_rewrite_source_path(tmp_path: Path):
     assert original.image_path == r"data\phase1\sroie_task3\data\receipt.jpg"
 
 
+def write_project_markers(root: Path) -> None:
+    """创建项目根目录识别 fixture。"""
+
+    (root / "procureguard").mkdir(parents=True)
+    (root / "pyproject.toml").write_text("[project]\nname='fixture'\n", encoding="utf-8")
+    (root / "AGENTS.md").write_text("# fixture\n", encoding="utf-8")
+
+
+def test_project_root_resolver_accepts_repository_cwd(tmp_path: Path):
+    write_project_markers(tmp_path)
+
+    assert resolve_project_root(tmp_path) == tmp_path.resolve()
+
+
+def test_project_root_resolver_accepts_repository_parent_cwd(tmp_path: Path):
+    root = tmp_path / "ProcureAgent"
+    write_project_markers(root)
+
+    assert resolve_project_root(tmp_path) == root.resolve()
+
+
+def test_phase1g_path_check_reports_missing_script(tmp_path: Path):
+    write_project_markers(tmp_path)
+    paths = build_phase1g_paths(tmp_path)
+
+    with pytest.raises(FileNotFoundError, match=r"script: .*compare_date_reconstruction\.py"):
+        require_phase1g_paths(paths)
+
+
 def test_comparison_report_and_outputs(tmp_path: Path):
     report = compare_reconstruction(
         [date_sample("one", "30-04-2018", ["DATE:", "30-04-2018"])],
@@ -110,9 +144,14 @@ def test_notebook_has_standalone_phase1g_kernel_cell():
         Path("notebooks/phase1_layoutlmv3_training.ipynb").read_text(encoding="utf-8")
     )
     sources = ["".join(cell.get("source", [])) for cell in notebook["cells"]]
-    source = next(text for text in sources if "compare_date_reconstruction.py" in text)
+    source = next(text for text in sources if "require_phase1g_paths" in text)
 
     assert "sys.executable" in source
+    assert "resolve_project_root" in source
+    assert "require_phase1g_paths" in source
+    assert 'script_path = PROJECT_ROOT / "scripts" / "phase1"' in source
+    assert "str(script_path)" in source
     assert "--image-root" in source
+    assert "PROJECT_ROOT = Path.cwd" not in source
     assert "train_one_epoch" not in source
     assert "check=True" in source

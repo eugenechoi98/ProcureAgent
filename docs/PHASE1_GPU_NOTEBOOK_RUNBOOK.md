@@ -308,6 +308,8 @@ git pull
 打开训练 Notebook，只运行第 14 节 `Phase 1G Existing Checkpoint Inference`。
 该独立单元使用当前 Kernel 的 `sys.executable`，并通过 `--image-root` 在内存中解析
 跨平台图片路径，不改写 processed JSONL，也不需要运行前面的训练单元。
+第 14 节会从 Kernel 当前目录、父目录和直接子目录定位仓库，并在启动推理前检查
+脚本、checkpoint、validation JSONL、图片目录和 baseline 报告。
 
 脚本对同一批模型 token predictions 同时执行旧版和新版日期重建，不训练、不调参。
 结果保存到：

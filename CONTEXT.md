@@ -11,7 +11,7 @@
 - 首次 NVIDIA A10 完整 fine-tuning 已完成，best epoch=5，token F1=0.8647，field macro F1=0.6231。
 - Hybrid 离线 macro F1=0.7949；日期金标 BIO 重建错误经清洗从 122 降至 25，与 25 个 alignment miss 对齐。
 - Phase 1F 验收修复已完成，报告字段和本地数据忽略规则已收口。
-- Phase 1G 单命令 checkpoint inference 已准备，本机无 checkpoint，实际恢复幅度等待 ModelScope 执行。
+- Phase 1G 单命令 checkpoint inference 已准备，并支持 Kernel 从仓库父目录启动；本机无 checkpoint，实际恢复幅度等待 ModelScope 执行。
 
 ## 下一步
 在 ModelScope 执行 `compare_date_reconstruction.py`，回传三个 checkpoint inference 报告文件。
