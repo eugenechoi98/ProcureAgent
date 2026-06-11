@@ -201,6 +201,7 @@ def model_dir_guard(model_dir: Path | None) -> dict[str, Any]:
     safetensors_index = safetensors_index_path.exists()
     indexed_shards: list[str] = []
     missing_indexed_shards: list[str] = []
+    index_valid = True
     if safetensors_index:
         try:
             index = json.loads(safetensors_index_path.read_text(encoding="utf-8"))
@@ -209,10 +210,12 @@ def model_dir_guard(model_dir: Path | None) -> dict[str, Any]:
                 name for name in indexed_shards if not (model_dir / name).exists()
             ]
         except json.JSONDecodeError:
+            index_valid = False
             missing_indexed_shards = ["<invalid model.safetensors.index.json>"]
-    weights_ready = bool(safetensors) or (
-        safetensors_index and bool(indexed_shards) and not missing_indexed_shards
-    )
+    if safetensors_index:
+        weights_ready = index_valid and bool(indexed_shards) and not missing_indexed_shards
+    else:
+        weights_ready = bool(safetensors)
     return {
         "configured": True,
         "path": str(model_dir),
@@ -221,6 +224,7 @@ def model_dir_guard(model_dir: Path | None) -> dict[str, Any]:
         "tokenizer_files": tokenizer_files,
         "safetensors_files": safetensors,
         "safetensors_index": safetensors_index,
+        "safetensors_index_valid": index_valid if safetensors_index else None,
         "indexed_shards": indexed_shards,
         "missing_indexed_shards": missing_indexed_shards,
         "ready": model_dir.exists()

@@ -18,6 +18,15 @@ from procureguard.phase3.gpu_notebook import (
 from procureguard.phase3.runtime import write_artifacts_manifest
 
 
+def write_minimum_model_files(model_dir: Path) -> None:
+    """写入模型目录 guard 需要的最小非权重文件。"""
+
+    model_dir.mkdir(parents=True, exist_ok=True)
+    (model_dir / "config.json").write_text("{}", encoding="utf-8")
+    (model_dir / "tokenizer_config.json").write_text("{}", encoding="utf-8")
+    (model_dir / "tokenizer.json").write_text("{}", encoding="utf-8")
+
+
 def test_dataset_sha_guard_matches_summary():
     root = find_project_root(Path.cwd())
     paths = phase3_paths(root)
@@ -66,23 +75,100 @@ def test_model_dir_guard_requires_config_tokenizer_and_safetensors(tmp_path: Pat
     assert ready["ready"] is True
 
 
-def test_model_dir_guard_checks_indexed_shards(tmp_path: Path):
+def test_model_dir_guard_single_safetensors_ready_without_index(tmp_path: Path):
     model_dir = tmp_path / "qwen"
-    model_dir.mkdir()
-    (model_dir / "config.json").write_text("{}", encoding="utf-8")
-    (model_dir / "tokenizer_config.json").write_text("{}", encoding="utf-8")
-    (model_dir / "tokenizer.json").write_text("{}", encoding="utf-8")
+    write_minimum_model_files(model_dir)
+    (model_dir / "model.safetensors").write_bytes(b"fake")
+
+    guard = model_dir_guard(model_dir)
+
+    assert guard["ready"] is True
+    assert guard["safetensors_index"] is False
+
+
+def test_model_dir_guard_index_ready_when_all_shards_exist(tmp_path: Path):
+    model_dir = tmp_path / "qwen"
+    write_minimum_model_files(model_dir)
     (model_dir / "model.safetensors.index.json").write_text(
-        json.dumps({"weight_map": {"a": "model-00001-of-00002.safetensors"}}),
+        json.dumps(
+            {
+                "weight_map": {
+                    "a": "model-00001-of-00002.safetensors",
+                    "b": "model-00002-of-00002.safetensors",
+                }
+            }
+        ),
         encoding="utf-8",
     )
-    missing_shard = model_dir_guard(model_dir)
     (model_dir / "model-00001-of-00002.safetensors").write_bytes(b"fake")
-    ready = model_dir_guard(model_dir)
+    (model_dir / "model-00002-of-00002.safetensors").write_bytes(b"fake")
 
-    assert missing_shard["ready"] is False
-    assert missing_shard["missing_indexed_shards"] == ["model-00001-of-00002.safetensors"]
-    assert ready["ready"] is True
+    guard = model_dir_guard(model_dir)
+
+    assert guard["ready"] is True
+    assert guard["indexed_shards"] == [
+        "model-00001-of-00002.safetensors",
+        "model-00002-of-00002.safetensors",
+    ]
+
+
+def test_model_dir_guard_index_missing_any_shard_not_ready(tmp_path: Path):
+    model_dir = tmp_path / "qwen"
+    write_minimum_model_files(model_dir)
+    (model_dir / "model.safetensors.index.json").write_text(
+        json.dumps(
+            {
+                "weight_map": {
+                    "a": "model-00001-of-00002.safetensors",
+                    "b": "model-00002-of-00002.safetensors",
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    (model_dir / "model-00001-of-00002.safetensors").write_bytes(b"fake")
+
+    guard = model_dir_guard(model_dir)
+
+    assert guard["ready"] is False
+    assert guard["missing_indexed_shards"] == ["model-00002-of-00002.safetensors"]
+
+
+def test_model_dir_guard_index_takes_priority_over_partial_safetensors(tmp_path: Path):
+    model_dir = tmp_path / "qwen"
+    write_minimum_model_files(model_dir)
+    (model_dir / "model.safetensors.index.json").write_text(
+        json.dumps(
+            {
+                "weight_map": {
+                    "a": "model-00001-of-00002.safetensors",
+                    "b": "model-00002-of-00002.safetensors",
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    (model_dir / "model-00001-of-00002.safetensors").write_bytes(b"fake")
+    (model_dir / "unrelated.safetensors").write_bytes(b"fake")
+
+    guard = model_dir_guard(model_dir)
+
+    assert guard["ready"] is False
+    assert guard["safetensors_index"] is True
+    assert guard["missing_indexed_shards"] == ["model-00002-of-00002.safetensors"]
+
+
+def test_model_dir_guard_invalid_index_not_ready(tmp_path: Path):
+    model_dir = tmp_path / "qwen"
+    write_minimum_model_files(model_dir)
+    (model_dir / "model.safetensors.index.json").write_text("{not-json", encoding="utf-8")
+    (model_dir / "model.safetensors").write_bytes(b"fake")
+
+    guard = model_dir_guard(model_dir)
+
+    assert guard["ready"] is False
+    assert guard["safetensors_index_valid"] is False
+    assert guard["missing_indexed_shards"] == ["<invalid model.safetensors.index.json>"]
 
 
 def test_hydrate_runtime_context_loads_fixed_splits(tmp_path: Path):
