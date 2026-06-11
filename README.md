@@ -117,19 +117,26 @@ improvement = 0.1844
 
 字段 F1：
 
-| field | Regex baseline | LayoutLMv3 | Hybrid |
-| --- | ---: | ---: | ---: |
-| company | 0.5704 | 0.7068 | 0.7068 |
-| address | 0.0070 | 0.7376 | 0.7376 |
-| date | 0.8293 | 0.1423 | 0.8293 |
-| total | 0.3481 | 0.9058 | 0.9058 |
-| macro | 0.4387 | 0.6231 | 0.7949 |
+| field | Regex baseline | 首轮 LayoutLMv3 | Corrected LayoutLMv3 | Hybrid |
+| --- | ---: | ---: | ---: | ---: |
+| company | 0.5704 | 0.7068 | 0.7068 | 0.7068 |
+| address | 0.0070 | 0.7376 | 0.7376 | 0.7376 |
+| date | 0.8293 | 0.1423 | 0.8764 | 0.8293 |
+| total | 0.3481 | 0.9058 | 0.9058 | 0.9058 |
+| macro | 0.4387 | 0.6231 | 0.8067 | 0.7949 |
 
-Hybrid 仅为同一 validation split 上的离线评估：company/address/total 使用
-LayoutLMv3，date 使用 OCR + Regex baseline。当前没有接入 API。
+现有 checkpoint 在同一 142 条 validation 上完成离线推理。日期重建清洗使 date F1
+从 0.1423 提升到 0.8764，`date_f1_recovery=+0.7341`；corrected pure
+LayoutLMv3 macro F1=0.8067，高于 Hybrid macro F1=0.7949。因此 Phase 1 MVP
+推荐 `pure_layoutlmv3_date_path`，Hybrid 只保留为 fallback 思路。
+
+该结果属于 `offline_checkpoint_inference` 和
+`local_validation_split_seed_42`，不是 official test，尚未接入 API。
 
 训练报告见 [reports/phase1/gpu_training](reports/phase1/gpu_training)，日期专项分析见
-[layoutlmv3_date_error_analysis.md](reports/phase1/layoutlmv3_date_error_analysis.md)。
+[layoutlmv3_date_error_analysis.md](reports/phase1/layoutlmv3_date_error_analysis.md)，
+checkpoint inference 证据见
+[reports/phase1/checkpoint_inference](reports/phase1/checkpoint_inference)。
 
 SROIE token classification 标签固定为：
 
@@ -155,13 +162,7 @@ B-TOTAL / I-TOTAL
 .\.venv\Scripts\python.exe -m pytest
 ```
 
-## Phase 1 下一步
+## Phase 1 状态
 
-使用现有最佳 checkpoint 重跑 validation inference，对比旧日期重建和新日期重建；
-本阶段仅做离线推理对比，不调参、不接入 API。
-
-ModelScope GPU Notebook 更新仓库后，只需运行训练 Notebook 的第 14 节。该单元使用
-当前 Kernel 的 `sys.executable` 调用 `compare_date_reconstruction.py`。
-
-输出位于 `reports/phase1/checkpoint_inference/`，包含旧/新 date F1、实际恢复幅度、
-逐样本日期结果和 Phase 1 MVP 离线策略建议。
+Phase 1 已完成数据处理、OCR baseline、LayoutLMv3 微调、字段级 F1、日期错误分析
+和 checkpoint inference 证据封板。模型抽取仍保持离线，尚未替换 API 占位字段。

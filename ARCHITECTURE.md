@@ -31,5 +31,6 @@
 - `gpu_notebook_context.py` 在当前 Notebook Kernel 内一次性恢复真实 BIO 标签、样本、processor、Torch、device 和训练配置，避免依赖子进程注入变量。
 - 本地 LayoutLMv3 只接受 `model.safetensors`，processor 和模型均离线加载，不回退到 `pytorch_model.bin`。
 - 字段重建统一经过 `field_reconstruction.py`；日期 span 会去掉 `DATE:`、时间和其他非日期文本。
-- Phase 1 离线 hybrid 采用 LayoutLMv3 抽取 company/address/total、Regex 抽取 date，尚未接入 API。
+- Phase 1 MVP 默认离线策略为 corrected pure LayoutLMv3；同一 142 条本地 validation 上 date F1 从 0.1423 提升到 0.8764，macro F1=0.8067。Hybrid macro F1=0.7949，仅保留为 fallback 思路。
 - `compare_date_reconstruction.py` 复用同一 checkpoint token predictions，对比旧/新日期重建并输出实际 F1 恢复，不触发训练。
+- Phase 1G 结果属于 `offline_checkpoint_inference` 和 `local_validation_split_seed_42`，不是 official test，尚未接入 API。

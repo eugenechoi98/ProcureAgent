@@ -276,7 +276,7 @@ field_macro_f1=0.6231
 
 日期字段的 OCR token 覆盖完整，但旧字段重建会把 `DATE:`、时间和其他文本拼入结果。
 统一日期 span 清洗后，金标 BIO 重建错误从 122 降至 25；剩余 25 条与 alignment miss
-对应。下一步先用现有 checkpoint 重跑 validation inference，不直接修改训练参数。
+对应。现有 checkpoint 已完成 142 条 validation inference，无需重新训练或调整参数。
 
 ## Colab 备用路径
 
@@ -325,3 +325,22 @@ reports/phase1/checkpoint_inference/date_reconstruction_predictions.jsonl
 ```
 
 只需回传上述三个小文件，不需要下载 checkpoint。
+
+### Phase 1G Final Result
+
+```text
+evaluation_type=offline_checkpoint_inference
+evaluation_split=local_validation_split_seed_42
+official_test=false
+integrated_into_api=false
+sample_count=142
+legacy_date_f1=0.1423
+cleaned_date_f1=0.8764
+date_f1_recovery=+0.7341
+corrected_layoutlmv3_macro_f1=0.8067
+hybrid_macro_f1=0.7949
+recommendation=pure_layoutlmv3_date_path
+```
+
+corrected pure LayoutLMv3 已作为 Phase 1 MVP 默认离线策略，Hybrid 仅保留为 fallback
+思路。固化证据位于 `reports/phase1/checkpoint_inference/`。

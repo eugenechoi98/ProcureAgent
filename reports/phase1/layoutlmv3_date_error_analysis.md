@@ -12,8 +12,10 @@
 
 ## Evidence Boundary
 
-云端逐样本 LayoutLMv3 预测和原错误报告尚未回传。本报告不猜测错误样本，只统计本地 validation 可重算的 OCR、BIO alignment、候选数、截断和金标重建证据。
-预测格式、model classification miss、normalization error 和 unknown 需取得云端逐样本预测后补齐。
+云端 142 条 checkpoint predictions 已固化到
+`reports/phase1/checkpoint_inference/date_reconstruction_predictions.jsonl`。
+同一批预测经日期清洗后，date F1 从 0.1423 提升到 0.8764，实际恢复 0.7341；
+剩余 25 个 false negative 与此前记录的 25 个 alignment miss 对齐。
 
 ## Ground Truth Date Formats
 
@@ -32,15 +34,15 @@
 - field_reconstruction_error_after_cleanup: 25
 - truncation: 0
 
-## Model-side Categories Awaiting Predictions
+## Model-side Categories In Original Analysis
 
-- model_classification_miss: unavailable_without_cloud_prediction_details
-- normalization_error: unavailable_without_cloud_prediction_details
-- unknown: unavailable_without_cloud_prediction_details
+- model_classification_miss: original_analysis_did_not_classify
+- normalization_error: resolved_by_checkpoint_reconstruction_comparison
+- unknown: original_analysis_did_not_classify
 
 ## Prediction Format Distribution
 
-- unavailable_without_cloud_prediction_details
+- detailed predictions archived in `checkpoint_inference/date_reconstruction_predictions.jsonl`
 
 ## Representative Cases
 

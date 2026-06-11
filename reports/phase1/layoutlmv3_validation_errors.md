@@ -11,4 +11,6 @@
 | date | 106 | 123 |
 | total | 9 | 17 |
 
-逐样本云端预测尚未回传，因此不伪造模型错误案例。可验证的日期 OCR、alignment、候选、截断和重建证据见 `layoutlmv3_date_error_analysis.md`。
+142 条逐样本云端预测已固化到
+`checkpoint_inference/date_reconstruction_predictions.jsonl`。日期 OCR、alignment、
+候选、截断和重建分析见 `layoutlmv3_date_error_analysis.md`。

@@ -39,6 +39,9 @@ reports/phase1/gpu_notebook_bootstrap.json
 # Model artifacts
 checkpoints/
 models_cache/
+/artifacts/
+/local_artifacts/
+/*_LocalArtifacts/
 *.pt
 *.pth
 *.bin

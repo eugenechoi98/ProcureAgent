@@ -1,5 +1,8 @@
 # DECISIONS.md
 
+## 2026-06-11：corrected pure LayoutLMv3 作为 Phase 1 MVP 默认离线策略
+同一 `local_validation_split_seed_42` 的 142 条 checkpoint inference 中，日期清洗使 date F1 从 0.1423 提升到 0.8764，corrected pure LayoutLMv3 macro F1 达到 0.8067，高于 Hybrid 的 0.7949。因此 Phase 1 MVP 默认采用 pure LayoutLMv3 离线抽取，Hybrid 只保留为 fallback 思路；该结果不是 official test，且尚未接入 API。
+
 ## 2026-06-11：LayoutLMv3 训练只允许加载 Safetensors
 本地模型目录必须包含 `model.safetensors`，训练与验证显式使用 `use_safetensors=True` 和 `local_files_only=True`。不允许回退到 `pytorch_model.bin`，避免触发 `torch.load` 安全限制。
 
