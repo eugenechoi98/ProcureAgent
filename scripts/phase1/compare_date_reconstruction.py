@@ -16,6 +16,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from procureguard.extraction.datasets import read_processed_jsonl
 from procureguard.extraction.gpu_notebook import require_safetensors_model
 from procureguard.extraction.layoutlmv3_dataset import create_layoutlmv3_processor
+from procureguard.extraction.phase1g_paths import resolve_image_root
 from procureguard.extraction.validation_inference import (
     compare_reconstruction,
     predict_sample_labels,
@@ -33,7 +34,7 @@ def main() -> None:
     parser.add_argument(
         "--image-root",
         type=Path,
-        default=PROJECT_ROOT / "data" / "phase1" / "sroie_task3" / "data",
+        default=None,
     )
     parser.add_argument(
         "--output",
@@ -42,6 +43,7 @@ def main() -> None:
     )
     parser.add_argument("--max-length", type=int, default=512)
     args = parser.parse_args()
+    image_root = resolve_image_root(PROJECT_ROOT, explicit=args.image_root)
 
     require_safetensors_model(args.checkpoint)
     try:
@@ -54,7 +56,7 @@ def main() -> None:
         raise SystemExit("CUDA is required for the full 142-sample checkpoint inference.")
     samples = resolve_sample_images(
         read_processed_jsonl(args.validation),
-        args.image_root,
+        image_root,
     )
     processor = create_layoutlmv3_processor(args.checkpoint, local_files_only=True)
     device = torch.device("cuda")

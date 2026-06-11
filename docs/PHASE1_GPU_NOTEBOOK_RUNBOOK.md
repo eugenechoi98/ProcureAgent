@@ -310,6 +310,10 @@ git pull
 跨平台图片路径，不改写 processed JSONL，也不需要运行前面的训练单元。
 第 14 节会从 Kernel 当前目录、父目录和直接子目录定位仓库，并在启动推理前检查
 脚本、checkpoint、validation JSONL、图片目录和 baseline 报告。
+图片目录按以下顺序自动解析：显式参数、`PROCUREGUARD_PHASE1G_IMAGE_ROOT` 或
+`SROIE_IMAGE_ROOT` 环境变量、ModelScope workspace 的
+`SROIE/unpacked/sroie/imgs`、仓库内 Task 3/SROIE 候选。解析只发生在内存中，
+不会改写 validation JSONL。
 
 脚本对同一批模型 token predictions 同时执行旧版和新版日期重建，不训练、不调参。
 结果保存到：

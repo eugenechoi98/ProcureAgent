@@ -21,3 +21,4 @@
 - 2026-06-11：固化首次 A10 GPU 微调结果，新增 Safetensors 强制加载、日期重建分析与 hybrid 离线评测。
 - 2026-06-11：完成 Phase 1F 验收修复，并新增现有 checkpoint 的日期旧/新重建单命令 validation inference。
 - 2026-06-11：修复 Phase 1G Notebook 从仓库父目录启动时的项目根目录和绝对输入路径解析。
+- 2026-06-11：补齐 Phase 1G ModelScope、环境变量和仓库候选图片目录解析，保持 validation JSONL 只读。

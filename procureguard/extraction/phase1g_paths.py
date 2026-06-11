@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import os
 from pathlib import Path
+from typing import Mapping
 
 
 PROJECT_MARKERS = ("pyproject.toml", "AGENTS.md", "procureguard")
+IMAGE_ROOT_ENV_NAMES = ("PROCUREGUARD_PHASE1G_IMAGE_ROOT", "SROIE_IMAGE_ROOT")
 
 
 @dataclass(frozen=True)
@@ -66,7 +69,77 @@ def resolve_project_root(
     )
 
 
-def build_phase1g_paths(project_root: str | Path) -> Phase1GPaths:
+def resolve_image_root(
+    project_root: str | Path,
+    *,
+    explicit: str | Path | None = None,
+    environ: Mapping[str, str] | None = None,
+    workspace_root: str | Path | None = None,
+) -> Path:
+    """按显式配置、环境变量、ModelScope 和仓库候选解析图片目录。"""
+
+    root = Path(project_root).expanduser().resolve()
+    environment = os.environ if environ is None else environ
+    workspace = (
+        Path(workspace_root).expanduser().resolve()
+        if workspace_root is not None
+        else root.parent
+    )
+    candidates: list[tuple[str, Path]] = []
+    if explicit is not None:
+        candidates.append(("explicit", Path(explicit).expanduser().resolve()))
+    for name in IMAGE_ROOT_ENV_NAMES:
+        value = environment.get(name)
+        if value:
+            candidates.append((f"environment {name}", Path(value).expanduser().resolve()))
+    candidates.extend(
+        [
+            (
+                "ModelScope workspace",
+                workspace / "SROIE" / "unpacked" / "sroie" / "imgs",
+            ),
+            (
+                "repository task3 data",
+                root / "data" / "phase1" / "sroie_task3" / "data",
+            ),
+            (
+                "repository SROIE inbox",
+                root
+                / "data"
+                / "phase1"
+                / "sroie"
+                / "inbox"
+                / "SROIE"
+                / "unpacked"
+                / "sroie"
+                / "imgs",
+            ),
+        ]
+    )
+
+    attempted: list[tuple[str, Path]] = []
+    seen: set[Path] = set()
+    for source, candidate in candidates:
+        if candidate in seen:
+            continue
+        seen.add(candidate)
+        attempted.append((source, candidate))
+        if candidate.is_dir():
+            return candidate
+    details = "\n".join(f"- {source}: {path}" for source, path in attempted)
+    raise FileNotFoundError(
+        "Cannot locate Phase 1G image root. Tried paths in priority order:\n"
+        + details
+    )
+
+
+def build_phase1g_paths(
+    project_root: str | Path,
+    *,
+    image_root: str | Path | None = None,
+    environ: Mapping[str, str] | None = None,
+    workspace_root: str | Path | None = None,
+) -> Phase1GPaths:
     """基于仓库根目录生成 Phase 1G 的绝对路径。"""
 
     root = Path(project_root).expanduser().resolve()
@@ -75,7 +148,12 @@ def build_phase1g_paths(project_root: str | Path) -> Phase1GPaths:
         script=root / "scripts" / "phase1" / "compare_date_reconstruction.py",
         checkpoint=root / "checkpoints" / "phase1" / "layoutlmv3_best",
         validation=root / "data" / "phase1" / "sroie_task3" / "processed" / "validation.jsonl",
-        image_root=root / "data" / "phase1" / "sroie_task3" / "data",
+        image_root=resolve_image_root(
+            root,
+            explicit=image_root,
+            environ=environ,
+            workspace_root=workspace_root,
+        ),
         baseline_report=root / "reports" / "phase1" / "baseline_sroie_task3_validation.json",
         output_dir=root / "reports" / "phase1" / "checkpoint_inference",
     )

@@ -9,6 +9,7 @@ from procureguard.extraction.schemas import OCRToken, SroieSample
 from procureguard.extraction.phase1g_paths import (
     build_phase1g_paths,
     require_phase1g_paths,
+    resolve_image_root,
     resolve_project_root,
 )
 from procureguard.extraction.validation_inference import (
@@ -117,10 +118,99 @@ def test_project_root_resolver_accepts_repository_parent_cwd(tmp_path: Path):
 
 def test_phase1g_path_check_reports_missing_script(tmp_path: Path):
     write_project_markers(tmp_path)
-    paths = build_phase1g_paths(tmp_path)
+    image_root = tmp_path / "images"
+    image_root.mkdir()
+    paths = build_phase1g_paths(tmp_path, image_root=image_root)
 
     with pytest.raises(FileNotFoundError, match=r"script: .*compare_date_reconstruction\.py"):
         require_phase1g_paths(paths)
+
+
+def test_explicit_image_root_has_priority(tmp_path: Path):
+    explicit = tmp_path / "explicit"
+    modelscope = tmp_path / "workspace" / "SROIE" / "unpacked" / "sroie" / "imgs"
+    repository = tmp_path / "repo" / "data" / "phase1" / "sroie_task3" / "data"
+    for path in (explicit, modelscope, repository):
+        path.mkdir(parents=True)
+
+    resolved = resolve_image_root(
+        tmp_path / "repo",
+        explicit=explicit,
+        workspace_root=tmp_path / "workspace",
+        environ={},
+    )
+
+    assert resolved == explicit.resolve()
+
+
+def test_modelscope_image_root_candidate(tmp_path: Path):
+    root = tmp_path / "workspace" / "ProcureAgent"
+    modelscope = tmp_path / "workspace" / "SROIE" / "unpacked" / "sroie" / "imgs"
+    modelscope.mkdir(parents=True)
+
+    resolved = resolve_image_root(root, environ={})
+
+    assert resolved == modelscope.resolve()
+
+
+def test_environment_image_root_precedes_modelscope_candidate(tmp_path: Path):
+    root = tmp_path / "workspace" / "ProcureAgent"
+    environment_root = tmp_path / "environment-images"
+    modelscope = tmp_path / "workspace" / "SROIE" / "unpacked" / "sroie" / "imgs"
+    environment_root.mkdir()
+    modelscope.mkdir(parents=True)
+
+    resolved = resolve_image_root(
+        root,
+        environ={"PROCUREGUARD_PHASE1G_IMAGE_ROOT": str(environment_root)},
+    )
+
+    assert resolved == environment_root.resolve()
+
+
+def test_repository_image_root_fallback(tmp_path: Path):
+    root = tmp_path / "ProcureAgent"
+    repository = root / "data" / "phase1" / "sroie_task3" / "data"
+    repository.mkdir(parents=True)
+
+    resolved = resolve_image_root(root, environ={})
+
+    assert resolved == repository.resolve()
+
+
+def test_missing_image_roots_list_all_attempts(tmp_path: Path):
+    root = tmp_path / "workspace" / "ProcureAgent"
+    explicit = tmp_path / "missing-explicit"
+
+    with pytest.raises(FileNotFoundError) as error:
+        resolve_image_root(
+            root,
+            explicit=explicit,
+            environ={"SROIE_IMAGE_ROOT": str(tmp_path / "missing-env")},
+        )
+
+    message = str(error.value)
+    assert str(explicit.resolve()) in message
+    assert str((tmp_path / "missing-env").resolve()) in message
+    assert str((root.parent / "SROIE" / "unpacked" / "sroie" / "imgs").resolve()) in message
+    assert str((root / "data" / "phase1" / "sroie_task3" / "data").resolve()) in message
+
+
+@pytest.mark.parametrize("suffix", [" (1)", " (2)", " (3)"])
+def test_windows_jsonl_path_resolves_copy_suffix_in_memory(tmp_path: Path, suffix: str):
+    image = tmp_path / f"receipt{suffix}.jpg"
+    image.write_bytes(b"fixture")
+    original = SroieSample(
+        sample_id="one",
+        image_path=r"C:\dataset\receipt.jpg",
+        tokens=[],
+        labels={"company": "", "address": "", "date": "", "total": ""},
+    )
+
+    resolved = resolve_sample_images([original], tmp_path)
+
+    assert resolved[0].image_path == str(image.resolve())
+    assert original.image_path == r"C:\dataset\receipt.jpg"
 
 
 def test_comparison_report_and_outputs(tmp_path: Path):
@@ -148,10 +238,12 @@ def test_notebook_has_standalone_phase1g_kernel_cell():
 
     assert "sys.executable" in source
     assert "resolve_project_root" in source
+    assert "build_phase1g_paths(PROJECT_ROOT)" in source
     assert "require_phase1g_paths" in source
     assert 'script_path = PROJECT_ROOT / "scripts" / "phase1"' in source
     assert "str(script_path)" in source
     assert "--image-root" in source
+    assert 'print(f"image_root={paths.image_root}")' in source
     assert "PROJECT_ROOT = Path.cwd" not in source
     assert "train_one_epoch" not in source
     assert "check=True" in source
