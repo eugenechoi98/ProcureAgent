@@ -32,3 +32,4 @@
 - 本地 LayoutLMv3 只接受 `model.safetensors`，processor 和模型均离线加载，不回退到 `pytorch_model.bin`。
 - 字段重建统一经过 `field_reconstruction.py`；日期 span 会去掉 `DATE:`、时间和其他非日期文本。
 - Phase 1 离线 hybrid 采用 LayoutLMv3 抽取 company/address/total、Regex 抽取 date，尚未接入 API。
+- `compare_date_reconstruction.py` 复用同一 checkpoint token predictions，对比旧/新日期重建并输出实际 F1 恢复，不触发训练。

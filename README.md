@@ -159,3 +159,9 @@ B-TOTAL / I-TOTAL
 
 使用现有最佳 checkpoint 重跑 validation inference，对比旧日期重建和新日期重建；
 本阶段仅做离线推理对比，不调参、不接入 API。
+
+ModelScope GPU Notebook 更新仓库后，只需运行训练 Notebook 的第 14 节。该单元使用
+当前 Kernel 的 `sys.executable` 调用 `compare_date_reconstruction.py`。
+
+输出位于 `reports/phase1/checkpoint_inference/`，包含旧/新 date F1、实际恢复幅度、
+逐样本日期结果和 Phase 1 MVP 离线策略建议。

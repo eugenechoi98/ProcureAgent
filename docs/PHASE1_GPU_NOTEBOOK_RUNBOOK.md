@@ -288,3 +288,34 @@ RUNTIME = "colab"
 
 并按实际挂载位置调整 `PROJECT_ROOT`、`PROCESSED_DIR`、`IMAGE_ROOT`、`MODEL_DIR`。
 其余 bootstrap、训练和评测代码保持一致。
+
+## Phase 1G: Existing Checkpoint Validation
+
+不运行训练单元格。保留现有：
+
+```text
+checkpoints/phase1/layoutlmv3_best/model.safetensors
+data/phase1/sroie_task3/processed/validation.jsonl
+```
+
+更新仓库：
+
+```bash
+cd /mnt/workspace/ProcureAgent
+git pull
+```
+
+打开训练 Notebook，只运行第 14 节 `Phase 1G Existing Checkpoint Inference`。
+该独立单元使用当前 Kernel 的 `sys.executable`，并通过 `--image-root` 在内存中解析
+跨平台图片路径，不改写 processed JSONL，也不需要运行前面的训练单元。
+
+脚本对同一批模型 token predictions 同时执行旧版和新版日期重建，不训练、不调参。
+结果保存到：
+
+```text
+reports/phase1/checkpoint_inference/date_reconstruction_inference.json
+reports/phase1/checkpoint_inference/date_reconstruction_inference.md
+reports/phase1/checkpoint_inference/date_reconstruction_predictions.jsonl
+```
+
+只需回传上述三个小文件，不需要下载 checkpoint。

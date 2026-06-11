@@ -1,7 +1,7 @@
 # CONTEXT.md
 
 ## 当前目标
-固化首次 GPU 训练结果，修复日期重建并完成离线 hybrid 评估。
+使用现有最佳 checkpoint 对比日期旧/新重建的真实 validation F1。
 
 ## 当前进度
 - Phase 2 已封板。
@@ -10,9 +10,11 @@
 - Notebook 已新增当前 Kernel hydrate 和统一 preflight，训练变量不再依赖子进程注入。
 - 首次 NVIDIA A10 完整 fine-tuning 已完成，best epoch=5，token F1=0.8647，field macro F1=0.6231。
 - Hybrid 离线 macro F1=0.7949；日期金标 BIO 重建错误经清洗从 122 降至 25，与 25 个 alignment miss 对齐。
+- Phase 1F 验收修复已完成，报告字段和本地数据忽略规则已收口。
+- Phase 1G 单命令 checkpoint inference 已准备，本机无 checkpoint，实际恢复幅度等待 ModelScope 执行。
 
 ## 下一步
-用现有最佳 checkpoint 重跑一次 validation inference，仅比较日期重建修复前后结果；暂不重新训练。
+在 ModelScope 执行 `compare_date_reconstruction.py`，回传三个 checkpoint inference 报告文件。
 
 ## 注意事项
 - 当前 baseline macro F1 为 0.4387。
