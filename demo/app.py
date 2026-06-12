@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from typing import Any
 
+from demo.architecture_view import build_architecture_tab
 from demo.demo_service import DemoOutput, DemoService
+from demo.model_lab_view import build_model_lab_tab
 
 try:
     import gradio as gr
@@ -86,71 +88,86 @@ def build_app(service: DemoService | None = None) -> Any:
     ) as app:
         gr.Markdown(
             "# ProcureGuard AI\n"
-            "Local offline audit demo with deterministic template explanations."
+            "Unified local portfolio demo. Invoice Audit runs the stable offline "
+            "business flow; Model Lab and Architecture are read-only evidence tabs."
         )
-        with gr.Row():
-            case_selector = gr.Dropdown(
-                choices=demo_service.case_ids,
-                value="normal_invoice",
-                label="Demo Case",
-                elem_id="demo-case-selector",
-            )
-            mode_selector = gr.Dropdown(
-                choices=demo_service.explanation_modes,
-                value="template",
-                label="Explanation Mode",
-                elem_id="explanation-mode-selector",
-            )
-        with gr.Row():
-            run_button = gr.Button(
-                "运行审核", variant="primary", elem_id="run-audit-button"
-            )
-            reset_button = gr.Button("重置", elem_id="reset-demo-button")
+        with gr.Tabs(elem_id="unified-portfolio-tabs"):
+            with gr.Tab("Invoice Audit", elem_id="invoice-audit-tab"):
+                with gr.Row():
+                    case_selector = gr.Dropdown(
+                        choices=demo_service.case_ids,
+                        value="normal_invoice",
+                        label="Demo Case",
+                        elem_id="demo-case-selector",
+                    )
+                    mode_selector = gr.Dropdown(
+                        choices=demo_service.explanation_modes,
+                        value="template",
+                        label="Explanation Mode",
+                        elem_id="explanation-mode-selector",
+                    )
+                with gr.Row():
+                    run_button = gr.Button(
+                        "运行审核", variant="primary", elem_id="run-audit-button"
+                    )
+                    reset_button = gr.Button("重置", elem_id="reset-demo-button")
 
-        status_summary = gr.Markdown(elem_id="demo-status-summary")
-        with gr.Row():
-            case_id = gr.Textbox(label="Case ID", interactive=False)
-            invoice_id = gr.Textbox(label="Invoice ID", interactive=False)
-            risk_level = gr.Textbox(label="Risk Level", interactive=False)
-            recommended_action = gr.Textbox(
-                label="Recommended Action", interactive=False
-            )
-        with gr.Row():
-            anomaly_types = gr.JSON(label="Anomaly Types")
-            evidence = gr.JSON(label="Evidence")
-            missing_fields = gr.JSON(label="Missing Fields")
-        explanation_text = gr.Textbox(
-            label="Explanation Text", lines=8, interactive=False
-        )
-        with gr.Row():
-            explanation_source = gr.Textbox(
-                label="Explanation Source", interactive=False
-            )
-            used_rewrite = gr.Checkbox(label="Used Rewrite", interactive=False)
-            guard_passed = gr.Checkbox(label="Guard Passed", interactive=False)
-            fallback_reason = gr.Textbox(
-                label="Fallback Reason", interactive=False
-            )
-        with gr.Row():
-            facts_hash = gr.Textbox(label="Facts Hash", interactive=False)
-            template_version = gr.Textbox(
-                label="Template Version", interactive=False
-            )
-            prompt_version = gr.Textbox(
-                label="Prompt Version", interactive=False
-            )
-        with gr.Row():
-            model_version = gr.Textbox(label="Model Version", interactive=False)
-            adapter_version = gr.Textbox(
-                label="Adapter Version", interactive=False
-            )
-        raw_rewrite_output = gr.Textbox(
-            label="Raw Rewrite Output", lines=5, interactive=False
-        )
-        safe_error_summary = gr.Textbox(
-            label="Safe Fallback Detail", interactive=False
-        )
-        audit_report = gr.JSON(label="Complete AuditReport JSON")
+                status_summary = gr.Markdown(elem_id="demo-status-summary")
+                with gr.Row():
+                    case_id = gr.Textbox(label="Case ID", interactive=False)
+                    invoice_id = gr.Textbox(label="Invoice ID", interactive=False)
+                    risk_level = gr.Textbox(label="Risk Level", interactive=False)
+                    recommended_action = gr.Textbox(
+                        label="Recommended Action", interactive=False
+                    )
+                with gr.Row():
+                    anomaly_types = gr.JSON(label="Anomaly Types")
+                    evidence = gr.JSON(label="Evidence")
+                    missing_fields = gr.JSON(label="Missing Fields")
+                explanation_text = gr.Textbox(
+                    label="Explanation Text", lines=8, interactive=False
+                )
+                with gr.Row():
+                    explanation_source = gr.Textbox(
+                        label="Explanation Source", interactive=False
+                    )
+                    used_rewrite = gr.Checkbox(
+                        label="Used Rewrite", interactive=False
+                    )
+                    guard_passed = gr.Checkbox(
+                        label="Guard Passed", interactive=False
+                    )
+                    fallback_reason = gr.Textbox(
+                        label="Fallback Reason", interactive=False
+                    )
+                with gr.Row():
+                    facts_hash = gr.Textbox(label="Facts Hash", interactive=False)
+                    template_version = gr.Textbox(
+                        label="Template Version", interactive=False
+                    )
+                    prompt_version = gr.Textbox(
+                        label="Prompt Version", interactive=False
+                    )
+                with gr.Row():
+                    model_version = gr.Textbox(
+                        label="Model Version", interactive=False
+                    )
+                    adapter_version = gr.Textbox(
+                        label="Adapter Version", interactive=False
+                    )
+                raw_rewrite_output = gr.Textbox(
+                    label="Raw Rewrite Output", lines=5, interactive=False
+                )
+                safe_error_summary = gr.Textbox(
+                    label="Safe Fallback Detail", interactive=False
+                )
+                audit_report = gr.JSON(label="Complete AuditReport JSON")
+
+            with gr.Tab("Model Lab", elem_id="model-lab-tab"):
+                build_model_lab_tab(gr)
+
+            with gr.Tab("Architecture", elem_id="architecture-tab"):
+                build_architecture_tab(gr)
 
         outputs = [
             status_summary,
