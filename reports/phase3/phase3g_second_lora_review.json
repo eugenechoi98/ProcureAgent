@@ -1,0 +1,121 @@
+{
+  "phase": "Phase 3G.1",
+  "title": "Second LoRA real evaluation review",
+  "review_date": "2026-06-12",
+  "baseline_commit": "4eeb28c77fc740690cefb2a872d27328c2b9be52",
+  "source_status": {
+    "cloud_training_confirmed_by_user": true,
+    "local_second_run_artifacts_present": false,
+    "note": "This report records the user-confirmed ModelScope second-run results. The local workspace does not contain the second-run artifact copy."
+  },
+  "artifact_isolation": {
+    "isolated_from_first_run": true,
+    "mechanism": "PHASE3_ARTIFACT_DIR with the recommended phase3g_second_lora_run directory",
+    "recommended_second_run_dir": "artifacts/phase3_runs/phase3g_second_lora_run",
+    "first_run_report": "reports/phase3/phase3e_lora_review.json"
+  },
+  "model": {
+    "name": "Qwen/Qwen2.5-0.5B-Instruct",
+    "backend": "qlora_4bit_bitsandbytes"
+  },
+  "runtime": {
+    "gpu": "NVIDIA A10",
+    "torch": "2.2.2+cu118",
+    "cuda": "11.8",
+    "numpy": "1.26.4",
+    "bitsandbytes": "0.44.1",
+    "transformers": "4.46.3"
+  },
+  "dataset": {
+    "seed": 42,
+    "train": 160,
+    "validation": 20,
+    "test": 20
+  },
+  "training_parameters": {
+    "epochs": 3,
+    "per_device_train_batch_size": 2,
+    "gradient_accumulation_steps": 8,
+    "max_seq_length": 1024,
+    "learning_rate": 0.0002,
+    "lora_r": 16,
+    "lora_alpha": 32,
+    "lora_dropout": 0.05,
+    "changed_from_first_run": false
+  },
+  "single_variable": "Phase 3F fact-constrained prompt and unified structured gold answer",
+  "training_loss": [
+    {
+      "epoch": 1,
+      "train_loss": 1.4592,
+      "validation_loss": 0.873569
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.2762,
+      "validation_loss": 0.205891
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.1458,
+      "validation_loss": 0.139261
+    }
+  ],
+  "test_metrics": {
+    "base": {
+      "format_compliance": 0.0,
+      "factual_consistency": 1.0,
+      "action_consistency": 0.05,
+      "anomaly_coverage": 0.5,
+      "hallucination_rate": 0.05
+    },
+    "fine_tuned": {
+      "format_compliance": 0.0,
+      "factual_consistency": 0.9,
+      "action_consistency": 0.45,
+      "anomaly_coverage": 0.425,
+      "hallucination_rate": 0.15
+    }
+  },
+  "hard_gates": {
+    "format_compliance": 0.9,
+    "factual_consistency": 0.95,
+    "action_consistency": 0.9,
+    "anomaly_coverage": 0.9,
+    "hallucination_rate_max": 0.05
+  },
+  "hard_gate_result": {
+    "fine_tuned_passed": false,
+    "failed_metrics": [
+      "format_compliance",
+      "factual_consistency",
+      "action_consistency",
+      "anomaly_coverage",
+      "hallucination_rate"
+    ],
+    "summary": "The second LoRA adapter failed the deployment hard gates and is not eligible for API integration or default user-facing explanation."
+  },
+  "hallucination_examples": [
+    {
+      "sample_id": "phase3-missing_po_number-024",
+      "issue": "unknown_identifier:PO-77450099"
+    },
+    {
+      "sample_id": "phase3-missing_goods_receipt-023",
+      "issue": "unknown_identifier:GRN-unknown"
+    },
+    {
+      "sample_id": "phase3-multi_issue_combination-024",
+      "issue": "unsupported_policy_or_approver:审批人"
+    }
+  ],
+  "conclusions": {
+    "second_training_completed": true,
+    "hard_gate_passed": false,
+    "fact_constrained_prompt_solved_stability": false,
+    "adapter_allowed_for_api": false,
+    "adapter_default_user_facing": false,
+    "third_training_paused": true,
+    "next_phase": "Phase 3H guarded explanation architecture"
+  }
+}

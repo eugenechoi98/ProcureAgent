@@ -179,7 +179,21 @@ Phase 3 小模型只把确定性规则链已经产生的异常事实整理成审
 
 训练入口：`notebooks/phase3_lora_explainer_training.ipynb`。GPU 依赖单独放在 `requirements/phase3-lora.txt`，不进入默认 FastAPI 环境。运行说明见 [PHASE3_LORA_NOTEBOOK_RUNBOOK.md](docs/PHASE3_LORA_NOTEBOOK_RUNBOOK.md)。
 
-当前已完成首轮 LoRA 真实训练与复盘。首轮 fine-tuned 提升了动作一致性和异常覆盖，但 factual consistency 与 hallucination 未达门禁；Phase 3F 已收口事实约束型 prompt 与统一结构化 gold answer，尚未启动第二轮 GPU 训练。
+当前已完成两轮 LoRA 真实训练与复盘。第二轮唯一变量为 Phase 3F 事实约束型 Prompt 与统一结构化 Gold Answer，训练参数、模型、split 和评测器均未改变。
+
+第二轮 fine-tuned test 结果：
+
+| metric | value | gate |
+| --- | ---: | ---: |
+| format_compliance | 0.0000 | >= 0.9000 |
+| factual_consistency | 0.9000 | >= 0.9500 |
+| action_consistency | 0.4500 | >= 0.9000 |
+| anomaly_coverage | 0.4250 | >= 0.9000 |
+| hallucination_rate | 0.1500 | <= 0.0500 |
+
+结论：第二轮 adapter 未通过 hard gate，不接 API，不作为默认用户输出。Phase 3H 改为受控解释层：MVP 官方输出使用确定性模板，LoRA 只保留为 shadow/experimental controlled rewrite。
+
+Phase 3H 架构说明见 [PHASE3H_GUARDED_EXPLANATION_ARCHITECTURE.md](docs/PHASE3H_GUARDED_EXPLANATION_ARCHITECTURE.md)。
 
 Phase 3B 环境检查入口：
 

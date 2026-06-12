@@ -1,36 +1,23 @@
 # CONTEXT.md
 
 ## 当前目标
-完成 Phase 3F.1 第二轮 LoRA 输出目录隔离，避免覆盖首轮 artifacts。
+封板 Phase 3G.1 第二轮 LoRA 真实评测，并进入 Phase 3H 受控解释层。
 
 ## 当前进度
-- Phase 1 已封板，默认离线策略为 `pure_layoutlmv3_date_path`，尚未接入 API。
-- Phase 2 已封板，真实确定性审核链保持不变。
-- Phase 3A 已通过验收：独立数据契约、200 条 synthetic 数据、统一评测脚本和 LoRA Notebook 骨架已完成。
-- Phase 3B 已通过验收：bootstrap、verify、runtime context、数据 SHA guard、模型目录 guard 和 base inference smoke dry-run 已完成。
-- Phase 3C 已补齐 Notebook 训练后导出闭环：base/fine-tuned predictions、evaluation report 和 artifacts manifest。
-- Phase 3C.1 已新增显式 Qwen 模型准备脚本和 ModelScope Kernel 注册说明；模型不会由 guard 静默下载。
-- Phase 3D.1 已收口 ModelScope `.venv-phase3` 安装顺序：先 `pip install -e .` 安装项目默认依赖，再安装 Phase 3 LoRA 依赖；verify 会提前检查 pydantic。
-- Phase 3D.2 已统一 Phase 3 project-root resolver，兼容 ModelScope Kernel cwd 为 `/mnt/workspace` 且仓库在 `/mnt/workspace/ProcureAgent`。
-- Phase 3D.3 已收口 Notebook 环境变量继承问题：Notebook 默认使用 ModelScope Qwen 模型目录和 Kernel Python，并写独立 `notebook_runtime_guard.json`。
-- Phase 3D.4 已将 `preflight_ready` 与 `training_ready` 分离，训练门禁始终检查 CUDA、device count 和 bitsandbytes，并固定 Phase 3 Torch 为 `2.2.2+cu118`。
-- Phase 3D.5 已固定 `numpy==1.26.4`，并将 NumPy ABI 兼容性纳入 CUDA runtime 诊断和 Notebook 训练门禁。
-- Phase 3E 已读取仓库外首轮真实 artifacts，生成按异常类型拆分、hallucination 清单、format 失败分布和下一轮 hard gate 复盘报告。
-- Phase 3F 已将 system prompt 和 `expected_explanation` 收口为事实约束型固定章节格式，重新生成 seed 42 的 160/20/20 数据，并通过离线约束审查。
-- Phase 3F.1 已支持 `PHASE3_ARTIFACT_DIR` 和独立 run 目录，第二轮推荐写入 `artifacts/phase3_runs/phase3g_second_lora_run/`。
+Phase 1 已封板：corrected pure LayoutLMv3 macro F1=0.8067。
+
+Phase 2 已封板：真实审核工作流 baseline 已完成。
+
+Phase 3G.1 已记录第二轮 ModelScope QLoRA 真实评测：唯一变量为 Phase 3F 事实约束型 Prompt 与统一 Gold Answer。fine-tuned 结果未通过 hard gate，LoRA 不接 API、不作为默认用户输出，第三轮训练暂停。
 
 ## 下一步
-回到总控审查 Phase 3F.1 输出隔离。验收通过后，再由用户在 ModelScope 亲自启动第二轮 GPU 训练。
+新开 Phase 3H.1 受控解释层实现对话：只实现 Canonical Audit Facts 适配、确定性模板解释、LoRA 输出 guard、fallback orchestrator 和 audit trace 的独立模块与测试。
 
 ## 注意事项
-- Phase 3 模型只生成异常说明，不计算金额、不决定风险等级、不改变建议动作。
-- Phase 3 数据全部为固定 seed synthetic 数据，不包含真实企业数据。
-- LoRA 训练依赖与默认 FastAPI 环境隔离。
-- base inference smoke 默认 dry-run，只有显式 `--run` 和本地模型目录可用时才加载模型。
-- checkpoint、adapter、模型缓存和本地 artifacts 不提交 Git；adapter 压缩包保存到仓库外本地 artifacts 目录。
-- 首轮 adapter 与 checkpoints 保存在 `D:\ProcureAgent_LocalArtifacts\Phase3\phase3_first_lora_run\phase3`，不提交 Git。
-- Phase 3F 只改 prompt 和 gold answer 数据格式，训练超参、模型、评测指标和 test split 数量保持不变。
-- Phase 3G 第二轮必须确认 Notebook 第一格显示 `phase3_artifact_dir=.../artifacts/phase3_runs/phase3g_second_lora_run`。
+- Phase 1、Phase 2、API、Agent、Risk Engine、共享 schema 和数据库继续冻结。
+- MVP 官方解释输出采用确定性模板。
+- 当前 LoRA 只保留为 shadow/experimental controlled rewrite。
+- 不启动第三轮训练，不接 API，不进入 HF Spaces、LangChain 对比、Docker、CI 或发布。
 
 ## 最后更新时间
 2026-06-12

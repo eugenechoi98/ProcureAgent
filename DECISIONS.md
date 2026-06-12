@@ -1,5 +1,13 @@
 # DECISIONS.md
 
+## 2026-06-12：Phase 3H 采用受控解释层，LoRA 不作为默认审核输出
+
+第二轮 LoRA 真实评测未通过采购审核 hard gate：format、factual consistency、action consistency、anomaly coverage 和 hallucination 均不满足上线要求。因此 LoRA 不参与风险计算，不允许改变 `risk_level`、`recommended_action` 或 `anomaly_types`。
+
+MVP 官方解释输出改为确定性模板，由 Phase 2 Canonical Audit Facts 驱动。当前 LoRA 仅保留为 shadow/experimental rewrite；未来只有同时通过 hard gate 和输出 guard，才可作为受控语言润色层。
+
+第三轮训练暂停。HF Spaces Demo 和 LangChain Policy RAG 对比延后。Phase 3I 模型路线评估可作为后续可选项，不阻塞作品集交付。
+
 ## 2026-06-12：Phase 3G 第二轮训练输出必须独立成 run 目录
 首轮真实 LoRA artifacts 已用于 Phase 3E 复盘，不能被第二轮覆盖。Phase 3F.1 增加 `PHASE3_ARTIFACT_DIR`，Notebook、bootstrap、base smoke、训练、评测和 manifest 统一使用当前 run 目录；第二轮推荐 `artifacts/phase3_runs/phase3g_second_lora_run/`。
 

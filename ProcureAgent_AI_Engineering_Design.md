@@ -1172,10 +1172,47 @@ jobs:
 - [ ] 异常说明训练数据构造（200 条）
 - [ ] Unsloth + LoRA SFT 训练
 - [ ] base vs fine-tuned 对比
+- [ ] 受控解释层：Canonical Audit Facts、确定性模板、LLM rewrite guard、fallback 和 audit trail
 - [ ] Docker Compose
 - [ ] GitHub Actions CI
 - [ ] README + Demo GIF
 - [ ] 开源发布
+
+---
+
+## 10.1 Phase 3H 受控解释层调整
+
+第二轮 LoRA 真实评测已经完成，但 fine-tuned adapter 未通过采购审核 hard gate。第二轮唯一变量是事实约束型 Prompt 与统一 Gold Answer，训练参数、模型、split 和评测器保持不变；结果仍出现 factual consistency 不足、动作一致性不足、多异常覆盖不足和 hallucination 上升。
+
+因此 Phase 3 不把 LoRA 作为默认审核解释输出，也不允许 LoRA 改变 `risk_level`、`recommended_action` 或 `anomaly_types`。MVP 官方解释路径改为确定性模板，LoRA 只作为后续可选的受控语言润色层。
+
+```mermaid
+flowchart LR
+    A["Invoice Image"] --> B["Phase1 LayoutLMv3 Extraction"]
+    B --> C["Normalized Invoice Fields"]
+    C --> D["Phase2 Deterministic Audit Engine"]
+    D --> E["Canonical Audit Facts"]
+    E --> F["Deterministic Template Renderer"]
+    F --> G["Controlled LLM Rewrite"]
+    G --> H["Output Guard"]
+    H --> I{"PASS/FAIL"}
+    I -->|PASS| J["Enhanced Explanation"]
+    I -->|FAIL| K["Template Fallback"]
+    J --> L["Audit Trail"]
+    K --> L
+    L --> M["Final Audit Response"]
+```
+
+Phase 3H 的工程边界：
+
+- Canonical Audit Facts 来自 Phase 2 确定性审核链，是解释层唯一事实来源。
+- Deterministic Template Renderer 是 MVP 默认输出，不依赖模型。
+- Controlled LLM Rewrite 只能润色模板语言，不能新增事实或改变结论。
+- Output Guard 负责拒绝未知单号、金额、供应商、政策、审批角色、异常类型、风险等级或建议动作。
+- Fallback Orchestrator 在 LLM 不可用、输出为空、guard 失败、高风险或解析失败时返回模板。
+- Audit Trail 记录 facts hash、template version、prompt version、model version、adapter version、raw LLM output、verifier result、fallback reason 和 final explanation。
+
+第三轮训练暂停。HF Spaces Demo、LangChain Policy RAG 对比和 Phase 3I 模型路线评估均不阻塞当前作品集交付。
 
 ---
 
