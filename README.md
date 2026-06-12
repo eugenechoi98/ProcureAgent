@@ -1,6 +1,6 @@
 # ProcureGuard AI
 
-ProcureGuard AI 是一个企业采购发票智能审核 Agent。Phase 1、Phase 2、Phase 3H、本地稳定 Gradio Demo Baseline 和 Model Lab 轻量 artifacts 初版已完成。
+ProcureGuard AI 是一个企业采购发票智能审核 Agent。Phase 1、Phase 2、Phase 3H、Model Lab 轻量 artifacts 和 Unified Gradio Demo 本地初版已完成。
 
 ## 当前功能
 
@@ -13,10 +13,11 @@ ProcureGuard AI 是一个企业采购发票智能审核 Agent。Phase 1、Phase 
 - Phase 3F Gold Answer 约束：固定章节、缺失字段显式写未提供/缺失、禁止补全未知 PO/GRN/金额/供应商/异常类型
 - Phase 3H 受控解释层：Canonical Audit Facts 适配、确定性模板、受控改写契约、LoRA 输出 guard、fallback orchestrator 和 audit trail
 - Model Lab 轻量 artifacts：整理 LayoutLMv3 与两轮 LoRA 的真实离线指标、曲线、预测案例、幻觉案例和缺失项说明，见 [demo/model_lab/README.md](/D:/ProcureAgent/demo/model_lab/README.md)
+- Unified Gradio Demo：本地三页签 `Invoice Audit / Model Lab / Architecture`，保留 Invoice Audit 稳定实时路径，Model Lab 仅读取离线 artifacts，Architecture 解释治理边界
 
-## 当前 Batch A 状态
+## 当前 Batch B 状态
 
-Batch A 已完成初版，只整理现有真实离线证据，未加载模型，未重新训练，未实现 Model Lab UI，未部署 Space。下一步等待总控验收后进入 Batch B。
+Unified Gradio Demo 已在本地完成，包含 Invoice Audit、Model Lab、Architecture 三个页签。Model Lab 读取真实离线轻量 artifacts。当前没有网页实时 LayoutLMv3，没有网页实时真实 LoRA，没有部署 Hugging Face Space。下一步等待总控验收后进入 Batch C。
 
 ## Dataset
 

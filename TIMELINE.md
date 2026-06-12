@@ -49,3 +49,4 @@
 - 2026-06-13：完成 Portfolio Demo Design Freeze，冻结 Invoice Audit、Model Lab、Architecture 三页签。
 - 2026-06-13：下一步进入 Batch A：Model Lab Artifacts Packaging。
 - 2026-06-13：完成 Batch A Model Lab 轻量 artifacts 初版，整理 LayoutLMv3 与两轮 LoRA 离线证据和只读校验。
+- 2026-06-13：完成 Batch B Unified Gradio Demo 本地初版，新增 Model Lab 与 Architecture 页签。
