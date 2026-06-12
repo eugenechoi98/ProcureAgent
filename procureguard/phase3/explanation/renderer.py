@@ -28,7 +28,11 @@ class DeterministicTemplateRenderer:
     def render(self, facts: CanonicalAuditFacts) -> str:
         """生成固定章节的采购审核说明。"""
 
-        anomalies = "、".join(ANOMALY_LABELS[item] for item in facts.anomaly_types)
+        anomalies = (
+            "、".join(ANOMALY_LABELS[item] for item in facts.anomaly_types)
+            if facts.anomaly_types
+            else "无"
+        )
         evidence = self._render_evidence(facts)
         missing = self._render_missing_fields(facts)
         summary = (

@@ -2,6 +2,11 @@
 
 from procureguard.phase3.explanation.facts import CanonicalAuditFacts
 from procureguard.phase3.explanation.guard import GuardResult, LoRAOutputGuard
+from procureguard.phase3.explanation.integration import (
+    build_canonical_audit_facts,
+    build_explanation_metadata,
+    generate_guarded_explanation,
+)
 from procureguard.phase3.explanation.orchestrator import (
     ExplanationMode,
     ExplanationResult,
@@ -27,4 +32,7 @@ __all__ = [
     "RewriteRequest",
     "RewriteResponse",
     "build_rewrite_prompt",
+    "build_canonical_audit_facts",
+    "build_explanation_metadata",
+    "generate_guarded_explanation",
 ]

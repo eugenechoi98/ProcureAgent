@@ -8,9 +8,14 @@ from fastapi import FastAPI
 from procureguard.api.dependencies import initialize_app_database
 from procureguard.api.routes import invoice, review
 from procureguard.config import Settings, get_settings
+from procureguard.phase3.explanation.orchestrator import RewriteProvider
 
 
-def create_app(settings: Settings | None = None) -> FastAPI:
+def create_app(
+    settings: Settings | None = None,
+    *,
+    explanation_rewrite_provider: RewriteProvider | None = None,
+) -> FastAPI:
     """创建 FastAPI 应用，便于测试传入临时配置。"""
 
     app_settings = settings or get_settings()
@@ -18,6 +23,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         app.state.settings = app_settings
+        app.state.explanation_rewrite_provider = explanation_rewrite_provider
         initialize_app_database(app_settings)
         yield
 
