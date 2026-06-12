@@ -27,6 +27,13 @@
 
 ## File Hashes
 
-- `train.jsonl`: `cb7ce75f402acda4318ea4236a031ffe706a20307311cc26626ad5843ee87ff2`
-- `validation.jsonl`: `6898d3c3a8feba5c72f9308f8cda26409fa52e9379e2b024a53fc4f02837348e`
-- `test.jsonl`: `6a2e7a15a1ab63b5609bf55d5375aacc466cb02889b7a5c80e79751031feaf01`
+- `train.jsonl`: `6e7d3396f6aba96b28d07306c9389f2803e725bca97a65ea02d7c1ffaf9bdf63`
+- `validation.jsonl`: `881957710018da129323b05ce1518863e45caa7171a114bf278c0d90718db733`
+- `test.jsonl`: `1e11910d46ffe6338538904a2374021a4a76331517ef0d12c055ea868b5729dd`
+
+## Gold Answer Contract
+
+- 固定章节：`异常类型`、`事实边界`、`关键事实`、`缺失字段`、`禁止补全`、`审核结论`。
+- 缺失字段必须写 `未提供` 或 `缺失`。
+- 不得补全 PO、GRN、发票号、金额、供应商或未输入异常类型。
+- 多异常组合只覆盖 `input_facts.anomaly_types` 中存在的异常。

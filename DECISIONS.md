@@ -1,5 +1,8 @@
 # DECISIONS.md
 
+## 2026-06-12：Phase 3F 用固定章节训练事实边界
+首轮 LoRA 的主要失败是模型会补未知金额、GRN 和供应商关系。Phase 3F 不改训练超参，只把 system prompt 与 gold answer 统一成 `异常类型 / 事实边界 / 关键事实 / 缺失字段 / 禁止补全 / 审核结论` 六段，并在答案中显式示范缺失字段写未提供或缺失，让模型优先学习事实边界。
+
 ## 2026-06-12：Phase 3E 下一轮只调整事实约束与输出格式
 首轮 fine-tuned 显著学会 recommended_action 和异常覆盖，但 factual_consistency 降到 0.80、hallucination_rate 升到 0.20，format_compliance 仍只有 0.15。下一轮优先只调整事实约束型 prompt 和统一结构化 `expected_explanation` 格式，不同时改 epoch、learning rate、LoRA r 或模型，避免无法判断收益来源。
 

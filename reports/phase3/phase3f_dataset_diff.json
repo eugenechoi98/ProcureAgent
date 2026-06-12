@@ -1,0 +1,94 @@
+{
+  "base_ref": "HEAD",
+  "changed_expected_explanation_total": 200,
+  "files": {
+    "data/phase3/generated/test.jsonl": {
+      "changed_expected_explanation_count": 20,
+      "changed_expected_explanation_sample_ids": [
+        "phase3-quantity_mismatch-024",
+        "phase3-quantity_mismatch-025",
+        "phase3-amount_discrepancy-024",
+        "phase3-amount_discrepancy-025",
+        "phase3-duplicate_invoice-024",
+        "phase3-duplicate_invoice-025",
+        "phase3-missing_po_number-024",
+        "phase3-missing_po_number-025",
+        "phase3-vendor_name_mismatch-023",
+        "phase3-vendor_name_mismatch-024"
+      ],
+      "current_count": 20,
+      "current_sha256": "1e11910d46ffe6338538904a2374021a4a76331517ef0d12c055ea868b5729dd",
+      "first_current_sample": {
+        "anomaly_type": "quantity_mismatch",
+        "expected_explanation_lines": 6,
+        "expected_explanation_sha256": "118dea3351acb5624efaaaccb4ca1b2b7bcb28003449466db3dc225816a99638",
+        "included_anomaly_types": [
+          "quantity_mismatch"
+        ],
+        "sample_id": "phase3-quantity_mismatch-024",
+        "split": "test"
+      },
+      "previous_count": 20,
+      "previous_exists": true
+    },
+    "data/phase3/generated/train.jsonl": {
+      "changed_expected_explanation_count": 160,
+      "changed_expected_explanation_sample_ids": [
+        "phase3-quantity_mismatch-001",
+        "phase3-quantity_mismatch-002",
+        "phase3-quantity_mismatch-003",
+        "phase3-quantity_mismatch-004",
+        "phase3-quantity_mismatch-005",
+        "phase3-quantity_mismatch-006",
+        "phase3-quantity_mismatch-007",
+        "phase3-quantity_mismatch-008",
+        "phase3-quantity_mismatch-009",
+        "phase3-quantity_mismatch-010"
+      ],
+      "current_count": 160,
+      "current_sha256": "6e7d3396f6aba96b28d07306c9389f2803e725bca97a65ea02d7c1ffaf9bdf63",
+      "first_current_sample": {
+        "anomaly_type": "quantity_mismatch",
+        "expected_explanation_lines": 6,
+        "expected_explanation_sha256": "5c14b44eabda950d33ddbd3a523c44d2d30329c021c30c3b825f3d0cdd401487",
+        "included_anomaly_types": [
+          "quantity_mismatch"
+        ],
+        "sample_id": "phase3-quantity_mismatch-001",
+        "split": "train"
+      },
+      "previous_count": 160,
+      "previous_exists": true
+    },
+    "data/phase3/generated/validation.jsonl": {
+      "changed_expected_explanation_count": 20,
+      "changed_expected_explanation_sample_ids": [
+        "phase3-quantity_mismatch-021",
+        "phase3-quantity_mismatch-022",
+        "phase3-quantity_mismatch-023",
+        "phase3-amount_discrepancy-021",
+        "phase3-amount_discrepancy-022",
+        "phase3-amount_discrepancy-023",
+        "phase3-duplicate_invoice-021",
+        "phase3-duplicate_invoice-022",
+        "phase3-duplicate_invoice-023",
+        "phase3-missing_po_number-021"
+      ],
+      "current_count": 20,
+      "current_sha256": "881957710018da129323b05ce1518863e45caa7171a114bf278c0d90718db733",
+      "first_current_sample": {
+        "anomaly_type": "quantity_mismatch",
+        "expected_explanation_lines": 6,
+        "expected_explanation_sha256": "a93f8cc7f0e4b2f3e6f664d0f016e0ac075bfb271ba596f0de92e1487a66f5f4",
+        "included_anomaly_types": [
+          "quantity_mismatch"
+        ],
+        "sample_id": "phase3-quantity_mismatch-021",
+        "split": "validation"
+      },
+      "previous_count": 20,
+      "previous_exists": true
+    }
+  },
+  "unchanged_input_facts_for_changed_answers": 200
+}

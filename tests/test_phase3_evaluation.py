@@ -18,15 +18,14 @@ def sample_for(anomaly_type: AnomalyType):
 
 
 def test_gold_explanation_passes_all_metrics():
-    sample = sample_for(AnomalyType.AMOUNT_DISCREPANCY)
+    for sample in generate_samples(42):
+        result = evaluate_explanation(sample, sample.expected_explanation)
 
-    result = evaluate_explanation(sample, sample.expected_explanation)
-
-    assert result["format_compliance"] is True
-    assert result["factual_consistency"] is True
-    assert result["action_consistency"] is True
-    assert result["anomaly_coverage"] == 1.0
-    assert result["hallucination"] is False
+        assert result["format_compliance"] is True
+        assert result["factual_consistency"] is True
+        assert result["action_consistency"] is True
+        assert result["anomaly_coverage"] == 1.0
+        assert result["hallucination"] is False
 
 
 def test_unknown_facts_and_changed_action_are_detected():

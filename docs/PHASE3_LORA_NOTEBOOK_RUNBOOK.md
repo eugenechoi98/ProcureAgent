@@ -200,6 +200,25 @@ failed_checks=[]
 
 确认 `data/phase3/generated/` 有固定的 160/20/20 JSONL，并保持 `SEED = 42` 和 `MODEL_ID = "Qwen/Qwen2.5-0.5B-Instruct"`。
 
+Phase 3F 后，`expected_explanation` 使用统一事实约束格式：
+
+```text
+异常类型：
+事实边界：
+关键事实：
+缺失字段：
+禁止补全：
+审核结论：
+```
+
+缺失字段必须写 `未提供` 或 `缺失`。`grn_number=None` 时必须写 `收货单号：未提供（缺失）`，不得补全 `GRN-...`；`po_number=None` 时必须写 `采购订单号：未提供（缺失）`，不得补全 `PO-...`。没有金额不一致证据时不得生成金额对比，没有供应商不一致证据时不得生成供应商不匹配。多异常组合只覆盖 `input_facts.anomaly_types` 中存在的异常。
+
+重新生成数据后必须运行：
+
+```powershell
+.\.venv\Scripts\python.exe scripts\phase3\audit_gold_answer_constraints.py --base-ref HEAD
+```
+
 Notebook 固定记录：
 
 - LoRA `r=16`、`alpha=32`、`dropout=0.05`

@@ -37,6 +37,14 @@ VENDORS = [
 ]
 CURRENCIES = ["USD", "EUR", "GBP", "CNY"]
 ITEMS = ["printer toner", "safety gloves", "network switch", "packing tape"]
+ANSWER_SECTIONS = (
+    "异常类型：",
+    "事实边界：",
+    "关键事实：",
+    "缺失字段：",
+    "禁止补全：",
+    "审核结论：",
+)
 
 
 def _split_for(type_index: int, sample_index: int) -> str:
@@ -127,16 +135,22 @@ def _apply_anomaly(
         facts["policy_flags"].append("high_value_approval_required")
 
 
+def _display_value(value: str | None) -> str:
+    """缺失字段统一写成未提供，不让模型学习补全。"""
+
+    return value if value else "未提供（缺失）"
+
+
 def _fact_phrases(facts: InputFacts) -> list[str]:
+    """只列 input_facts 中存在或显式缺失的事实。"""
+
     phrases = [
         f"供应商 {facts.vendor_name}",
         f"发票号 {facts.invoice_number}",
+        f"采购订单号 {_display_value(facts.po_number)}",
+        f"收货单号 {_display_value(facts.grn_number)}",
         f"金额 {facts.currency} {facts.total_amount:.2f}",
     ]
-    if facts.po_number:
-        phrases.append(f"采购订单号 {facts.po_number}")
-    if facts.grn_number:
-        phrases.append(f"收货单号 {facts.grn_number}")
     for mismatch in facts.mismatches:
         if mismatch["field"] == "quantity":
             phrases.append(
@@ -149,9 +163,9 @@ def _fact_phrases(facts: InputFacts) -> list[str]:
         elif mismatch["field"] == "vendor_name":
             phrases.append(f"订单供应商 {mismatch['expected_value']}")
         elif mismatch["field"] == "po_number":
-            phrases.append("采购订单号缺失")
+            phrases.append("采购订单号缺失，采购订单号：未提供")
         elif mismatch["field"] == "grn_number":
-            phrases.append("收货记录缺失")
+            phrases.append("收货记录缺失，收货单号：未提供")
     if not facts.duplicate_check:
         phrases.append("重复检查未通过")
     if facts.policy_flags:
@@ -159,13 +173,43 @@ def _fact_phrases(facts: InputFacts) -> list[str]:
     return phrases
 
 
+def _missing_field_phrases(facts: InputFacts) -> list[str]:
+    """列出缺失字段，缺失必须用未提供或缺失表达。"""
+
+    phrases: list[str] = []
+    if facts.po_number is None:
+        phrases.append("采购订单号：未提供（缺失）")
+    if facts.grn_number is None:
+        phrases.append("收货单号：未提供（缺失）")
+    return phrases or ["无"]
+
+
+def _forbidden_completion_phrases(facts: InputFacts) -> list[str]:
+    """告诉模型哪些字段不能推断或补全。"""
+
+    forbidden = ["不得补全未提供的 PO、GRN、发票号、金额、供应商或异常类型"]
+    if facts.po_number is None:
+        forbidden.append("不得根据发票号推断采购订单号")
+    if facts.grn_number is None:
+        forbidden.append("不得根据发票号推断收货单号")
+    if all(item.get("field") != "total_amount" for item in facts.mismatches):
+        forbidden.append("没有金额不一致证据时不得生成金额对比")
+    if all(item.get("field") != "vendor_name" for item in facts.mismatches):
+        forbidden.append("没有供应商不一致证据时不得生成供应商不匹配")
+    return forbidden
+
+
 def build_explanation(facts: InputFacts) -> str:
-    """使用模板生成受控 gold explanation，不添加输入之外的事实。"""
+    """使用固定章节生成事实约束型 gold answer。"""
 
     labels = "、".join(ANOMALY_LABELS[item] for item in facts.anomaly_types)
     return (
         f"异常类型：{labels}\n"
+        "事实边界：只引用 input_facts、mismatches、evidence 中给出的事实；"
+        "缺失字段必须写未提供或缺失；不得推断未知单号、金额、供应商或异常类型。\n"
         f"关键事实：{'；'.join(_fact_phrases(facts))}。\n"
+        f"缺失字段：{'；'.join(_missing_field_phrases(facts))}。\n"
+        f"禁止补全：{'；'.join(_forbidden_completion_phrases(facts))}。\n"
         f"审核结论：风险等级 {facts.risk_level}；建议动作 {facts.recommended_action}。"
     )
 
@@ -243,6 +287,12 @@ def dataset_summary(samples: list[AnomalySample], hashes: dict[str, str]) -> dic
         "split_counts": dict(sorted(by_split.items())),
         "anomaly_type_counts": dict(sorted(by_type.items())),
         "split_anomaly_type_counts": by_split_type,
+        "gold_answer_contract": {
+            "sections": list(ANSWER_SECTIONS),
+            "missing_fields": "缺失字段必须写未提供或缺失，不得补全 PO、GRN、金额、发票号或供应商。",
+            "multi_issue": "只覆盖 input_facts.anomaly_types 中列出的异常。",
+            "generation_variable": "fact_constrained_prompt_and_uniform_expected_explanation_format",
+        },
         "sha256": hashes,
     }
 
@@ -269,6 +319,17 @@ def summary_to_markdown(summary: dict[str, Any]) -> str:
     )
     lines.extend(["", "## File Hashes", ""])
     lines.extend(f"- `{name}`: `{digest}`" for name, digest in summary["sha256"].items())
+    lines.extend(
+        [
+            "",
+            "## Gold Answer Contract",
+            "",
+            "- 固定章节：`异常类型`、`事实边界`、`关键事实`、`缺失字段`、`禁止补全`、`审核结论`。",
+            "- 缺失字段必须写 `未提供` 或 `缺失`。",
+            "- 不得补全 PO、GRN、发票号、金额、供应商或未输入异常类型。",
+            "- 多异常组合只覆盖 `input_facts.anomaly_types` 中存在的异常。",
+        ]
+    )
     lines.append("")
     return "\n".join(lines)
 

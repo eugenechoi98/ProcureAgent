@@ -3,8 +3,9 @@
 from collections import Counter
 import hashlib
 import json
+import re
 
-from procureguard.phase3.dataset import generate_samples
+from procureguard.phase3.dataset import ANOMALY_LABELS, ANSWER_SECTIONS, generate_samples
 from procureguard.phase3.schemas import AnomalyType
 
 
@@ -53,6 +54,59 @@ def test_contract_keeps_deterministic_facts_and_generated_output_separate():
     assert "关键事实：" in combination.expected_explanation
     assert "审核结论：" in combination.expected_explanation
     assert all(sample.metadata["synthetic"] is True for sample in samples)
+
+
+def test_gold_answers_use_fixed_fact_constrained_sections():
+    samples = generate_samples(seed=42)
+
+    assert all(
+        all(section in sample.expected_explanation for section in ANSWER_SECTIONS)
+        for sample in samples
+    )
+    assert all("事实边界：" in sample.expected_explanation for sample in samples)
+    assert all("禁止补全：" in sample.expected_explanation for sample in samples)
+
+
+def test_missing_goods_receipt_gold_never_invents_grn():
+    sample = next(
+        sample
+        for sample in generate_samples(seed=42)
+        if sample.anomaly_type == AnomalyType.MISSING_GOODS_RECEIPT
+    )
+
+    assert sample.input_facts.grn_number is None
+    assert "收货单号：未提供" in sample.expected_explanation
+    assert "缺失" in sample.expected_explanation
+    assert "不得根据发票号推断收货单号" in sample.expected_explanation
+    assert not re.search(r"\bGRN-\d+", sample.expected_explanation)
+
+
+def test_quantity_mismatch_gold_does_not_add_amount_comparison():
+    sample = next(
+        sample
+        for sample in generate_samples(seed=42)
+        if sample.anomaly_type == AnomalyType.QUANTITY_MISMATCH
+    )
+
+    assert "发票数量" in sample.expected_explanation
+    assert "收货数量" in sample.expected_explanation
+    assert "没有金额不一致证据时不得生成金额对比" in sample.expected_explanation
+    assert "订单金额" not in sample.expected_explanation
+    assert "差额" not in sample.expected_explanation
+
+
+def test_multi_issue_gold_only_mentions_input_anomaly_types():
+    sample = next(
+        sample
+        for sample in generate_samples(seed=42)
+        if sample.anomaly_type == AnomalyType.MULTI_ISSUE_COMBINATION
+    )
+    allowed = set(sample.input_facts.anomaly_types)
+
+    for anomaly_type, label in ANOMALY_LABELS.items():
+        if anomaly_type in allowed or anomaly_type == AnomalyType.MULTI_ISSUE_COMBINATION:
+            continue
+        assert label not in sample.expected_explanation
 
 
 def test_generated_files_match_contract_and_summary():

@@ -33,3 +33,4 @@
 - 2026-06-12：收口 Phase 3D.4 CUDA runtime 诊断、训练门禁前移和 cu118 Torch 固定依赖。
 - 2026-06-12：收口 Phase 3D.5 NumPy ABI 兼容 guard，固定 Phase 3 GPU 环境使用 NumPy 1.26.4。
 - 2026-06-12：完成 Phase 3E 首轮 LoRA 真实评测复盘，生成按异常类型拆分、幻觉清单和下一轮单变量实验设计。
+- 2026-06-12：完成 Phase 3F 事实约束 Prompt 与统一结构化 Gold Answer 数据收口，并重新生成固定 seed 数据。
