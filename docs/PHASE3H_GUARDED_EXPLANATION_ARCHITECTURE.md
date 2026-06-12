@@ -140,3 +140,22 @@ This makes the explanation path reviewable without trusting the model as a black
 Phase 3H.1 may implement the deterministic renderer, output guard, fallback orchestrator, and audit trace as isolated Phase 3 explanation components with tests.
 
 It must not connect to the production API, modify Phase 1, modify Phase 2, start GPU training, or change the shared database schema unless the review/control conversation explicitly approves a cross-module contract change.
+
+## Phase 3H.1 Minimal Implementation
+
+The first isolated implementation lives under `procureguard/phase3/explanation/`.
+
+| component | file | note |
+| --- | --- | --- |
+| Canonical Audit Facts adapter | `facts.py` | adapts existing Phase 3 `InputFacts` for tests and defines stable facts hash |
+| Deterministic Template Renderer | `renderer.py` | official MVP explanation path with fixed sections |
+| Controlled LLM Rewrite contract | `rewrite_contract.py` | request, response, and strict rewrite prompt |
+| LoRA Output Guard | `guard.py` | rejects unknown identifiers, amounts, vendors, policy roles, changed decisions, changed anomaly coverage, and missing sections |
+| Fallback Orchestrator | `orchestrator.py` | defaults to template, records shadow output, blocks high-risk rewrite, and uses rewrite only in explicit experimental mode after guard pass |
+| Audit Trail | `trace.py` | records facts hash, versions, raw LLM output, verifier result, fallback reason, and final explanation |
+
+Validation command:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest tests\test_phase3_dataset.py tests\test_phase3_evaluation.py tests\test_phase3h_guarded_explanation.py
+```
