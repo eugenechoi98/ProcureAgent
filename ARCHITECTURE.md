@@ -78,3 +78,7 @@ flowchart LR
 - Output Guard 检查未知 PO/GRN/发票号/金额/供应商/政策/审批角色/异常类型，以及风险等级、建议动作和固定章节是否被改变。
 - Fallback Orchestrator 在 LoRA 不可用、输出为空、guard 失败、高风险或解析失败时返回模板。
 - Audit Trail 记录 facts hash、template version、prompt version、model version、adapter version、raw LLM output、verifier result、fallback reason 和 final explanation。
+- Phase 3H.2 在 `AgentInvoiceProcessor` 完成 Phase 2 风险与动作判断、构建 `AuditReport` 后调用解释层；解释结果不能写回 matcher、Risk Engine、工具调用或人工审核决策。
+- `AuditReport.explanation` 是向后兼容的可选字段，API 默认 `explanation_mode=template`。shadow/experimental 必须显式选择并注入 provider，项目默认没有真实模型 provider。
+- Explanation Audit Trail 采用方案 B，随 `audit_report_json` 的 explanation metadata 保存和返回。现有 `audit_traces.step_name` CHECK 保持不变，不新增表、字段或 migration。
+- Phase 3H.3 Demo Cases 固定放在 `tests/fixtures/phase3h_demo_cases.json`，只使用 fake provider 和确定性输入。

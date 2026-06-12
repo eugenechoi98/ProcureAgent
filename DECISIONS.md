@@ -1,5 +1,13 @@
 # DECISIONS.md
 
+## 2026-06-12：Phase 3H 接入采用 AuditReport 内嵌解释 trace
+
+现有 `audit_traces.step_name` 有固定 CHECK 约束，新增 explanation step 需要数据库变更。Phase 3H 选择把完整 explanation metadata 作为 `AuditReport` 可选字段写入现有 `audit_report_json`，既保留审计信息，也避免数据库 schema 和 migration。
+
+## 2026-06-12：Phase 3H API 默认 template，模型模式必须显式启用
+
+解释层只在 Phase 2 风险、动作和异常确定后运行。API 默认不配置 rewrite provider，shadow/experimental 只能显式选择并注入 provider；这样没有模型、网络或 GPU 时仍能稳定返回官方模板解释。
+
 ## 2026-06-12：Phase 3H 采用受控解释层，LoRA 不作为默认审核输出
 
 第二轮 LoRA 真实评测未通过采购审核 hard gate：format、factual consistency、action consistency、anomaly coverage 和 hallucination 均不满足上线要求。因此 LoRA 不参与风险计算，不允许改变 `risk_level`、`recommended_action` 或 `anomaly_types`。
