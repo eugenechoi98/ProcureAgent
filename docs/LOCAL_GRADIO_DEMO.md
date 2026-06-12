@@ -5,10 +5,17 @@
 This is a local offline interview demo. It is not a Hugging Face Space and is
 not an online deployment result.
 
-It is the frozen **Tab 1: Invoice Audit baseline** for the future unified
-Portfolio Demo. It will not be discarded or rewritten as a model-first app.
-Later batches add Model Lab and Architecture tabs around this stable business
-flow.
+It is now the local **Unified Portfolio Demo** with three tabs:
+
+```text
+Tab 1: Invoice Audit
+Tab 2: Model Lab
+Tab 3: Architecture
+```
+
+Invoice Audit keeps the frozen stable business flow. Model Lab reads only the
+lightweight offline artifacts in `demo/model_lab/`. Architecture explains the
+model, Agent, rules, Guard, Fallback, and Audit Trail boundaries.
 
 The demo does not:
 
@@ -139,6 +146,12 @@ Service smoke:
 .\.venv\Scripts\python.exe scripts\demo\run_local_demo_smoke.py
 ```
 
+Unified Portfolio Demo smoke:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\demo\run_unified_portfolio_demo_smoke.py
+```
+
 Both commands print JSON and write no file unless `--output <path>` is
 explicitly provided.
 
@@ -150,24 +163,25 @@ explicitly provided.
   without changing sealed business logic.
 - The structured guard is not a production semantic verifier.
 - No Hugging Face Space has been created.
+- Current web UI does not run live LayoutLMv3 inference.
+- Current web UI does not run real LoRA inference.
 
 ## Role In The Unified Portfolio Demo
 
-The final Gradio presentation is designed as:
+The local Gradio presentation now has:
 
 ```text
-Tab 1: Invoice Audit   -> this completed local baseline
-Tab 2: Model Lab       -> not implemented yet
-Tab 3: Architecture    -> not implemented yet
+Tab 1: Invoice Audit   -> completed local baseline
+Tab 2: Model Lab       -> reads real offline lightweight artifacts
+Tab 3: Architecture    -> explains deterministic governance boundaries
 ```
 
-Model Lab will package real offline LayoutLMv3 and LoRA artifacts rather than
-loading heavy models in the default web process. Architecture will explain why
-risk and action stay deterministic and why guarded rewrite cannot change audit
-facts.
+Model Lab uses real offline LayoutLMv3 and LoRA artifacts rather than loading
+heavy models in the web process. Architecture explains why risk and action stay
+deterministic and why guarded rewrite cannot change audit facts.
 
-The current baseline therefore remains valuable for reliable live behavior,
-while the future tabs make PyTorch, Transformers, LoRA/QLoRA, Agent, and RAG
-work visible. Hugging Face Spaces deployment, online LayoutLMv3, real LoRA
+The Invoice Audit baseline remains valuable for reliable live behavior, while
+the new tabs make PyTorch, Transformers, LoRA/QLoRA, Agent, and RAG work
+visible. Hugging Face Spaces deployment, online LayoutLMv3, real LoRA
 inference, LangChain comparison, Docker, and CI are later batches and are not
 completed by this local Demo.

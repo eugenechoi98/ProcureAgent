@@ -3,9 +3,9 @@
 ## Status
 
 This document freezes the presentation architecture for the ProcureGuard AI
-portfolio Demo. It describes future display work only. It does not change the
-auditing business chain, deploy a Hugging Face Space, or enable live model
-inference.
+portfolio Demo and records the current local implementation status. It does not
+change the auditing business chain, deploy a Hugging Face Space, or enable live
+model inference.
 
 ## 1. Current Problem
 
@@ -204,6 +204,12 @@ for controller review.
 
 Add Model Lab and Architecture tabs around the completed Invoice Audit
 baseline. Evaluate additional live audit cases without changing Phase 2 rules.
+
+Current status: Batch B is complete locally. The Gradio app contains Invoice
+Audit, Model Lab, and Architecture tabs. Model Lab reads existing real offline
+lightweight artifacts only. The web UI does not run live LayoutLMv3 or real
+LoRA inference, and no Hugging Face Space has been deployed. Batch C waits for
+controller review.
 
 ### Batch C: Hugging Face Spaces
 
