@@ -64,7 +64,6 @@ def build_app(service: DemoService | None = None) -> gr.Blocks:
     with gr.Blocks(
         title="ProcureGuard AI",
         analytics_enabled=False,
-        theme=gr.themes.Soft(),
     ) as app:
         gr.Markdown(
             "# ProcureGuard AI\n"
@@ -169,7 +168,7 @@ def build_app(service: DemoService | None = None) -> gr.Blocks:
             fn=lambda: ("normal_invoice", "template", *([None] * len(outputs))),
             inputs=[],
             outputs=[case_selector, mode_selector, *outputs],
-            api_visibility="private",
+            api_name=False,
         )
     return app
 
