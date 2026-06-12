@@ -49,6 +49,7 @@ models_cache/
 /local_artifacts/
 /*_LocalArtifacts/
 /artifacts/phase3/
+/artifacts/phase3_runs/
 /checkpoints/phase3/
 /models_cache/phase3/
 *.pt

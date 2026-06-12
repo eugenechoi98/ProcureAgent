@@ -1,5 +1,8 @@
 # DECISIONS.md
 
+## 2026-06-12：Phase 3G 第二轮训练输出必须独立成 run 目录
+首轮真实 LoRA artifacts 已用于 Phase 3E 复盘，不能被第二轮覆盖。Phase 3F.1 增加 `PHASE3_ARTIFACT_DIR`，Notebook、bootstrap、base smoke、训练、评测和 manifest 统一使用当前 run 目录；第二轮推荐 `artifacts/phase3_runs/phase3g_second_lora_run/`。
+
 ## 2026-06-12：Phase 3F 用固定章节训练事实边界
 首轮 LoRA 的主要失败是模型会补未知金额、GRN 和供应商关系。Phase 3F 不改训练超参，只把 system prompt 与 gold answer 统一成 `异常类型 / 事实边界 / 关键事实 / 缺失字段 / 禁止补全 / 审核结论` 六段，并在答案中显式示范缺失字段写未提供或缺失，让模型优先学习事实边界。
 

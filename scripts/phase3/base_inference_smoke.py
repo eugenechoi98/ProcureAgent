@@ -20,6 +20,7 @@ def main() -> None:
     parser.add_argument("--model-dir")
     parser.add_argument("--sample-count", type=int, default=1)
     parser.add_argument("--output-name", default="base_smoke.jsonl")
+    parser.add_argument("--artifact-dir", type=Path)
     parser.add_argument("--run", action="store_true")
     args = parser.parse_args()
     plan = run_base_inference_smoke(
@@ -27,6 +28,7 @@ def main() -> None:
         model_dir=args.model_dir,
         sample_count=args.sample_count,
         run=args.run,
+        artifact_dir=args.artifact_dir,
         output_name=args.output_name,
     )
     print(json.dumps(plan, ensure_ascii=False, indent=2, sort_keys=True))

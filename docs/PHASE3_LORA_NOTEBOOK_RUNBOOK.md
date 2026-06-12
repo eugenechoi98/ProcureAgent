@@ -1,6 +1,6 @@
 # Phase 3 LoRA Notebook Runbook
 
-本手册只覆盖 Phase 3 异常说明训练。默认 FastAPI 环境不安装 Torch、Transformers、PEFT、TRL 或 Unsloth。
+本手册只覆盖 Phase 3 异常说明训练。默认 FastAPI 环境不安装 Torch、Transformers、PEFT、TRL 或 Unsloth。Phase 3G 第二轮训练必须使用独立输出目录，禁止覆盖首轮 `artifacts/phase3/`。
 
 ## 1. 本地验收
 
@@ -9,8 +9,8 @@
 ```powershell
 .\.venv\Scripts\python.exe scripts\phase3\generate_anomaly_explanations.py --seed 42
 .\.venv\Scripts\python.exe scripts\phase3\verify_lora_notebook_env.py
-.\.venv\Scripts\python.exe scripts\phase3\bootstrap_lora_notebook.py
-.\.venv\Scripts\python.exe scripts\phase3\base_inference_smoke.py
+.\.venv\Scripts\python.exe scripts\phase3\bootstrap_lora_notebook.py --artifact-dir artifacts\phase3_runs\phase3g_second_lora_run
+.\.venv\Scripts\python.exe scripts\phase3\base_inference_smoke.py --artifact-dir artifacts\phase3_runs\phase3g_second_lora_run
 .\.venv\Scripts\python.exe scripts\phase3\prepare_qwen_model.py
 .\.venv\Scripts\python.exe scripts\phase3\diagnose_cuda_runtime.py
 .\.venv\Scripts\python.exe -m pytest tests\test_phase3_dataset.py tests\test_phase3_evaluation.py tests\test_phase3_gpu_notebook.py
@@ -21,9 +21,9 @@
 ## 2. 分工
 
 - `scripts/phase3/prepare_qwen_model.py`：显式准备或验证本地 Qwen 模型目录；默认 dry-run，只有 `--download` 会下载。
-- `scripts/phase3/verify_lora_notebook_env.py`：只读检查，不创建目录、不下载模型、不安装依赖。
-- `scripts/phase3/bootstrap_lora_notebook.py`：创建 `artifacts/phase3/` 输出目录，写入 `logs/environment_guard.json`。
-- `procureguard.phase3.gpu_notebook`：统一做路径解析、数据 SHA guard、依赖 guard、CUDA guard、模型目录 guard 和 base inference smoke。
+- `scripts/phase3/verify_lora_notebook_env.py`：只读检查，不创建目录、不下载模型、不安装依赖；支持 `--artifact-dir` 或 `PHASE3_ARTIFACT_DIR` 预览输出目录。
+- `scripts/phase3/bootstrap_lora_notebook.py`：创建当前 run 输出目录，写入 `logs/environment_guard.json`。
+- `procureguard.phase3.gpu_notebook`：统一做路径解析、输出目录解析、数据 SHA guard、依赖 guard、CUDA guard、模型目录 guard 和 base inference smoke。
 - `procureguard.phase3.runtime`：在 Notebook Kernel 内恢复 train/validation/test 数据、system prompt、训练参数、LoRA 参数和生成参数。
 
 ## 3. 独立 GPU 环境与 Kernel
@@ -76,6 +76,7 @@ export PHASE3_MODEL_CACHE=/mnt/workspace/models/phase3
 export PHASE3_MODEL_DIR=/mnt/workspace/models/phase3/Qwen2.5-0.5B-Instruct
 export PHASE3_KERNEL_PYTHON=/mnt/workspace/ProcureAgent/.venv-phase3/bin/python
 export PROCUREGUARD_PROJECT_ROOT=/mnt/workspace/ProcureAgent
+export PHASE3_ARTIFACT_DIR=/mnt/workspace/ProcureAgent/artifacts/phase3_runs/phase3g_second_lora_run
 
 # 情况一：模型目录已经存在，直接验证。
 python scripts/phase3/prepare_qwen_model.py --verify-only --model-dir "$PHASE3_MODEL_DIR"
@@ -86,10 +87,10 @@ python scripts/phase3/prepare_qwen_model.py --verify-only --model-dir "$PHASE3_M
 # 情况三：云端网络不可用，把完整模型目录或压缩包上传/解压到 $PHASE3_MODEL_DIR 后，再运行 verify-only。
 # python scripts/phase3/prepare_qwen_model.py --verify-only --model-dir "$PHASE3_MODEL_DIR"
 
-python scripts/phase3/verify_lora_notebook_env.py --require-cuda --model-dir "$PHASE3_MODEL_DIR"
-python scripts/phase3/bootstrap_lora_notebook.py --require-cuda --model-dir "$PHASE3_MODEL_DIR"
-python scripts/phase3/base_inference_smoke.py --model-dir "$PHASE3_MODEL_DIR"
-python scripts/phase3/base_inference_smoke.py --model-dir "$PHASE3_MODEL_DIR" --run
+python scripts/phase3/verify_lora_notebook_env.py --require-cuda --model-dir "$PHASE3_MODEL_DIR" --artifact-dir "$PHASE3_ARTIFACT_DIR"
+python scripts/phase3/bootstrap_lora_notebook.py --require-cuda --model-dir "$PHASE3_MODEL_DIR" --artifact-dir "$PHASE3_ARTIFACT_DIR"
+python scripts/phase3/base_inference_smoke.py --model-dir "$PHASE3_MODEL_DIR" --artifact-dir "$PHASE3_ARTIFACT_DIR"
+python scripts/phase3/base_inference_smoke.py --model-dir "$PHASE3_MODEL_DIR" --artifact-dir "$PHASE3_ARTIFACT_DIR" --run
 python scripts/phase3/diagnose_cuda_runtime.py --model-dir "$PHASE3_MODEL_DIR" --expected-kernel-python "$PHASE3_KERNEL_PYTHON"
 ```
 
@@ -123,11 +124,19 @@ PHASE3_KERNEL_PYTHON=/mnt/workspace/ProcureAgent/.venv-phase3/bin/python
 
 环境变量仍然优先于默认值；不要在 Notebook 中手工写死路径。
 
+Notebook 的输出目录由 `PHASE3_ARTIFACT_DIR` 控制。Phase 3G 第二轮必须确认第一格输出：
+
+```text
+phase3_artifact_dir=/mnt/workspace/ProcureAgent/artifacts/phase3_runs/phase3g_second_lora_run
+```
+
+如果看到 `artifacts/phase3`，必须停止，不允许继续训练，避免覆盖首轮 artifacts。Notebook 在没有环境变量时也会默认使用 `artifacts/phase3_runs/phase3g_second_lora_run`，但正式云端流程仍要求显式 export。
+
 Terminal bootstrap 报告和 Notebook runtime guard 报告分开保存：
 
 ```text
-artifacts/phase3/logs/environment_guard.json
-artifacts/phase3/logs/notebook_runtime_guard.json
+$PHASE3_ARTIFACT_DIR/logs/environment_guard.json
+$PHASE3_ARTIFACT_DIR/logs/notebook_runtime_guard.json
 ```
 
 Notebook 只写 `notebook_runtime_guard.json`，不会覆盖 Terminal 已生成的 `environment_guard.json`。Notebook guard 会同时输出 `preflight_ready` 和 `training_ready`：
@@ -229,15 +238,15 @@ Notebook 固定记录：
 训练完成后必须导出：
 
 ```text
-artifacts/phase3/logs/environment_guard.json
-artifacts/phase3/logs/training_config.json
-artifacts/phase3/logs/trainer_log_history.json
-artifacts/phase3/predictions/base.jsonl
-artifacts/phase3/predictions/fine_tuned.jsonl
-artifacts/phase3/evaluation/evaluation.json
-artifacts/phase3/evaluation/evaluation.md
-artifacts/phase3/artifacts_manifest.json
-artifacts/phase3/adapters/
+$PHASE3_ARTIFACT_DIR/logs/environment_guard.json
+$PHASE3_ARTIFACT_DIR/logs/training_config.json
+$PHASE3_ARTIFACT_DIR/logs/trainer_log_history.json
+$PHASE3_ARTIFACT_DIR/predictions/base.jsonl
+$PHASE3_ARTIFACT_DIR/predictions/fine_tuned.jsonl
+$PHASE3_ARTIFACT_DIR/evaluation/evaluation.json
+$PHASE3_ARTIFACT_DIR/evaluation/evaluation.md
+$PHASE3_ARTIFACT_DIR/artifacts_manifest.json
+$PHASE3_ARTIFACT_DIR/adapters/
 ```
 
 输出目录由正式代码创建，不需要在 Notebook 中手工创建目录。adapter、checkpoint、模型缓存、预测和评测运行产物均被 `.gitignore` 排除，不提交 Git。

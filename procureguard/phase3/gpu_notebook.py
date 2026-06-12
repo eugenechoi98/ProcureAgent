@@ -25,6 +25,8 @@ DATASET_FILES = ("train.jsonl", "validation.jsonl", "test.jsonl")
 DEFAULT_MODEL_ID = "Qwen/Qwen2.5-0.5B-Instruct"
 DEFAULT_MODELSCOPE_MODEL_DIR = "/mnt/workspace/models/phase3/Qwen2.5-0.5B-Instruct"
 DEFAULT_MODELSCOPE_KERNEL_PYTHON = "/mnt/workspace/ProcureAgent/.venv-phase3/bin/python"
+DEFAULT_PHASE3_ARTIFACT_DIR = "artifacts/phase3"
+RECOMMENDED_PHASE3G_ARTIFACT_DIR = "artifacts/phase3_runs/phase3g_second_lora_run"
 TRAINING_BACKEND = "qlora_4bit_bitsandbytes"
 PROJECT_DEPENDENCY_HELP = (
     "Missing ProcureGuard project dependency modules: {missing}. "
@@ -94,6 +96,33 @@ def notebook_kernel_python_from_env(environ: dict[str, str] | None = None) -> st
     return env.get("PHASE3_KERNEL_PYTHON", DEFAULT_MODELSCOPE_KERNEL_PYTHON)
 
 
+def resolve_artifact_dir(
+    project_root: Path,
+    explicit_artifact_dir: str | Path | None = None,
+    environ: dict[str, str] | None = None,
+) -> Path:
+    """解析 Phase 3 输出目录，显式参数优先，其次 PHASE3_ARTIFACT_DIR。"""
+
+    env = os.environ if environ is None else environ
+    value = explicit_artifact_dir or env.get("PHASE3_ARTIFACT_DIR")
+    if value:
+        path = Path(value).expanduser()
+        return (path if path.is_absolute() else project_root / path).resolve()
+    return (project_root / DEFAULT_PHASE3_ARTIFACT_DIR).resolve()
+
+
+def notebook_artifact_dir_from_env(
+    project_root: Path,
+    environ: dict[str, str] | None = None,
+) -> str:
+    """Notebook 使用环境变量优先、Phase 3G 独立 run 目录兜底。"""
+
+    env = os.environ if environ is None else environ
+    value = env.get("PHASE3_ARTIFACT_DIR", RECOMMENDED_PHASE3G_ARTIFACT_DIR)
+    path = Path(value).expanduser()
+    return str((path if path.is_absolute() else project_root / path).resolve())
+
+
 def phase3_paths(
     project_root: Path | None = None,
     artifact_dir: Path | None = None,
@@ -102,7 +131,7 @@ def phase3_paths(
     """构建 Notebook 和脚本共享的路径集合。"""
 
     root = (project_root or find_project_root()).resolve()
-    artifacts = (artifact_dir or root / "artifacts" / "phase3").resolve()
+    artifacts = resolve_artifact_dir(root, artifact_dir)
     return Phase3Paths(
         project_root=root,
         data_dir=root / "data" / "phase3" / "generated",

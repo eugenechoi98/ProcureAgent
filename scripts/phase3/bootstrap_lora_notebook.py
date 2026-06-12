@@ -19,11 +19,13 @@ def main() -> None:
     parser = ArgumentParser()
     parser.add_argument("--require-cuda", action="store_true")
     parser.add_argument("--model-dir")
+    parser.add_argument("--artifact-dir", type=Path)
     args = parser.parse_args()
     guard = bootstrap_notebook(
         PROJECT_ROOT,
         require_cuda=args.require_cuda,
         model_dir=args.model_dir,
+        artifact_dir=args.artifact_dir,
     )
     print(json.dumps(guard, ensure_ascii=False, indent=2, sort_keys=True))
 

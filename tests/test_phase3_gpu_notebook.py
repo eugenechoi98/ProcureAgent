@@ -15,6 +15,7 @@ from procureguard.phase3.gpu_notebook import (
     hydrate_runtime_context,
     model_dir_guard,
     notebook_guard,
+    notebook_artifact_dir_from_env,
     notebook_kernel_python_from_env,
     notebook_model_dir_from_env,
     notebook_runtime_guard,
@@ -25,6 +26,7 @@ from procureguard.phase3.gpu_notebook import (
     verify_dataset_hashes,
     verify_notebook_env,
 )
+from procureguard.phase3.gpu_notebook import RECOMMENDED_PHASE3G_ARTIFACT_DIR
 from procureguard.phase3.paths import resolve_project_root
 from procureguard.phase3.runtime import write_artifacts_manifest
 
@@ -191,14 +193,47 @@ def test_notebook_defaults_modelscope_paths_when_env_missing():
     )
 
 
+def test_notebook_defaults_phase3g_artifact_run_dir_when_env_missing(tmp_path: Path):
+    expected = tmp_path / RECOMMENDED_PHASE3G_ARTIFACT_DIR
+
+    assert notebook_artifact_dir_from_env(tmp_path, {}) == str(expected.resolve())
+
+
 def test_notebook_env_overrides_modelscope_defaults():
     env = {
         "PHASE3_MODEL_DIR": "/custom/model",
         "PHASE3_KERNEL_PYTHON": "/custom/python",
+        "PHASE3_ARTIFACT_DIR": "/custom/artifacts",
     }
 
     assert notebook_model_dir_from_env(env) == "/custom/model"
     assert notebook_kernel_python_from_env(env) == "/custom/python"
+    assert notebook_artifact_dir_from_env(Path("/repo"), env) == str(Path("/custom/artifacts").resolve())
+
+
+def test_phase3_paths_honors_phase3_artifact_dir_env(tmp_path: Path, monkeypatch):
+    root = find_project_root(Path.cwd())
+    artifact_dir = tmp_path / "phase3g_second_lora_run"
+    monkeypatch.setenv("PHASE3_ARTIFACT_DIR", str(artifact_dir))
+
+    paths = phase3_paths(root)
+
+    assert paths.artifact_dir == artifact_dir.resolve()
+    assert paths.adapter_dir == artifact_dir.resolve() / "adapters" / "qwen2.5-0.5b-anomaly-explainer"
+    assert paths.log_dir == artifact_dir.resolve() / "logs"
+    assert paths.prediction_dir == artifact_dir.resolve() / "predictions"
+    assert paths.evaluation_dir == artifact_dir.resolve() / "evaluation"
+    assert paths.trainer_dir == artifact_dir.resolve() / "trainer"
+
+
+def test_base_inference_plan_uses_shared_artifact_dir_env(tmp_path: Path, monkeypatch):
+    root = find_project_root(Path.cwd())
+    artifact_dir = tmp_path / "phase3g_second_lora_run"
+    monkeypatch.setenv("PHASE3_ARTIFACT_DIR", str(artifact_dir))
+
+    plan = build_base_inference_plan(root, sample_count=1)
+
+    assert plan["output_path"] == str(artifact_dir.resolve() / "predictions" / "base_smoke.jsonl")
 
 
 def test_preflight_and_training_ready_are_separate():
@@ -781,6 +816,10 @@ def test_notebook_uses_unified_runtime_guard_and_default_no_training():
 
     assert "RUN_TRAINING = False" in text
     assert "RUN_BASE_SMOKE = False" in text
+    assert "notebook_artifact_dir_from_env" in text
+    assert "PHASE3_ARTIFACT_DIR = notebook_artifact_dir_from_env(PROJECT_ROOT)" in text
+    assert "'phase3_artifact_dir': PHASE3_ARTIFACT_DIR" in text
+    assert "artifact_dir=Path(PHASE3_ARTIFACT_DIR)" in text
     assert "notebook_model_dir_from_env" in text
     assert "notebook_kernel_python_from_env" in text
     assert "os.environ.get('PHASE3_MODEL_DIR')" not in text

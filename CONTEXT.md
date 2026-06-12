@@ -1,7 +1,7 @@
 # CONTEXT.md
 
 ## 当前目标
-完成 Phase 3F 事实约束型 Prompt 与统一结构化 Gold Answer 数据收口。
+完成 Phase 3F.1 第二轮 LoRA 输出目录隔离，避免覆盖首轮 artifacts。
 
 ## 当前进度
 - Phase 1 已封板，默认离线策略为 `pure_layoutlmv3_date_path`，尚未接入 API。
@@ -17,9 +17,10 @@
 - Phase 3D.5 已固定 `numpy==1.26.4`，并将 NumPy ABI 兼容性纳入 CUDA runtime 诊断和 Notebook 训练门禁。
 - Phase 3E 已读取仓库外首轮真实 artifacts，生成按异常类型拆分、hallucination 清单、format 失败分布和下一轮 hard gate 复盘报告。
 - Phase 3F 已将 system prompt 和 `expected_explanation` 收口为事实约束型固定章节格式，重新生成 seed 42 的 160/20/20 数据，并通过离线约束审查。
+- Phase 3F.1 已支持 `PHASE3_ARTIFACT_DIR` 和独立 run 目录，第二轮推荐写入 `artifacts/phase3_runs/phase3g_second_lora_run/`。
 
 ## 下一步
-回到总控审查 Phase 3F 数据与 prompt 收口。验收通过后，再由用户在 ModelScope 亲自启动第二轮 GPU 训练。
+回到总控审查 Phase 3F.1 输出隔离。验收通过后，再由用户在 ModelScope 亲自启动第二轮 GPU 训练。
 
 ## 注意事项
 - Phase 3 模型只生成异常说明，不计算金额、不决定风险等级、不改变建议动作。
@@ -29,6 +30,7 @@
 - checkpoint、adapter、模型缓存和本地 artifacts 不提交 Git；adapter 压缩包保存到仓库外本地 artifacts 目录。
 - 首轮 adapter 与 checkpoints 保存在 `D:\ProcureAgent_LocalArtifacts\Phase3\phase3_first_lora_run\phase3`，不提交 Git。
 - Phase 3F 只改 prompt 和 gold answer 数据格式，训练超参、模型、评测指标和 test split 数量保持不变。
+- Phase 3G 第二轮必须确认 Notebook 第一格显示 `phase3_artifact_dir=.../artifacts/phase3_runs/phase3g_second_lora_run`。
 
 ## 最后更新时间
 2026-06-12
