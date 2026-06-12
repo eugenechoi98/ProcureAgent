@@ -1,5 +1,8 @@
 # DECISIONS.md
 
+## 2026-06-12：Phase 3E 下一轮只调整事实约束与输出格式
+首轮 fine-tuned 显著学会 recommended_action 和异常覆盖，但 factual_consistency 降到 0.80、hallucination_rate 升到 0.20，format_compliance 仍只有 0.15。下一轮优先只调整事实约束型 prompt 和统一结构化 `expected_explanation` 格式，不同时改 epoch、learning rate、LoRA r 或模型，避免无法判断收益来源。
+
 ## 2026-06-12：Phase 3D 训练门禁始终检查 CUDA runtime
 `RUN_TRAINING=False` 只能表示不启动训练，不能表示训练环境可用。Phase 3D.4 将 `preflight_ready` 与 `training_ready` 分离：前者检查数据、依赖、模型和 Kernel，后者始终额外检查 CUDA、device count 和 bitsandbytes 4-bit 路径。Phase 3 GPU 依赖固定为 `torch==2.2.2+cu118`，避免浮动安装到需要更高 NVIDIA driver 的 Torch runtime。
 

@@ -505,6 +505,94 @@ def test_diagnose_cuda_runtime_script_outputs_json():
         assert key in payload
 
 
+def test_analyze_lora_evaluation_requires_real_artifacts(tmp_path: Path):
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/phase3/analyze_lora_evaluation.py",
+            "--artifacts-dir",
+            str(tmp_path / "missing_artifacts"),
+            "--output-json",
+            str(tmp_path / "review.json"),
+            "--output-md",
+            str(tmp_path / "review.md"),
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode != 0
+    assert "Phase 3E review requires real ModelScope artifacts" in result.stderr
+
+
+def test_analyze_lora_evaluation_outputs_breakdown_and_hallucinations(tmp_path: Path):
+    dataset_path = Path("data/phase3/generated/test.jsonl")
+    test_rows = [
+        json.loads(line)
+        for line in dataset_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    artifacts_dir = tmp_path / "phase3_artifacts"
+    (artifacts_dir / "predictions").mkdir(parents=True)
+    (artifacts_dir / "evaluation").mkdir()
+    (artifacts_dir / "logs").mkdir()
+
+    base_predictions = [
+        {"sample_id": row["sample_id"], "explanation": row["expected_explanation"]}
+        for row in test_rows
+    ]
+    fine_tuned_predictions = list(base_predictions)
+    fine_tuned_predictions[0] = {
+        "sample_id": test_rows[0]["sample_id"],
+        "explanation": test_rows[0]["expected_explanation"] + " 额外金额 USD 9999.99。",
+    }
+    for name, rows in {
+        "base.jsonl": base_predictions,
+        "fine_tuned.jsonl": fine_tuned_predictions,
+    }.items():
+        (artifacts_dir / "predictions" / name).write_text(
+            "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in rows),
+            encoding="utf-8",
+        )
+    (artifacts_dir / "evaluation" / "evaluation.json").write_text(
+        json.dumps({"base": {"metrics": {}}, "fine_tuned": {"metrics": {}}}),
+        encoding="utf-8",
+    )
+    (artifacts_dir / "evaluation" / "evaluation.md").write_text("# ok\n", encoding="utf-8")
+    (artifacts_dir / "logs" / "training_config.json").write_text(
+        json.dumps({"generation": {"do_sample": False, "temperature": 0.7}}),
+        encoding="utf-8",
+    )
+    (artifacts_dir / "logs" / "trainer_log_history.json").write_text("[]\n", encoding="utf-8")
+
+    output_json = tmp_path / "review.json"
+    output_md = tmp_path / "review.md"
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/phase3/analyze_lora_evaluation.py",
+            "--artifacts-dir",
+            str(artifacts_dir),
+            "--output-json",
+            str(output_json),
+            "--output-md",
+            str(output_md),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    payload = json.loads(result.stdout)
+    report = json.loads(output_json.read_text(encoding="utf-8"))
+
+    assert payload["output_json"] == str(output_json)
+    assert output_md.exists()
+    assert "quantity_mismatch" in report["by_anomaly_type"]["base"]
+    assert report["hallucinations"]["fine_tuned"][0]["violation"] == "unknown_amount:9999.99"
+    assert report["generation_diagnostics"]["inactive_sampling_keys"] == ["temperature"]
+
+
 def test_model_dir_guard_requires_config_tokenizer_and_safetensors(tmp_path: Path):
     missing = model_dir_guard(None)
     model_dir = tmp_path / "qwen"

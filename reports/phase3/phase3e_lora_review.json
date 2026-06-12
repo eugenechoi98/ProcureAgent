@@ -1,0 +1,540 @@
+{
+  "artifacts_dir": "D:\\ProcureAgent_LocalArtifacts\\Phase3\\phase3_first_lora_run\\phase3",
+  "by_anomaly_type": {
+    "base": {
+      "amount_discrepancy": {
+        "action_consistency": 0.0,
+        "anomaly_coverage": 1.0,
+        "factual_consistency": 1.0,
+        "failure_counts": {
+          "action_consistency": 2,
+          "format_compliance": 2
+        },
+        "format_compliance": 0.0,
+        "hallucination_rate": 0.0,
+        "sample_count": 2
+      },
+      "duplicate_invoice": {
+        "action_consistency": 0.0,
+        "anomaly_coverage": 0.0,
+        "factual_consistency": 1.0,
+        "failure_counts": {
+          "action_consistency": 2,
+          "format_compliance": 2
+        },
+        "format_compliance": 0.0,
+        "hallucination_rate": 0.0,
+        "sample_count": 2
+      },
+      "high_value_approval_required": {
+        "action_consistency": 0.0,
+        "anomaly_coverage": 0.0,
+        "factual_consistency": 1.0,
+        "failure_counts": {
+          "action_consistency": 3,
+          "format_compliance": 3
+        },
+        "format_compliance": 0.0,
+        "hallucination_rate": 0.0,
+        "sample_count": 3
+      },
+      "missing_goods_receipt": {
+        "action_consistency": 0.0,
+        "anomaly_coverage": 0.0,
+        "factual_consistency": 1.0,
+        "failure_counts": {
+          "action_consistency": 3,
+          "format_compliance": 3
+        },
+        "format_compliance": 0.0,
+        "hallucination_rate": 0.0,
+        "sample_count": 3
+      },
+      "missing_po_number": {
+        "action_consistency": 0.0,
+        "anomaly_coverage": 0.0,
+        "factual_consistency": 1.0,
+        "failure_counts": {
+          "action_consistency": 2,
+          "format_compliance": 2
+        },
+        "format_compliance": 0.0,
+        "hallucination_rate": 0.0,
+        "sample_count": 2
+      },
+      "multi_issue_combination": {
+        "action_consistency": 0.0,
+        "anomaly_coverage": 0.0,
+        "factual_consistency": 0.6666666666666666,
+        "failure_counts": {
+          "action_consistency": 3,
+          "factual_consistency": 1,
+          "format_compliance": 3,
+          "hallucination": 1
+        },
+        "format_compliance": 0.0,
+        "hallucination_rate": 0.3333333333333333,
+        "sample_count": 3
+      },
+      "quantity_mismatch": {
+        "action_consistency": 0.0,
+        "anomaly_coverage": 0.0,
+        "factual_consistency": 1.0,
+        "failure_counts": {
+          "action_consistency": 2,
+          "format_compliance": 2
+        },
+        "format_compliance": 0.0,
+        "hallucination_rate": 0.0,
+        "sample_count": 2
+      },
+      "vendor_name_mismatch": {
+        "action_consistency": 0.0,
+        "anomaly_coverage": 0.0,
+        "factual_consistency": 1.0,
+        "failure_counts": {
+          "action_consistency": 3,
+          "format_compliance": 3
+        },
+        "format_compliance": 0.0,
+        "hallucination_rate": 0.0,
+        "sample_count": 3
+      }
+    },
+    "fine_tuned": {
+      "amount_discrepancy": {
+        "action_consistency": 0.0,
+        "anomaly_coverage": 0.0,
+        "factual_consistency": 1.0,
+        "failure_counts": {
+          "action_consistency": 2,
+          "format_compliance": 2
+        },
+        "format_compliance": 0.0,
+        "hallucination_rate": 0.0,
+        "sample_count": 2
+      },
+      "duplicate_invoice": {
+        "action_consistency": 1.0,
+        "anomaly_coverage": 1.0,
+        "factual_consistency": 1.0,
+        "failure_counts": {
+          "format_compliance": 2
+        },
+        "format_compliance": 0.0,
+        "hallucination_rate": 0.0,
+        "sample_count": 2
+      },
+      "high_value_approval_required": {
+        "action_consistency": 1.0,
+        "anomaly_coverage": 0.6666666666666666,
+        "factual_consistency": 1.0,
+        "failure_counts": {
+          "format_compliance": 3
+        },
+        "format_compliance": 0.0,
+        "hallucination_rate": 0.0,
+        "sample_count": 3
+      },
+      "missing_goods_receipt": {
+        "action_consistency": 1.0,
+        "anomaly_coverage": 1.0,
+        "factual_consistency": 0.3333333333333333,
+        "failure_counts": {
+          "factual_consistency": 2,
+          "format_compliance": 2,
+          "hallucination": 2
+        },
+        "format_compliance": 0.3333333333333333,
+        "hallucination_rate": 0.6666666666666666,
+        "sample_count": 3
+      },
+      "missing_po_number": {
+        "action_consistency": 1.0,
+        "anomaly_coverage": 1.0,
+        "factual_consistency": 1.0,
+        "failure_counts": {},
+        "format_compliance": 1.0,
+        "hallucination_rate": 0.0,
+        "sample_count": 2
+      },
+      "multi_issue_combination": {
+        "action_consistency": 1.0,
+        "anomaly_coverage": 0.2222222222222222,
+        "factual_consistency": 0.6666666666666666,
+        "failure_counts": {
+          "factual_consistency": 1,
+          "format_compliance": 3,
+          "hallucination": 1
+        },
+        "format_compliance": 0.0,
+        "hallucination_rate": 0.3333333333333333,
+        "sample_count": 3
+      },
+      "quantity_mismatch": {
+        "action_consistency": 0.5,
+        "anomaly_coverage": 1.0,
+        "factual_consistency": 0.5,
+        "failure_counts": {
+          "action_consistency": 1,
+          "factual_consistency": 1,
+          "format_compliance": 2,
+          "hallucination": 1
+        },
+        "format_compliance": 0.0,
+        "hallucination_rate": 0.5,
+        "sample_count": 2
+      },
+      "vendor_name_mismatch": {
+        "action_consistency": 1.0,
+        "anomaly_coverage": 1.0,
+        "factual_consistency": 1.0,
+        "failure_counts": {
+          "format_compliance": 3
+        },
+        "format_compliance": 0.0,
+        "hallucination_rate": 0.0,
+        "sample_count": 3
+      }
+    }
+  },
+  "dataset_diagnostics": {
+    "test": {
+      "anomaly_type_counts": {
+        "amount_discrepancy": 2,
+        "duplicate_invoice": 2,
+        "high_value_approval_required": 3,
+        "missing_goods_receipt": 3,
+        "missing_po_number": 2,
+        "multi_issue_combination": 3,
+        "quantity_mismatch": 2,
+        "vendor_name_mismatch": 3
+      },
+      "multi_issue_count": 3,
+      "risk_flags": {
+        "no_negative_constraint_in_answer": 20
+      },
+      "sample_count": 20,
+      "section_shape_counts": {
+        "('异常类型', '关键事实', '审核结论')": 20
+      }
+    },
+    "train": {
+      "anomaly_type_counts": {
+        "amount_discrepancy": 20,
+        "duplicate_invoice": 20,
+        "high_value_approval_required": 20,
+        "missing_goods_receipt": 20,
+        "missing_po_number": 20,
+        "multi_issue_combination": 20,
+        "quantity_mismatch": 20,
+        "vendor_name_mismatch": 20
+      },
+      "multi_issue_count": 20,
+      "risk_flags": {
+        "no_negative_constraint_in_answer": 160
+      },
+      "sample_count": 160,
+      "section_shape_counts": {
+        "('异常类型', '关键事实', '审核结论')": 160
+      }
+    },
+    "validation": {
+      "anomaly_type_counts": {
+        "amount_discrepancy": 3,
+        "duplicate_invoice": 3,
+        "high_value_approval_required": 2,
+        "missing_goods_receipt": 2,
+        "missing_po_number": 3,
+        "multi_issue_combination": 2,
+        "quantity_mismatch": 3,
+        "vendor_name_mismatch": 2
+      },
+      "multi_issue_count": 2,
+      "risk_flags": {
+        "no_negative_constraint_in_answer": 20
+      },
+      "sample_count": 20,
+      "section_shape_counts": {
+        "('异常类型', '关键事实', '审核结论')": 20
+      }
+    }
+  },
+  "format_failure_distribution": {
+    "base": {
+      "missing_anomaly_type": 18,
+      "missing_critical_facts": 20,
+      "missing_fixed_sections": 20,
+      "missing_recommended_action": 20,
+      "missing_risk_level": 20
+    },
+    "fine_tuned": {
+      "missing_anomaly_type": 6,
+      "missing_critical_facts": 14,
+      "missing_fixed_sections": 7,
+      "missing_recommended_action": 3,
+      "missing_risk_level": 1
+    }
+  },
+  "generation_diagnostics": {
+    "generation": {
+      "do_sample": false,
+      "max_new_tokens": 256
+    },
+    "inactive_sampling_keys": [],
+    "recommendation": "no inactive sampling keys found"
+  },
+  "hallucinations": {
+    "base": [
+      {
+        "anomaly_type": "multi_issue_combination",
+        "input_facts": {
+          "amount_match": true,
+          "anomaly_types": [
+            "missing_goods_receipt",
+            "missing_po_number"
+          ],
+          "currency": "CNY",
+          "duplicate_check": true,
+          "evidence": [],
+          "grn_match": false,
+          "grn_number": null,
+          "invoice_number": "INV-20260198",
+          "mismatches": [
+            {
+              "expected_value": "required",
+              "field": "grn_number",
+              "invoice_value": null
+            },
+            {
+              "expected_value": "required",
+              "field": "po_number",
+              "invoice_value": null
+            }
+          ],
+          "po_match": false,
+          "po_number": null,
+          "policy_flags": [],
+          "recommended_action": "request_human_approval",
+          "risk_level": "medium",
+          "total_amount": 2146.92,
+          "vendor_name": "Alpine Technology Group"
+        },
+        "model_output": "**异常类型**: 需求项不符\n\n**关键事实**:\n- **发票号码**: INV-20260198\n- **货物编号**: PO-20260198\n- **供应商名称**: Alpine Technology Group\n\n**审核结论**:\n- **原因**: 需求项与发票号码不匹配。\n- **处理建议**: 请求人工审批。\n\n**备注**: 由于缺少PO和GRN信息，无法进一步确认是否需要进行人工审批。",
+        "root_cause": "identifier_filled_by_pattern",
+        "sample_id": "phase3-multi_issue_combination-023",
+        "violation": "unknown_identifier:PO-20260198"
+      }
+    ],
+    "fine_tuned": [
+      {
+        "anomaly_type": "quantity_mismatch",
+        "input_facts": {
+          "amount_match": true,
+          "anomaly_types": [
+            "quantity_mismatch"
+          ],
+          "currency": "USD",
+          "duplicate_check": true,
+          "evidence": [
+            {
+              "field": "quantity",
+              "invoice_value": 28,
+              "item": "safety gloves",
+              "received_value": 10
+            }
+          ],
+          "grn_match": false,
+          "grn_number": "GRN-810024",
+          "invoice_number": "INV-20260024",
+          "mismatches": [
+            {
+              "field": "quantity",
+              "invoice_value": 28,
+              "item": "safety gloves",
+              "received_value": 10
+            }
+          ],
+          "po_match": true,
+          "po_number": "PO-710024",
+          "policy_flags": [],
+          "recommended_action": "request_human_approval",
+          "risk_level": "medium",
+          "total_amount": 9537.15,
+          "vendor_name": "Contoso Industrial Parts"
+        },
+        "model_output": "异常类型：收货数量不一致\n关键事实：\n- 收货金额 USD 9537.15\n- 发票金额 USD 8100.24\n- 数量 28\n- 需求项安全手套\n- 查证证据收货单号 GRN-810024、发票号 PO-710024、金额 USD 9537.15、收货数量 28。\n审核结论 Medium risk.",
+        "root_cause": "amount_fact_not_constrained",
+        "sample_id": "phase3-quantity_mismatch-024",
+        "violation": "unknown_amount:8100.24"
+      },
+      {
+        "anomaly_type": "missing_goods_receipt",
+        "input_facts": {
+          "amount_match": true,
+          "anomaly_types": [
+            "missing_goods_receipt"
+          ],
+          "currency": "EUR",
+          "duplicate_check": true,
+          "evidence": [],
+          "grn_match": false,
+          "grn_number": null,
+          "invoice_number": "INV-20260149",
+          "mismatches": [
+            {
+              "expected_value": "required",
+              "field": "grn_number",
+              "invoice_value": null
+            }
+          ],
+          "po_match": true,
+          "po_number": "PO-710149",
+          "policy_flags": [],
+          "recommended_action": "request_human_approval",
+          "risk_level": "medium",
+          "total_amount": 1234.91,
+          "vendor_name": "Adventure Works Services"
+        },
+        "model_output": "异常类型：缺少收货记录\n关键事实：供应商 Adventure Works Services；发票号 INV-20260149；金额 EUR 1234.91；采购订单号 PO-710149；收货单号 GRN-20260149。\n审核结论：风险等级 medium；建议动作 request_human_approval；金额 EUR 1234.91。",
+        "root_cause": "missing_grn_filled_by_pattern",
+        "sample_id": "phase3-missing_goods_receipt-024",
+        "violation": "unknown_identifier:GRN-20260149"
+      },
+      {
+        "anomaly_type": "missing_goods_receipt",
+        "input_facts": {
+          "amount_match": true,
+          "anomaly_types": [
+            "missing_goods_receipt"
+          ],
+          "currency": "USD",
+          "duplicate_check": true,
+          "evidence": [],
+          "grn_match": false,
+          "grn_number": null,
+          "invoice_number": "INV-20260150",
+          "mismatches": [
+            {
+              "expected_value": "required",
+              "field": "grn_number",
+              "invoice_value": null
+            }
+          ],
+          "po_match": true,
+          "po_number": "PO-710150",
+          "policy_flags": [],
+          "recommended_action": "request_human_approval",
+          "risk_level": "medium",
+          "total_amount": 8555.06,
+          "vendor_name": "Contoso Industrial Parts"
+        },
+        "model_output": "异常类型：缺少收货记录\n关键事实：供应商 Contoso Industrial Parts；发票号 INV-20260150；金额 USD 8555.06；采购订单号 PO-710150；收货单号 GRN-20260150。\n审核结论：风险等级 medium；建议动作 request_human_approval；金额需再次核实。",
+        "root_cause": "missing_grn_filled_by_pattern",
+        "sample_id": "phase3-missing_goods_receipt-025",
+        "violation": "unknown_identifier:GRN-20260150"
+      },
+      {
+        "anomaly_type": "multi_issue_combination",
+        "input_facts": {
+          "amount_match": true,
+          "anomaly_types": [
+            "missing_po_number",
+            "duplicate_invoice",
+            "missing_goods_receipt"
+          ],
+          "currency": "GBP",
+          "duplicate_check": false,
+          "evidence": [
+            {
+              "field": "duplicate_invoice",
+              "invoice_value": "INV-20260199",
+              "received_value": "existing_record"
+            }
+          ],
+          "grn_match": false,
+          "grn_number": null,
+          "invoice_number": "INV-20260199",
+          "mismatches": [
+            {
+              "expected_value": "required",
+              "field": "po_number",
+              "invoice_value": null
+            },
+            {
+              "expected_value": "required",
+              "field": "grn_number",
+              "invoice_value": null
+            }
+          ],
+          "po_match": false,
+          "po_number": null,
+          "policy_flags": [],
+          "recommended_action": "reject",
+          "risk_level": "high",
+          "total_amount": 9510.67,
+          "vendor_name": "Adventure Works Services"
+        },
+        "model_output": "异常类型：缺少 PO 数字、重复发票、缺少收货记录、金额不一致、GRN 验证失败、订单号不匹配、供应商名称不一致。\n关键事实：\n- 收货数量为 1。\n- 发票金额 GBP 9510.67。\n- 单号 INV-20260199。\n- 政策标记 high。\n- 风险等级 medium。\n- 拒收理由 reject。\n- 总金额 GBP 9510.67。\n证据：\n- 多余的发票号 grn_number 是 null。\n- 发票号 po_number 是 required。\n异常分析：收货数量与发票数量不一致；GRN 验证未通过；供应商 Adventure Works Services 不匹配。",
+        "root_cause": "vendor_relation_overgeneralized",
+        "sample_id": "phase3-multi_issue_combination-024",
+        "violation": "unknown_vendor:Adventure Works Services 不匹配"
+      }
+    ]
+  },
+  "hard_gates": {
+    "action_consistency": 0.9,
+    "anomaly_coverage": 0.9,
+    "factual_consistency": 0.95,
+    "format_compliance": 0.9,
+    "hallucination_rate_max": 0.05
+  },
+  "project_root": "D:\\ProcureAgent",
+  "prompt_diagnostics": {
+    "forbid_change_risk_level_or_action": true,
+    "forbid_unknown_amounts_identifiers_vendors": true,
+    "only_reference_input_facts": true,
+    "requires_fixed_sections": true,
+    "requires_missing_fields_literal": false
+  },
+  "single_variable_recommendation": {
+    "expected_improvements": [
+      "format_compliance",
+      "factual_consistency",
+      "hallucination_rate",
+      "anomaly_coverage"
+    ],
+    "reason": "The first run improved action and anomaly coverage, but hallucination and format failures show the model learned the task intent before learning hard fact boundaries.",
+    "variable": "fact_constrained_prompt_and_uniform_expected_explanation_format"
+  },
+  "source_evaluation_metrics": {
+    "base": {
+      "action_consistency": 0.0,
+      "anomaly_coverage": 0.1,
+      "factual_consistency": 0.95,
+      "failure_counts": {
+        "action_consistency": 20,
+        "factual_consistency": 1,
+        "format_compliance": 20,
+        "hallucination": 1
+      },
+      "format_compliance": 0.0,
+      "hallucination_rate": 0.05,
+      "sample_count": 20
+    },
+    "fine_tuned": {
+      "action_consistency": 0.85,
+      "anomaly_coverage": 0.7333333333333333,
+      "factual_consistency": 0.8,
+      "failure_counts": {
+        "action_consistency": 3,
+        "factual_consistency": 4,
+        "format_compliance": 17,
+        "hallucination": 4
+      },
+      "format_compliance": 0.15,
+      "hallucination_rate": 0.2,
+      "sample_count": 20
+    }
+  }
+}
