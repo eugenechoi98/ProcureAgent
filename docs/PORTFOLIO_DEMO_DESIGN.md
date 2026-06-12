@@ -216,6 +216,12 @@ controller review.
 Deploy the CPU-only hybrid presentation with fixed fallback after local
 verification. No model upload or GPU is required for the default route.
 
+Batch C.1 status: local package preparation is complete in
+`spaces/procureguard_demo/`. It is a CPU-only Gradio package and has not been
+uploaded. Batch C.2 is user-created Space setup in the Hugging Face web UI and
+has not been executed. Batch C.3 is uploading the package and verifying the
+public URL and has not been executed.
+
 ### Batch D: LangChain Policy RAG Comparison
 
 Add a focused comparison that preserves the existing SQLite FTS5 policy path

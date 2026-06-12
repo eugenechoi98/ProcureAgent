@@ -152,6 +152,12 @@ Unified Portfolio Demo smoke:
 .\.venv\Scripts\python.exe scripts\demo\run_unified_portfolio_demo_smoke.py
 ```
 
+HF Spaces local package smoke:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\demo\run_hf_space_package_smoke.py
+```
+
 Both commands print JSON and write no file unless `--output <path>` is
 explicitly provided.
 
@@ -165,6 +171,20 @@ explicitly provided.
 - No Hugging Face Space has been created.
 - Current web UI does not run live LayoutLMv3 inference.
 - Current web UI does not run real LoRA inference.
+- The local HF Spaces package is prepared in `spaces/procureguard_demo/`, but
+  no Hugging Face Space has been created or uploaded.
+
+## Windows Local Startup Note
+
+```powershell
+$env:NO_PROXY="127.0.0.1,localhost"
+$env:no_proxy="127.0.0.1,localhost"
+$env:GRADIO_ANALYTICS_ENABLED="False"
+.\.venv\Scripts\python.exe -m demo.app
+```
+
+`localhost 502` belongs to local Gradio self-check / network policy behavior,
+not a ProcureGuard business-chain failure.
 
 ## Role In The Unified Portfolio Demo
 

@@ -1,6 +1,6 @@
 # ProcureGuard AI
 
-ProcureGuard AI 是一个企业采购发票智能审核 Agent。Phase 1、Phase 2、Phase 3H、Model Lab 轻量 artifacts 和 Unified Gradio Demo 本地初版已完成。
+ProcureGuard AI 是一个企业采购发票智能审核 Agent。Phase 1、Phase 2、Phase 3H、Model Lab 轻量 artifacts、Unified Gradio Demo 本地初版和 Hugging Face Spaces 本地发布包初版已完成。
 
 ## 当前功能
 
@@ -14,10 +14,15 @@ ProcureGuard AI 是一个企业采购发票智能审核 Agent。Phase 1、Phase 
 - Phase 3H 受控解释层：Canonical Audit Facts 适配、确定性模板、受控改写契约、LoRA 输出 guard、fallback orchestrator 和 audit trail
 - Model Lab 轻量 artifacts：整理 LayoutLMv3 与两轮 LoRA 的真实离线指标、曲线、预测案例、幻觉案例和缺失项说明，见 [demo/model_lab/README.md](/D:/ProcureAgent/demo/model_lab/README.md)
 - Unified Gradio Demo：本地三页签 `Invoice Audit / Model Lab / Architecture`，保留 Invoice Audit 稳定实时路径，Model Lab 仅读取离线 artifacts，Architecture 解释治理边界
+- Hugging Face Spaces 本地发布包：`spaces/procureguard_demo/`，CPU-only、无模型权重、无 GPU requirements、无本地数据库，部署流程见 [docs/HF_SPACES_DEPLOYMENT.md](/D:/ProcureAgent/docs/HF_SPACES_DEPLOYMENT.md)
 
 ## 当前 Batch B 状态
 
 Unified Gradio Demo 已在本地完成，包含 Invoice Audit、Model Lab、Architecture 三个页签。Model Lab 读取真实离线轻量 artifacts。当前没有网页实时 LayoutLMv3，没有网页实时真实 LoRA，没有部署 Hugging Face Space。下一步等待总控验收后进入 Batch C。
+
+## 当前 Batch C.1 状态
+
+Batch C.1 已完成本地发布包准备。当前只生成并验证 `spaces/procureguard_demo/`，没有创建 Hugging Face Space，没有登录 Hugging Face，没有上传代码，没有上传模型。Batch C.2 网页端创建 Space 和 Batch C.3 上传验证尚未执行。
 
 ## Dataset
 
