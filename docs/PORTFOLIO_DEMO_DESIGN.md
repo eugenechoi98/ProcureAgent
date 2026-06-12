@@ -195,6 +195,11 @@ Create lightweight, reviewable assets from existing real experiment evidence:
 metrics JSON, compact tables, curves, selected predictions, hallucination
 examples, and source metadata. Do not load models.
 
+Current status: Batch A packaging is complete as a lightweight artifact package
+only. It uses existing offline evidence, does not load models, does not retrain,
+does not implement the Model Lab UI, and does not deploy a Space. Batch B waits
+for controller review.
+
 ### Batch B: Unified Gradio Demo
 
 Add Model Lab and Architecture tabs around the completed Invoice Audit

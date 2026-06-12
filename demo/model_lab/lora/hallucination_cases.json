@@ -1,0 +1,44 @@
+{
+  "source_files": [
+    "reports/phase3/phase3e_lora_review.json",
+    "reports/phase3/phase3g_second_lora_review.json"
+  ],
+  "cases": [
+    {
+      "run_id": "phase3_first_lora_run",
+      "model_variant": "fine_tuned",
+      "sample_id": "phase3-quantity_mismatch-024",
+      "hallucination_type": "unknown_amount",
+      "unsupported_content": "8100.24",
+      "source_file": "reports/phase3/phase3e_lora_review.json",
+      "display_note": "Model generated an unsupported invoice amount not present in the input facts."
+    },
+    {
+      "run_id": "phase3_first_lora_run",
+      "model_variant": "fine_tuned",
+      "sample_id": "phase3-missing_goods_receipt-024",
+      "hallucination_type": "unknown_identifier",
+      "unsupported_content": "GRN-20260149",
+      "source_file": "reports/phase3/phase3e_lora_review.json",
+      "display_note": "Model filled a missing goods receipt number by pattern."
+    },
+    {
+      "run_id": "phase3g_second_lora_run",
+      "model_variant": "fine_tuned",
+      "sample_id": "phase3-missing_po_number-024",
+      "hallucination_type": "unknown_identifier",
+      "unsupported_content": "PO-77450099",
+      "source_file": "reports/phase3/phase3g_second_lora_review.json",
+      "display_note": "Second run still generated an unsupported purchase order identifier."
+    },
+    {
+      "run_id": "phase3g_second_lora_run",
+      "model_variant": "fine_tuned",
+      "sample_id": "phase3-multi_issue_combination-024",
+      "hallucination_type": "unsupported_policy_or_approver",
+      "unsupported_content": "审批人",
+      "source_file": "reports/phase3/phase3g_second_lora_review.json",
+      "display_note": "Second run introduced unsupported approval-role content."
+    }
+  ]
+}

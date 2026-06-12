@@ -48,3 +48,4 @@
 - 2026-06-13：完成 Claude 独立路线审查，确认稳定 Demo 是底座而非最终唯一呈现。
 - 2026-06-13：完成 Portfolio Demo Design Freeze，冻结 Invoice Audit、Model Lab、Architecture 三页签。
 - 2026-06-13：下一步进入 Batch A：Model Lab Artifacts Packaging。
+- 2026-06-13：完成 Batch A Model Lab 轻量 artifacts 初版，整理 LayoutLMv3 与两轮 LoRA 离线证据和只读校验。

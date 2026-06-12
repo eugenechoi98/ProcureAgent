@@ -1,0 +1,81 @@
+{
+  "source_file": "reports/phase1/checkpoint_inference/date_reconstruction_predictions.jsonl",
+  "selection_rule": "First five real checkpoint inference rows from the committed prediction JSONL, kept as field-level JSON only.",
+  "cases": [
+    {
+      "case_id": "68f28c63d47a8203ad798055",
+      "source": "offline_checkpoint_inference",
+      "ground_truth": {
+        "date": "30-04-2018"
+      },
+      "prediction": {
+        "legacy_date": ": 30-04-2018 19:50:14",
+        "cleaned_date": "2018-04-30"
+      },
+      "error_attribution": "Date reconstruction removed prefix and timestamp from the model span.",
+      "display_safe": true,
+      "image_available": false,
+      "image_license_note": "Image is not copied into this public package; keep JSON-only display."
+    },
+    {
+      "case_id": "68f28c60d47a8203ad797f8c",
+      "source": "offline_checkpoint_inference",
+      "ground_truth": {
+        "date": "28/04/18"
+      },
+      "prediction": {
+        "legacy_date": "DATE : 28/04/18",
+        "cleaned_date": "28/04/18"
+      },
+      "error_attribution": "Date reconstruction removed the OCR label prefix.",
+      "display_safe": true,
+      "image_available": false,
+      "image_license_note": "Image is not copied into this public package; keep JSON-only display."
+    },
+    {
+      "case_id": "68f28c64d47a8203ad798081",
+      "source": "offline_checkpoint_inference",
+      "ground_truth": {
+        "date": "23/03/2018"
+      },
+      "prediction": {
+        "legacy_date": "23/03/2018 3:13:19",
+        "cleaned_date": "2018-03-23"
+      },
+      "error_attribution": "Date reconstruction removed time and normalized the date.",
+      "display_safe": true,
+      "image_available": false,
+      "image_license_note": "Image is not copied into this public package; keep JSON-only display."
+    },
+    {
+      "case_id": "68f28c61d47a8203ad797fd1",
+      "source": "offline_checkpoint_inference",
+      "ground_truth": {
+        "date": "25/12/2016"
+      },
+      "prediction": {
+        "legacy_date": "ORD #64 -REG #2- 25/12/2016 13:51:47",
+        "cleaned_date": "2016-12-25"
+      },
+      "error_attribution": "Date reconstruction isolated the date from surrounding receipt text.",
+      "display_safe": true,
+      "image_available": false,
+      "image_license_note": "Image is not copied into this public package; keep JSON-only display."
+    },
+    {
+      "case_id": "68f28c67d47a8203ad798123",
+      "source": "offline_checkpoint_inference",
+      "ground_truth": {
+        "date": "07/01/18"
+      },
+      "prediction": {
+        "legacy_date": "",
+        "cleaned_date": ""
+      },
+      "error_attribution": "Model span was empty, so reconstruction could not recover the missing date.",
+      "display_safe": true,
+      "image_available": false,
+      "image_license_note": "Image is not copied into this public package; keep JSON-only display."
+    }
+  ]
+}

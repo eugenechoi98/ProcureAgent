@@ -1,0 +1,30 @@
+{
+  "run_1": {
+    "id": "phase3_first_lora_run",
+    "source_file": "reports/phase3/phase3e_lora_review.json",
+    "epochs": null,
+    "train_loss": null,
+    "validation_loss": null,
+    "missing_reason": "No committed first-run train/validation loss history was found in reports/phase3 or data/phase3."
+  },
+  "run_2": {
+    "id": "phase3g_second_lora_run",
+    "source_file": "reports/phase3/phase3g_second_lora_review.json",
+    "epochs": [
+      1,
+      2,
+      3
+    ],
+    "train_loss": [
+      1.4592,
+      0.2762,
+      0.1458
+    ],
+    "validation_loss": [
+      0.873569,
+      0.205891,
+      0.139261
+    ],
+    "missing_reason": null
+  }
+}
