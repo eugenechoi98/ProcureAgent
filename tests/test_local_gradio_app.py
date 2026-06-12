@@ -1,18 +1,10 @@
 """Gradio 页面最小构建测试，不启动服务。"""
 
-import warnings
-
 from demo.app import build_app
 
 
 def _config():
-    with warnings.catch_warnings():
-        warnings.filterwarnings(
-            "ignore",
-            message="Setting 'api_name=False'.*",
-            category=DeprecationWarning,
-        )
-        return build_app().get_config_file()
+    return build_app().get_config_file()
 
 
 def test_app_builds_without_launching_or_running_model():

@@ -168,7 +168,6 @@ def build_app(service: DemoService | None = None) -> gr.Blocks:
             fn=lambda: ("normal_invoice", "template", *([None] * len(outputs))),
             inputs=[],
             outputs=[case_selector, mode_selector, *outputs],
-            api_name=False,
         )
     return app
 
