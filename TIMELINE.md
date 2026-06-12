@@ -37,3 +37,4 @@
 - 2026-06-12：完成 Phase 3F.1 输出隔离，第二轮 LoRA artifacts 统一写入独立 run 目录。
 - 2026-06-12：完成 Phase 3G.1 第二轮 LoRA 真实评测封板，转入 Phase 3H 受控解释层设计。
 - 2026-06-12：完成 Phase 3H.1 受控解释层最小实现，新增确定性模板、LoRA guard、fallback orchestrator 和 audit trail。
+- 2026-06-12：完成 Phase 3H.1a 最小安全修复，补齐 Canonical Facts 深层只读、rewrite fail-closed 和 guard 回归测试。

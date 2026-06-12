@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping
 from typing import Any
 
 from procureguard.phase3.dataset import ANOMALY_LABELS
-from procureguard.phase3.explanation.facts import CanonicalAuditFacts
+from procureguard.phase3.explanation.facts import CanonicalAuditFacts, thaw_json
 
 TEMPLATE_VERSION = "phase3h-template-v1"
 REQUIRED_TEMPLATE_SECTIONS = (
@@ -71,7 +72,7 @@ class DeterministicTemplateRenderer:
             return "无"
         return "；".join(f"{field}：未提供（缺失）" for field in facts.missing_fields)
 
-    def _render_evidence_item(self, item: dict[str, Any]) -> str:
+    def _render_evidence_item(self, item: Mapping[str, Any]) -> str:
         """对常见 evidence 做可读展示，未知结构保持 JSON 稳定输出。"""
 
         field = item.get("field")
@@ -93,8 +94,8 @@ class DeterministicTemplateRenderer:
         if field == "duplicate_invoice":
             return f"重复发票检查命中 {item.get('invoice_value')}"
         if field:
-            return json.dumps(item, ensure_ascii=False, sort_keys=True)
-        return json.dumps(item, ensure_ascii=False, sort_keys=True)
+            return json.dumps(thaw_json(item), ensure_ascii=False, sort_keys=True)
+        return json.dumps(thaw_json(item), ensure_ascii=False, sort_keys=True)
 
     def _display(self, value: object | None) -> str:
         """空值只显示未提供，不做推断。"""

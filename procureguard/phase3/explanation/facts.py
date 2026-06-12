@@ -4,17 +4,86 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Iterator, Mapping
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_serializer,
+    field_validator,
+)
 
 from procureguard.phase3.schemas import AnomalyType, InputFacts
+
+
+class FrozenJsonObject(Mapping[str, Any]):
+    """递归不可变 JSON 对象，仅提供只读 Mapping 接口。"""
+
+    __slots__ = ("_items",)
+
+    def __init__(self, value: Mapping[str, Any]) -> None:
+        object.__setattr__(
+            self,
+            "_items",
+            tuple((str(key), freeze_json(item)) for key, item in value.items()),
+        )
+
+    def __getitem__(self, key: str) -> Any:
+        for item_key, value in self._items:
+            if item_key == key:
+                return value
+        raise KeyError(key)
+
+    def __iter__(self) -> Iterator[str]:
+        return (key for key, _ in self._items)
+
+    def __len__(self) -> int:
+        return len(self._items)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        raise TypeError("FrozenJsonObject 不允许修改")
+
+    def __delattr__(self, name: str) -> None:
+        raise TypeError("FrozenJsonObject 不允许修改")
+
+    def to_json_value(self) -> dict[str, Any]:
+        """转换为可审计序列化的普通 JSON 对象。"""
+
+        return {key: thaw_json(value) for key, value in self._items}
+
+
+def freeze_json(value: Any) -> Any:
+    """递归冻结 dict/list，防止共享引用被下游原地修改。"""
+
+    if isinstance(value, FrozenJsonObject):
+        return value
+    if isinstance(value, Mapping):
+        return FrozenJsonObject(value)
+    if isinstance(value, (list, tuple)):
+        return tuple(freeze_json(item) for item in value)
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    raise ValueError("evidence 只允许 JSON 对象、数组和基础值")
+
+
+def thaw_json(value: Any) -> Any:
+    """把不可变快照转换为 JSON 可序列化结构。"""
+
+    if isinstance(value, FrozenJsonObject):
+        return value.to_json_value()
+    if isinstance(value, tuple):
+        return [thaw_json(item) for item in value]
+    return value
 
 
 class CanonicalAuditFacts(BaseModel):
     """解释层只读事实契约，不修改 Phase 2 共享 schema。"""
 
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    model_config = ConfigDict(
+        extra="forbid", frozen=True, arbitrary_types_allowed=True
+    )
 
     invoice_id: str | None = None
     vendor_name: str | None = None
@@ -23,31 +92,47 @@ class CanonicalAuditFacts(BaseModel):
     grn_number: str | None = None
     total_amount: float | None = None
     currency: str | None = None
-    anomaly_types: list[AnomalyType] = Field(min_length=1)
-    evidence: list[dict[str, Any]] = Field(default_factory=list)
-    missing_fields: list[str] = Field(default_factory=list)
+    anomaly_types: tuple[AnomalyType, ...] = Field(min_length=1)
+    evidence: tuple[FrozenJsonObject, ...] = Field(default_factory=tuple)
+    missing_fields: tuple[str, ...] = Field(default_factory=tuple)
     risk_level: Literal["low", "medium", "high"]
     recommended_action: Literal[
         "auto_approve", "request_human_approval", "reject"
     ]
-    policy_flags: list[str] = Field(default_factory=list)
+    policy_flags: tuple[str, ...] = Field(default_factory=tuple)
     source: str = "phase2_canonical_audit_facts"
 
-    @model_validator(mode="after")
-    def deduplicate_ordered_lists(self) -> "CanonicalAuditFacts":
-        """保持列表稳定，避免同一事实渲染出不同文本。"""
+    @field_validator("anomaly_types", mode="before")
+    @classmethod
+    def freeze_anomaly_types(cls, value: Any) -> tuple[Any, ...]:
+        """异常类型转成 tuple，禁止 append、remove 和元素替换。"""
 
-        object.__setattr__(
-            self,
-            "missing_fields",
-            list(dict.fromkeys(item for item in self.missing_fields if item)),
+        return tuple(value)
+
+    @field_validator("missing_fields", "policy_flags", mode="before")
+    @classmethod
+    def freeze_unique_strings(cls, value: Any) -> tuple[str, ...]:
+        """字符串列表去重后转成 tuple，保持稳定顺序。"""
+
+        return tuple(dict.fromkeys(item for item in value if item))
+
+    @field_validator("evidence", mode="before")
+    @classmethod
+    def freeze_evidence(cls, value: Any) -> tuple[FrozenJsonObject, ...]:
+        """evidence 及其嵌套 dict/list 递归冻结。"""
+
+        return tuple(
+            item if isinstance(item, FrozenJsonObject) else FrozenJsonObject(item)
+            for item in value
         )
-        object.__setattr__(
-            self,
-            "policy_flags",
-            list(dict.fromkeys(item for item in self.policy_flags if item)),
-        )
-        return self
+
+    @field_serializer("evidence")
+    def serialize_evidence(
+        self, value: tuple[FrozenJsonObject, ...]
+    ) -> list[dict[str, Any]]:
+        """审计输出仍使用普通 JSON 数组和对象。"""
+
+        return [item.to_json_value() for item in value]
 
     @classmethod
     def from_input_facts(

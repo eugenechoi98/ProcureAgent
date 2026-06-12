@@ -159,3 +159,25 @@ Validation command:
 ```powershell
 .\.venv\Scripts\python.exe -m pytest tests\test_phase3_dataset.py tests\test_phase3_evaluation.py tests\test_phase3h_guarded_explanation.py
 ```
+
+## Phase 3H.1a Safety Hardening
+
+- Canonical Audit Facts use tuples for collection fields and a recursive immutable mapping for evidence. External lists and dictionaries are copied into an immutable snapshot at the boundary.
+- Audit serialization explicitly converts the immutable evidence snapshot back to ordinary JSON arrays and objects. The facts hash is calculated from this stable serialized payload.
+- Rewrite provider failures, Pydantic contract validation failures, unsupported return types, empty output, guard failures, and guard runtime failures all fail closed to the deterministic template.
+- Raw model output is retained when it can be represented safely, including malformed contract dictionaries and unsupported return objects.
+
+## Guard Limitations
+
+The current guard is a conservative structured-rule guard, not a production semantic verifier.
+
+It covers the declared fixed patterns for identifiers, currency amounts, vendor phrases, selected policy or approver terms, anomaly labels, fixed sections, risk level, and recommended action. It deliberately rejects outputs that cannot satisfy these checks.
+
+Known limitations remain:
+
+- paraphrases and implicit claims may avoid keyword-based checks;
+- unmodeled identifier, policy, role, amount, or vendor formats may not match the current patterns;
+- semantic omission or contradiction outside fixed sections is not fully understood;
+- evidence equivalence is not proven by a general natural-language inference model.
+
+Therefore the MVP official output remains the deterministic template. LoRA remains shadow or experimental only, and API integration has not been approved.

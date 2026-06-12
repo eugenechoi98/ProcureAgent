@@ -199,6 +199,8 @@ Phase 3H 架构说明见 [PHASE3H_GUARDED_EXPLANATION_ARCHITECTURE.md](docs/PHAS
 
 Phase 3H 当前实现位于 `procureguard/phase3/explanation/`，保持独立，不接入 API、不修改 Phase 1/Phase 2 主链、不启动 GPU。默认 `FallbackOrchestrator.explain()` 返回确定性模板；只有显式 `experimental` 且 guard 通过时才可使用 controlled rewrite，`shadow` 模式始终记录模型原文但返回模板。
 
+Phase 3H.1a 已将 Canonical Audit Facts 改为递归不可变快照，并让 rewrite 运行、解析或 guard 异常统一 fail-closed 回退模板。当前 guard 是保守的结构化规则 guard，不是生产级语义校验器；它不能证明自然语言语义完全等价，也不能完全消除同义改写、隐含推断或未建模实体带来的风险。MVP 默认输出仍是确定性模板，LoRA 仍只允许 shadow 或 experimental 使用，API 接入尚未批准。
+
 Phase 3B 环境检查入口：
 
 ```powershell
