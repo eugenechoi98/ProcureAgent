@@ -4,9 +4,27 @@ from __future__ import annotations
 
 from typing import Any
 
-import gradio as gr
-
 from demo.demo_service import DemoOutput, DemoService
+
+try:
+    import gradio as gr
+except ModuleNotFoundError as exc:
+    if exc.name != "gradio":
+        raise
+    gr = None
+
+_GRADIO_INSTALL_MESSAGE = (
+    '本地 Demo 需要 Gradio，请先运行：'
+    '.\\.venv\\Scripts\\python.exe -m pip install -e ".[demo]"'
+)
+
+
+def _require_gradio() -> Any:
+    """缺少 Demo 专用依赖时给出明确安装提示。"""
+
+    if gr is None:
+        raise RuntimeError(_GRADIO_INSTALL_MESSAGE)
+    return gr
 
 
 def _summary_markdown(result: DemoOutput) -> str:
@@ -57,9 +75,10 @@ def _run_for_ui(
     )
 
 
-def build_app(service: DemoService | None = None) -> gr.Blocks:
+def build_app(service: DemoService | None = None) -> Any:
     """只构建页面，不启动服务、不联网、不加载模型。"""
 
+    _require_gradio()
     demo_service = service or DemoService()
     with gr.Blocks(
         title="ProcureGuard AI",

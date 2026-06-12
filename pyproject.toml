@@ -5,13 +5,15 @@ description = "ProcureGuard AI shared contract layer"
 requires-python = ">=3.10"
 dependencies = [
     "fastapi>=0.115,<1.0",
-    "gradio>=5.0,<6.0",
     "pydantic>=2.0,<3.0",
     "python-multipart>=0.0.9,<1.0",
     "uvicorn>=0.30,<1.0",
 ]
 
 [project.optional-dependencies]
+demo = [
+    "gradio==5.50.0",
+]
 extraction = [
     "datasets>=2.19,<4.0",
     "huggingface-hub>=0.24,<1.0",

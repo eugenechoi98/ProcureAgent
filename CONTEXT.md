@@ -1,7 +1,7 @@
 # CONTEXT.md
 
 ## 当前目标
-完成 Spaces 0/1/2 本地最小 Gradio Demo 闭环。
+完成本地 Gradio Demo 依赖隔离最小修复。
 
 ## 当前进度
 Phase 1 已封板：corrected pure LayoutLMv3 macro F1=0.8067。
@@ -20,8 +20,10 @@ Phase 3H 已合并并 push 到 main。当前只评估固定样例、混合模式
 
 本地 Gradio Demo 已实现：normal_invoice 默认走实时混合链，其余无法由封板 Phase 2 精确复现的 case 明确使用静态 fallback。页面支持 template、shadow、experimental guard pass/fail、provider runtime error 和 invalid output。
 
+Gradio 已从默认后端依赖移入 `demo` optional dependency，并固定为已验证的 5.50.0；默认 FastAPI 安装不再要求 Gradio。
+
 ## 下一步
-完成本地启动、浏览器验证、全量测试和独立分支 push 后回总控验收，不合并 Demo 分支。
+完成指定回归测试和独立 commit push 后回总控复验，不合并 Demo 分支。
 
 ## 注意事项
 - Phase 1、Phase 2 决策、Agent、Risk Engine 和数据库继续冻结；API 只增加向后兼容 explanation 输出。
@@ -36,4 +38,4 @@ Phase 3H 已合并并 push 到 main。当前只评估固定样例、混合模式
 - 不启动第三轮训练，不接真实 LoRA provider，不创建 HF Space，不进入 LangChain 对比、Docker、CI 或发布。
 
 ## 最后更新时间
-2026-06-12
+2026-06-13

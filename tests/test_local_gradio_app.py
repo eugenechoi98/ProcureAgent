@@ -1,5 +1,8 @@
 """Gradio 页面最小构建测试，不启动服务。"""
 
+import pytest
+
+import demo.app as demo_app
 from demo.app import build_app
 
 
@@ -39,3 +42,10 @@ def test_app_contains_explanation_and_audit_outputs():
         "Evidence",
         "Missing Fields",
     } <= labels
+
+
+def test_missing_gradio_only_blocks_demo_with_install_hint(monkeypatch):
+    monkeypatch.setattr(demo_app, "gr", None)
+
+    with pytest.raises(RuntimeError, match=r'\.\[demo\]'):
+        demo_app.build_app()

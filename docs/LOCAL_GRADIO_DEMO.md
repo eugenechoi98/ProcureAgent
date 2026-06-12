@@ -17,14 +17,25 @@ The demo does not:
 
 ## Install
 
-Install the normal project dependencies in the project virtual environment:
+Install the normal FastAPI backend dependencies in the project virtual
+environment:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -e .
 ```
 
-Gradio 5.x is the only new UI dependency. Phase 3 GPU requirements are not
-changed.
+This default installation does not install or require Gradio.
+
+Install the local Demo dependency explicitly:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -e ".[demo]"
+```
+
+Gradio is a Demo-only optional dependency pinned to the verified
+`gradio==5.50.0`. Phase 3 GPU requirements are not changed. Without this
+optional dependency, the core backend remains importable and only the Demo
+entry point reports the `.[demo]` installation command.
 
 ## Start
 
@@ -40,6 +51,9 @@ http://127.0.0.1:7860
 
 It uses `share=False`, does not create a public link, and does not open an
 external browser automatically.
+
+This remains a local offline Demo. It does not create a Hugging Face Space,
+require an API key or GPU, or load Qwen or a real LoRA adapter.
 
 ## Default Hybrid Path
 
