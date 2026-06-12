@@ -42,3 +42,5 @@
 - 2026-06-12：完成 Phase 3H.3 端到端测试和 13 个固定离线 Demo Cases。
 - 2026-06-12：合并 Phase 3H 受控解释层到 main，并进入 Demo Deployability Review。
 - 2026-06-12：新增本地离线 Demo readiness JSON 检查和自动测试。
+- 2026-06-12：完成本地离线 Gradio Demo、静态 fallback、fake rewrite 模式和 smoke 测试。
+- 2026-06-13：将 Gradio 隔离为固定版本的 Demo optional dependency，默认后端安装不再包含 Gradio。

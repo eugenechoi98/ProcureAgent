@@ -11,6 +11,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+demo = [
+    "gradio==5.50.0",
+]
 extraction = [
     "datasets>=2.19,<4.0",
     "huggingface-hub>=0.24,<1.0",

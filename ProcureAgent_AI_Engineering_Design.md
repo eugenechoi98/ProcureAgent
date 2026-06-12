@@ -92,6 +92,26 @@ Phase 3H 合并后，首次公开 Demo 的推荐边界是：
 - 完整在线 LayoutLMv3 的 checkpoint 托管、CPU/GPU、内存、冷启动和下载时延均待实测；
 - 当前 readiness 只代表本地离线准备情况，不代表 Hugging Face Spaces 已部署或线上通过。
 
+### Local Gradio Demo
+
+本地 Demo 将 UI 与业务逻辑分离：
+
+```text
+demo.app
+  -> demo.demo_service
+  -> pre-generated ExtractedFields
+  -> Phase 2 deterministic audit
+  -> Phase 3H guarded explanation
+  -> Gradio output
+```
+
+- 默认 `normal_invoice + template` 运行实时混合链。
+- 现有 Phase 2 无法精确复现的固定场景使用明确标记的 static fallback。
+- shadow 与 experimental 只使用 fake provider。
+- 页面展示 explanation trace 和完整 AuditReport JSON。
+- 本地启动不 share、不需要 API Key/GPU，不加载在线 LayoutLMv3、Qwen 或真实 LoRA。
+- 当前没有创建 Hugging Face Space，也不代表线上部署完成。
+
 ---
 
 ## 2. 数据库 Schema
