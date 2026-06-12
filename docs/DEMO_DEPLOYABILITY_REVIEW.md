@@ -184,6 +184,22 @@ Important limits:
 No Space is created in this phase, and no formal Space configuration or
 metadata is added.
 
+## Local Readiness Check
+
+Run:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\demo\verify_demo_readiness.py
+```
+
+The command validates the 13 fixed cases, required modes, fixed risk/action,
+anomaly lists, explanation source, fallback expectations, and offline
+requirements. It prints JSON and writes no file by default. Use `--output` only
+when a saved local report is explicitly needed.
+
+This check does not start FastAPI, load a checkpoint, inspect GPU capability,
+or prove that a Hugging Face Space will deploy successfully.
+
 ## Suggested Future Batches
 
 1. **Spaces 0: static and hybrid design freeze.** Define screens, fixture

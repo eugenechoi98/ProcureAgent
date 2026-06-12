@@ -41,3 +41,4 @@
 - 2026-06-12：完成 Phase 3H.2 受控解释层最小 API 接入，默认模板并返回 additive explanation metadata。
 - 2026-06-12：完成 Phase 3H.3 端到端测试和 13 个固定离线 Demo Cases。
 - 2026-06-12：合并 Phase 3H 受控解释层到 main，并进入 Demo Deployability Review。
+- 2026-06-12：新增本地离线 Demo readiness JSON 检查和自动测试。
