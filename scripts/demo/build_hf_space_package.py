@@ -198,7 +198,11 @@ def _copy_file(relative: str, copied: list[str]) -> None:
     source = PROJECT_ROOT / relative
     target = SPACE_ROOT / relative
     target.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(source, target)
+    if source.suffix.lower() in {".py", ".md", ".json", ".txt", ".sql"}:
+        text = source.read_text(encoding="utf-8")
+        target.write_text(text.rstrip() + "\n", encoding="utf-8", newline="\n")
+    else:
+        shutil.copy2(source, target)
     copied.append(relative)
 
 
