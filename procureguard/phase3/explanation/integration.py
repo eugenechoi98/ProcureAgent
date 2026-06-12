@@ -92,7 +92,9 @@ def build_canonical_audit_facts(
     )
 
 
-def build_explanation_metadata(result: ExplanationResult) -> ExplanationMetadata:
+def build_explanation_metadata(
+    facts: CanonicalAuditFacts, result: ExplanationResult
+) -> ExplanationMetadata:
     """把解释结果转换为 AuditReport 的 additive 输出。"""
 
     trail = result.audit_trail
@@ -102,6 +104,11 @@ def build_explanation_metadata(result: ExplanationResult) -> ExplanationMetadata
             "controlled_rewrite" if result.used_rewrite else "template"
         ),
         explanation_mode=result.mode,
+        anomaly_types=[item.value for item in facts.anomaly_types],
+        evidence=[
+            dict(item) for item in facts.stable_payload()["evidence"]
+        ],
+        missing_fields=list(facts.missing_fields),
         facts_hash=trail.facts_hash,
         template_version=trail.template_version,
         prompt_version=trail.prompt_version,
@@ -129,4 +136,4 @@ def generate_guarded_explanation(
         mode=mode,
         rewrite_provider=rewrite_provider,
     )
-    return result, build_explanation_metadata(result)
+    return result, build_explanation_metadata(facts, result)

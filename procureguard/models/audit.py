@@ -22,6 +22,9 @@ class ExplanationMetadata(BaseModel):
     explanation_text: str
     explanation_source: Literal["template", "controlled_rewrite"]
     explanation_mode: Literal["template", "shadow", "experimental"]
+    anomaly_types: list[str] = Field(default_factory=list)
+    evidence: list[dict[str, Any]] = Field(default_factory=list)
+    missing_fields: list[str] = Field(default_factory=list)
     facts_hash: str
     template_version: str
     prompt_version: str
