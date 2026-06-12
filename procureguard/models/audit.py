@@ -1,6 +1,6 @@
 """审计报告输出模型。"""
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -14,6 +14,27 @@ class EvidenceItem(BaseModel):
     invoice_value: Any
     received_value: Any | None = None
     expected_value: Any | None = None
+
+
+class ExplanationMetadata(BaseModel):
+    """Phase 3H 向后兼容的可选解释元数据。"""
+
+    explanation_text: str
+    explanation_source: Literal["template", "controlled_rewrite"]
+    explanation_mode: Literal["template", "shadow", "experimental"]
+    anomaly_types: list[str] = Field(default_factory=list)
+    evidence: list[dict[str, Any]] = Field(default_factory=list)
+    missing_fields: list[str] = Field(default_factory=list)
+    facts_hash: str
+    template_version: str
+    prompt_version: str
+    model_version: str
+    adapter_version: str
+    raw_llm_output: str | None = None
+    used_rewrite: bool
+    fallback_reason: str | None = None
+    guard_passed: bool
+    guard_violations: list[str] = Field(default_factory=list)
 
 
 class AuditReport(BaseModel):
@@ -31,3 +52,4 @@ class AuditReport(BaseModel):
     evidence: list[EvidenceItem] = Field(default_factory=list)
     anomaly_explanation: str
     trace_id: str
+    explanation: ExplanationMetadata | None = None

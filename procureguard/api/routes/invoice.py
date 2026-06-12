@@ -24,6 +24,9 @@ async def upload_invoice(
     request: Request,
     file: UploadFile = File(...),
     processing_mode: Literal["real", "mock"] = Query("real"),
+    explanation_mode: Literal["template", "shadow", "experimental"] = Query(
+        "template"
+    ),
     conn: sqlite3.Connection = Depends(get_db),
 ) -> dict:
     """上传发票文件并同步执行真实规则链，可显式切换 mock 模式。"""
@@ -56,9 +59,12 @@ async def upload_invoice(
         if processing_mode == "mock":
             result = MockInvoiceProcessor(conn).process(invoice_id)
         else:
-            report = AgentInvoiceProcessor(conn).process_extracted_invoice(
-                invoice_id,
-                _build_upload_extracted_fields(invoice_id),
+            report = AgentInvoiceProcessor(
+                conn,
+                explanation_mode=explanation_mode,
+                explanation_rewrite_provider=request.app.state.explanation_rewrite_provider,
+            ).process_extracted_invoice(
+                invoice_id, _build_upload_extracted_fields(invoice_id)
             )
             stored = invoices.get_invoice(invoice_id)
             if stored is None:
@@ -68,6 +74,11 @@ async def upload_invoice(
                 "status": stored["status"],
                 "risk_level": report.risk_level.value,
                 "processing_mode": "real",
+                "explanation": (
+                    report.explanation.model_dump(mode="json")
+                    if report.explanation
+                    else None
+                ),
             }
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
@@ -79,6 +90,11 @@ async def upload_invoice(
         "status": result["status"],
         "file_hash": saved.file_hash,
         "processing_mode": result["processing_mode"],
+        **(
+            {"explanation": result["explanation"]}
+            if "explanation" in result
+            else {}
+        ),
     }
 
 

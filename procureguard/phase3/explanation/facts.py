@@ -92,7 +92,7 @@ class CanonicalAuditFacts(BaseModel):
     grn_number: str | None = None
     total_amount: float | None = None
     currency: str | None = None
-    anomaly_types: tuple[AnomalyType, ...] = Field(min_length=1)
+    anomaly_types: tuple[AnomalyType, ...] = Field(default_factory=tuple)
     evidence: tuple[FrozenJsonObject, ...] = Field(default_factory=tuple)
     missing_fields: tuple[str, ...] = Field(default_factory=tuple)
     risk_level: Literal["low", "medium", "high"]

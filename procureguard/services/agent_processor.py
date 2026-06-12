@@ -8,6 +8,14 @@ from procureguard.models.audit import AuditReport, EvidenceItem
 from procureguard.models.invoice import ExtractedFields, GoodsReceipt, MismatchItem
 from procureguard.models.status import InvoiceStatus, RecommendedAction
 from procureguard.repositories import AuditTraceRepository, InvoiceRepository
+from procureguard.phase3.explanation.integration import (
+    build_canonical_audit_facts,
+    generate_guarded_explanation,
+)
+from procureguard.phase3.explanation.orchestrator import (
+    ExplanationMode,
+    RewriteProvider,
+)
 from procureguard.services.policy_rag import PolicyRAG
 from procureguard.services.risk_engine import RiskAssessment, RiskEngine
 from procureguard.services.validator import ThreeWayMatcher
@@ -23,12 +31,20 @@ from procureguard.tools import (
 class AgentInvoiceProcessor:
     """执行真实规则闭环，但不负责 OCR 或 API 路由接入。"""
 
-    def __init__(self, conn: sqlite3.Connection):
+    def __init__(
+        self,
+        conn: sqlite3.Connection,
+        *,
+        explanation_mode: ExplanationMode = "template",
+        explanation_rewrite_provider: RewriteProvider | None = None,
+    ):
         self.conn = conn
         self.invoices = InvoiceRepository(conn)
         self.traces = AuditTraceRepository(conn)
         self.matcher = ThreeWayMatcher()
         self.risk_engine = RiskEngine()
+        self.explanation_mode = explanation_mode
+        self.explanation_rewrite_provider = explanation_rewrite_provider
 
     def process_extracted_invoice(
         self,
@@ -171,6 +187,21 @@ class AgentInvoiceProcessor:
             evidence=evidence,
             trace_id=agent_trace["id"],
         )
+        canonical_facts = build_canonical_audit_facts(
+            invoice_id=invoice_id,
+            invoice=extracted_fields,
+            validation=validation,
+            assessment=assessment,
+            evidence=evidence,
+            policy_flags=policy_flags,
+            grn_number=self._grn_number(grn_result.receipts),
+        )
+        _, explanation_metadata = generate_guarded_explanation(
+            canonical_facts,
+            mode=self.explanation_mode,
+            rewrite_provider=self.explanation_rewrite_provider,
+        )
+        report.explanation = explanation_metadata
         self.invoices.update_audit_report(invoice_id, report.model_dump(mode="json"))
         self.traces.create_trace(
             invoice_id=invoice_id,
@@ -232,6 +263,11 @@ class AgentInvoiceProcessor:
             ],
             "receiver": receipts[-1].receiver,
         }
+
+    def _grn_number(self, receipts: list[GoodsReceipt]) -> str | None:
+        """复制已查询到的 GRN 编号，不让解释层推断。"""
+
+        return ",".join(receipt.grn_number for receipt in receipts) if receipts else None
 
     def _policy_query(self, policy_flags: list[str]) -> str:
         """把原因码转换成 FTS 更容易命中的英文关键词。"""

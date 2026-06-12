@@ -60,6 +60,28 @@
 - 确定性规则负责金额计算、匹配逻辑、风险阈值
 - 人类负责中高风险最终决策
 
+### Phase 3H 受控解释接入
+
+当前 MVP 已将异常解释调整为受控后置层：
+
+```text
+Phase 2 确定性审核结果
+  -> Canonical Audit Facts
+  -> Deterministic Template Renderer
+  -> optional shadow/experimental rewrite
+  -> structured guard
+  -> template default or safe fallback
+  -> additive AuditReport.explanation
+```
+
+- 默认 API 模式为 deterministic template，不依赖真实 LoRA、网络或 GPU。
+- shadow 只记录 fake/provider rewrite 和 guard 结果，不改变正式解释。
+- experimental 只有显式启用且 guard PASS 时才采用 rewrite。
+- 高风险、provider 不可用、空输出、非法输出、运行异常或解析异常都回退模板。
+- explanation trace 保存在现有 `audit_report_json` 的可选 metadata 中，不修改数据库 schema。
+- 当前 guard 是结构化规则 guard，不是生产级语义校验器。
+- 当前没有第三次训练、HF Spaces 或 LangChain 对比实验。
+
 ---
 
 ## 2. 数据库 Schema
