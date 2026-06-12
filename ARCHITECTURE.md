@@ -83,3 +83,5 @@ flowchart LR
 - Explanation Audit Trail 采用方案 B，随 `audit_report_json` 的 explanation metadata 保存和返回。现有 `audit_traces.step_name` CHECK 保持不变，不新增表、字段或 migration。
 - Phase 3H.3 Demo Cases 固定放在 `tests/fixtures/phase3h_demo_cases.json`，只使用 fake provider 和确定性输入。
 - Demo 首次部署优先采用混合模式：固定或预生成 ExtractedFields 进入实时 Phase 2、Canonical Facts、模板解释和 AuditReport；固定样例作为 fallback。完整在线 LayoutLMv3 需要单独完成模型资产、资源和冷启动实测。
+- `demo.demo_service` 负责 fixture adapter、实时混合链、fake provider 和静态 fallback；`demo.app` 只负责 Gradio 组件和展示映射，不复制 Phase 2 风险或 guard 逻辑。
+- 本地 Gradio 默认运行 `normal_invoice + template`，只绑定 `127.0.0.1`。静态 fallback 会显式展示 execution path、fallback reason 和安全错误摘要。

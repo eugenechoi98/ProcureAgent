@@ -1,5 +1,9 @@
 # DECISIONS.md
 
+## 2026-06-12：本地 Gradio Demo 采用混合默认与显式静态 fallback
+
+封板 Phase 2 可以稳定实时复现正常审核链，但不能在不改业务规则的前提下精确生成全部 13 个 canonical fixture。Demo 默认让 normal_invoice 运行实时混合链，其余不支持场景通过同一 Phase 3H renderer/guard/orchestrator 使用静态 fixture，并在页面明确标记 fallback，避免伪装成实时审核成功。
+
 ## 2026-06-12：首次公开 Demo 优先采用混合模式
 
 当前 Git 不包含可部署的 Phase 1 微调 checkpoint，而 Phase 2、Canonical Facts、确定性模板和 13 个 Demo Cases 已能完全离线运行。首次公开 Demo 优先使用固定或预生成 ExtractedFields 驱动实时审核链，固定样例作为 fallback；在线 LayoutLMv3 留待模型资产和资源实测后再评估，真实 LoRA 继续关闭。
