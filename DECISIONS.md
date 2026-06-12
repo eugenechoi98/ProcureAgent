@@ -1,5 +1,9 @@
 # DECISIONS.md
 
+## 2026-06-12：首次公开 Demo 优先采用混合模式
+
+当前 Git 不包含可部署的 Phase 1 微调 checkpoint，而 Phase 2、Canonical Facts、确定性模板和 13 个 Demo Cases 已能完全离线运行。首次公开 Demo 优先使用固定或预生成 ExtractedFields 驱动实时审核链，固定样例作为 fallback；在线 LayoutLMv3 留待模型资产和资源实测后再评估，真实 LoRA 继续关闭。
+
 ## 2026-06-12：Phase 3H 接入采用 AuditReport 内嵌解释 trace
 
 现有 `audit_traces.step_name` 有固定 CHECK 约束，新增 explanation step 需要数据库变更。Phase 3H 选择把完整 explanation metadata 作为 `AuditReport` 可选字段写入现有 `audit_report_json`，既保留审计信息，也避免数据库 schema 和 migration。

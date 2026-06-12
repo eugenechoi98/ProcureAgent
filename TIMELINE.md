@@ -40,3 +40,4 @@
 - 2026-06-12：完成 Phase 3H.1a 最小安全修复，补齐 Canonical Facts 深层只读、rewrite fail-closed 和 guard 回归测试。
 - 2026-06-12：完成 Phase 3H.2 受控解释层最小 API 接入，默认模板并返回 additive explanation metadata。
 - 2026-06-12：完成 Phase 3H.3 端到端测试和 13 个固定离线 Demo Cases。
+- 2026-06-12：合并 Phase 3H 受控解释层到 main，并进入 Demo Deployability Review。

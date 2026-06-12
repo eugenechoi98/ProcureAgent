@@ -82,6 +82,16 @@ Phase 2 确定性审核结果
 - 当前 guard 是结构化规则 guard，不是生产级语义校验器。
 - 当前没有第三次训练、HF Spaces 或 LangChain 对比实验。
 
+### Demo Deployability Review
+
+Phase 3H 合并后，首次公开 Demo 的推荐边界是：
+
+- 默认使用固定或预生成 `ExtractedFields`，实时运行 Phase 2、Canonical Facts、确定性模板和解释审计信息；
+- 13 个固定样例作为离线 fallback；
+- 默认不需要 API Key、GPU、网络、Qwen 或 LoRA；
+- 完整在线 LayoutLMv3 的 checkpoint 托管、CPU/GPU、内存、冷启动和下载时延均待实测；
+- 当前 readiness 只代表本地离线准备情况，不代表 Hugging Face Spaces 已部署或线上通过。
+
 ---
 
 ## 2. 数据库 Schema
