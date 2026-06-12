@@ -1,0 +1,58 @@
+{
+  "package_version": "0.1.0",
+  "generated_from_existing_evidence_only": true,
+  "generated_at": "2026-06-13",
+  "sections": [
+    "layoutlmv3",
+    "lora"
+  ],
+  "source_files": [
+    "reports/phase1/baseline_sroie_task3_validation.json",
+    "reports/phase1/gpu_training/layoutlmv3_training_report.json",
+    "reports/phase1/gpu_training/layoutlmv3_training_log.csv",
+    "reports/phase1/gpu_training/layoutlmv3_loss_curve.png",
+    "reports/phase1/checkpoint_inference/date_reconstruction_inference.json",
+    "reports/phase1/checkpoint_inference/date_reconstruction_predictions.jsonl",
+    "reports/phase1/layoutlmv3_date_error_analysis.md",
+    "reports/phase3/phase3e_lora_review.json",
+    "reports/phase3/phase3e_lora_review.md",
+    "reports/phase3/phase3f_constraint_audit.json",
+    "reports/phase3/phase3g_second_lora_review.json",
+    "reports/phase3/phase3g_second_lora_review.md",
+    "tests/fixtures/phase3h_demo_cases.json"
+  ],
+  "missing_artifacts": [
+    {
+      "artifact": "first_lora_training_curve",
+      "status": "not_present_in_git",
+      "note": "First LoRA review contains evaluation metrics and hallucination cases, but no committed train/validation loss history."
+    },
+    {
+      "artifact": "second_lora_local_checkpoint_adapter_predictions_runtime_copy",
+      "status": "not_present_in_git",
+      "note": "Second LoRA report explicitly records user-confirmed ModelScope metrics without copying checkpoint, adapter, predictions, or real runtime artifacts into Git."
+    },
+    {
+      "artifact": "public_receipt_images_for_selected_predictions",
+      "status": "not_included",
+      "note": "Prediction cases keep field-level JSON only; images are not copied into the public Model Lab package."
+    }
+  ],
+  "claims_scope": {
+    "layoutlmv3": {
+      "inference_scope": "offline_checkpoint_inference",
+      "evaluation_split": "local_validation_split_seed_42",
+      "official_test": false,
+      "integrated_into_api": false
+    },
+    "lora": {
+      "runtime_scope": "ModelScope real offline experiment result",
+      "current_web_realtime_inference": false,
+      "second_adapter_passed_hard_gates": false,
+      "third_training_paused": true
+    }
+  },
+  "offline_only": true,
+  "live_inference": false,
+  "model_weights_included": false
+}
