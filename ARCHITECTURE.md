@@ -85,3 +85,31 @@ flowchart LR
 - Demo 首次部署优先采用混合模式：固定或预生成 ExtractedFields 进入实时 Phase 2、Canonical Facts、模板解释和 AuditReport；固定样例作为 fallback。完整在线 LayoutLMv3 需要单独完成模型资产、资源和冷启动实测。
 - `demo.demo_service` 负责 fixture adapter、实时混合链、fake provider 和静态 fallback；`demo.app` 只负责 Gradio 组件和展示映射，不复制 Phase 2 风险或 guard 逻辑。
 - 本地 Gradio 默认运行 `normal_invoice + template`，只绑定 `127.0.0.1`。静态 fallback 会显式展示 execution path、fallback reason 和安全错误摘要。
+
+## Portfolio Demo Presentation Architecture
+
+Portfolio Demo 只扩展展示层，不改变已封板的业务主链。最终统一为一个 Gradio App：
+
+```text
+Tab 1: Invoice Audit
+  -> pre-generated ExtractedFields
+  -> live Phase 2 / Policy RAG / Risk Engine
+  -> Canonical Facts / Template / Guard / Fallback
+  -> AuditReport
+
+Tab 2: Model Lab
+  -> real offline LayoutLMv3 artifacts
+  -> real offline LoRA run artifacts
+  -> metrics / curves / predictions / error analysis
+
+Tab 3: Architecture
+  -> model, Agent tools, deterministic rules and governance boundaries
+```
+
+展示数据分为三类：
+
+- **默认实时结果**：Phase 2 主链、Policy RAG、Risk Engine、Canonical Facts、模板解释、Guard/Fallback 演示和 AuditReport。
+- **真实离线 artifacts**：LayoutLMv3 训练与 checkpoint inference 证据，以及两轮 QLoRA 的参数、loss、指标和 hallucination 案例。
+- **后续 optional live inference**：在线 LayoutLMv3、在线真实 LoRA、GPU Space 和 Phase 3I；这些能力当前未实现，也不作为免费 CPU Demo 的 blocker。
+
+当前 Local Gradio Demo 是 Tab 1 的稳定基线，不会被推翻。后续只在展示层增加 Model Lab 与 Architecture，并评估让 `normal_invoice`、`missing_po_number`、`duplicate_invoice`、`amount_discrepancy` 中 3 至 4 个案例走实时链；无法精确复现的案例继续明确标记 `STATIC FALLBACK`，且不修改 Phase 2 风险规则。

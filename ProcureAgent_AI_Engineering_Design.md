@@ -112,6 +112,39 @@ demo.app
 - 本地启动不 share、不需要 API Key/GPU，不加载在线 LayoutLMv3、Qwen 或真实 LoRA。
 - 当前没有创建 Hugging Face Space，也不代表线上部署完成。
 
+### Unified Portfolio Demo
+
+原始 MVP 目标保持不变：项目仍需完整证明 LayoutLMv3/PyTorch/Transformers 微调、LoRA/QLoRA 实验、Agent 工具链、Policy RAG、FastAPI、Docker Compose 和 GitHub Actions CI。稳定本地 Demo 只是业务展示底座，不替代模型训练证据和工程交付能力。
+
+统一作品集 Demo 冻结为：
+
+```text
+Invoice Audit
+  -> 实时 Phase 2、Policy RAG、Risk Engine、Canonical Facts 和 AuditReport
+
+Model Lab
+  -> LayoutLMv3 真实离线指标、曲线、预测与错误分析
+  -> 两轮 QLoRA 参数、loss、指标、hallucination 与 guard/fallback 证据
+
+Architecture
+  -> LayoutLMv3、Agent Tools、Three-Way Match、Policy RAG、Risk Engine
+  -> Canonical Facts、Template、Controlled Rewrite、Guard、Fallback、Audit Trail
+```
+
+重型模型默认展示真实离线 artifacts，并明确标记为 ModelScope/离线实验结果，不冒充网页实时推理。在线 LayoutLMv3、在线真实 LoRA、GPU Space 和 Phase 3I 仅作为后续 optional feasibility。
+
+工程收口顺序固定为：
+
+1. Batch A：Model Lab Artifacts Packaging
+2. Batch B：Unified Gradio Demo
+3. Batch C：Hugging Face Spaces
+4. Batch D：LangChain Policy RAG Comparison
+5. Batch E：Docker Compose + GitHub Actions CI
+6. Batch F：README + Demo GIF + Resume
+7. Batch G：Optional Live Inference Feasibility
+
+详细展示边界见 `docs/PORTFOLIO_DEMO_DESIGN.md`。
+
 ---
 
 ## 2. 数据库 Schema

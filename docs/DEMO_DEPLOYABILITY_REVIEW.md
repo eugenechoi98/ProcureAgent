@@ -10,6 +10,11 @@ Local readiness in this phase means only that repository fixtures and the
 deterministic demo path can be checked offline. It is not an online deployment
 approval.
 
+The completed local Demo is now frozen as the **Invoice Audit baseline** of the
+portfolio experience. It remains the stable CPU-only foundation, but it is not
+the final portfolio presentation by itself. The future unified Gradio App adds
+Model Lab and Architecture tabs without replacing this audited path.
+
 ## Current Demonstrable Flow
 
 ```text
@@ -200,18 +205,37 @@ when a saved local report is explicitly needed.
 This check does not start FastAPI, load a checkpoint, inspect GPU capability,
 or prove that a Hugging Face Space will deploy successfully.
 
-## Suggested Future Batches
+## Frozen Delivery Order
 
-1. **Spaces 0: static and hybrid design freeze.** Define screens, fixture
-   selection, and output presentation.
-2. **Spaces 1: minimal Gradio demo, local only.** Run the hybrid flow locally
-   without model downloads.
-3. **Spaces 2: fixed-case fallback.** Add a clear deterministic fallback path.
-4. **Spaces 3: Hugging Face Spaces deployment.** Deploy only after local
-   behavior and resource configuration are verified.
-5. **Spaces 4: optional online LayoutLMv3 evaluation.** Measure checkpoint
-   delivery, CPU/GPU latency, memory, and cold start before deciding whether to
-   expose it.
+The earlier local Spaces 0/1/2 preparation is complete through the current
+Gradio baseline. Remaining work follows the portfolio-wide order:
 
-Real LoRA integration and LangChain comparison remain outside these batches
-unless separately approved.
+1. **Batch A: Model Lab Artifacts Packaging**
+2. **Batch B: Unified Gradio Demo**
+3. **Batch C: Hugging Face Spaces**
+4. **Batch D: LangChain Policy RAG Comparison**
+5. **Batch E: Docker Compose + GitHub Actions CI**
+6. **Batch F: README + Demo GIF + Resume**
+7. **Batch G: Optional Live Inference Feasibility**
+
+Real LoRA inference remains disabled unless separately approved after measured
+feasibility and safety review.
+
+## Portfolio Presentation Freeze
+
+The final presentation is one Gradio App with three tabs:
+
+1. **Invoice Audit** reuses the current hybrid and fixed-fallback baseline.
+2. **Model Lab** presents real offline LayoutLMv3 and two-run LoRA artifacts.
+3. **Architecture** explains the model, Agent, deterministic decision, and
+   guarded explanation boundaries.
+
+This separation keeps the default runtime free of GPU, API key, and model
+downloads while making the completed model work visible. Model Lab artifacts
+must be labeled as real offline ModelScope or checkpoint experiments, not as
+live web inference. Online LayoutLMv3, real LoRA inference, and GPU Spaces
+remain optional feasibility work and are not deployment claims.
+
+The next approved batch is Model Lab Artifacts Packaging. Hugging Face Spaces
+deployment follows only after the artifacts and unified local presentation are
+reviewed.

@@ -1,5 +1,11 @@
 # DECISIONS.md
 
+## 2026-06-13：统一作品集 Demo 采用三页签，重型模型默认展示真实离线 artifacts
+
+稳定混合模式是作品集 Demo 的业务底座，不是最终唯一呈现。统一 Demo 冻结为 `Invoice Audit / Model Lab / Architecture` 三个页签：Invoice Audit 保留无 GPU、无 Key 的实时规则链；Model Lab 展示 LayoutLMv3 与两轮 LoRA 的真实离线指标、曲线、预测和失败分析；Architecture 解释模型、Agent 与确定性治理边界。
+
+重型模型默认展示可复核的真实离线 artifacts，在线 LayoutLMv3、在线真实 LoRA、GPU Space 和 Phase 3I 只作为后续 optional feasibility。这样同时兼顾免费 CPU 环境稳定性、模型能力可见度、Agent 工程展示和 PyTorch、Transformers、LoRA/QLoRA、RAG、FastAPI、Docker、CI、Spaces 等简历筛选能力栈。
+
 ## 2026-06-12：本地 Gradio Demo 采用混合默认与显式静态 fallback
 
 封板 Phase 2 可以稳定实时复现正常审核链，但不能在不改业务规则的前提下精确生成全部 13 个 canonical fixture。Demo 默认让 normal_invoice 运行实时混合链，其余不支持场景通过同一 Phase 3H renderer/guard/orchestrator 使用静态 fixture，并在页面明确标记 fallback，避免伪装成实时审核成功。

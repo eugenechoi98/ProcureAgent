@@ -5,6 +5,11 @@
 This is a local offline interview demo. It is not a Hugging Face Space and is
 not an online deployment result.
 
+It is the frozen **Tab 1: Invoice Audit baseline** for the future unified
+Portfolio Demo. It will not be discarded or rewritten as a model-first app.
+Later batches add Model Lab and Architecture tabs around this stable business
+flow.
+
 The demo does not:
 
 - load LayoutLMv3;
@@ -145,3 +150,24 @@ explicitly provided.
   without changing sealed business logic.
 - The structured guard is not a production semantic verifier.
 - No Hugging Face Space has been created.
+
+## Role In The Unified Portfolio Demo
+
+The final Gradio presentation is designed as:
+
+```text
+Tab 1: Invoice Audit   -> this completed local baseline
+Tab 2: Model Lab       -> not implemented yet
+Tab 3: Architecture    -> not implemented yet
+```
+
+Model Lab will package real offline LayoutLMv3 and LoRA artifacts rather than
+loading heavy models in the default web process. Architecture will explain why
+risk and action stay deterministic and why guarded rewrite cannot change audit
+facts.
+
+The current baseline therefore remains valuable for reliable live behavior,
+while the future tabs make PyTorch, Transformers, LoRA/QLoRA, Agent, and RAG
+work visible. Hugging Face Spaces deployment, online LayoutLMv3, real LoRA
+inference, LangChain comparison, Docker, and CI are later batches and are not
+completed by this local Demo.

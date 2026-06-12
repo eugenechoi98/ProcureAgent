@@ -44,3 +44,7 @@
 - 2026-06-12：新增本地离线 Demo readiness JSON 检查和自动测试。
 - 2026-06-12：完成本地离线 Gradio Demo、静态 fallback、fake rewrite 模式和 smoke 测试。
 - 2026-06-13：将 Gradio 隔离为固定版本的 Demo optional dependency，默认后端安装不再包含 Gradio。
+- 2026-06-13：完成 Local Gradio Demo 总控验收并合并到 main。
+- 2026-06-13：完成 Claude 独立路线审查，确认稳定 Demo 是底座而非最终唯一呈现。
+- 2026-06-13：完成 Portfolio Demo Design Freeze，冻结 Invoice Audit、Model Lab、Architecture 三页签。
+- 2026-06-13：下一步进入 Batch A：Model Lab Artifacts Packaging。
