@@ -80,10 +80,16 @@ adapter.
 
 ## Audit Trail Choice
 
-This integration selects **Option A**, reusing the existing generic
-`audit_traces` table and `AuditTraceRepository.create_trace()`.
+This integration selects **Option B**, returning the explanation trace inside
+the additive `AuditReport.explanation` object and persisting it as part of the
+existing `audit_report_json`.
 
-One `explanation_render` step will record:
+The existing `audit_traces.step_name` database CHECK constraint allows only the
+four Phase 2 steps. Adding `explanation_render` would require a database schema
+change or migration, which is outside this phase. Option B preserves the full
+controlled explanation evidence without changing the database.
+
+The returned explanation metadata will record:
 
 - canonical facts hash;
 - template, prompt, model, and adapter versions;
@@ -93,8 +99,7 @@ One `explanation_render` step will record:
 - fallback reason;
 - final explanation.
 
-The existing table already stores arbitrary JSON input and output payloads, so
-no table, schema change, or migration is required.
+No table, column, CHECK constraint, schema, or migration is changed.
 
 ## API Compatibility
 
