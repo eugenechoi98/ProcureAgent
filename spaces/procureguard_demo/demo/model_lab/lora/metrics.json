@@ -1,0 +1,108 @@
+{
+  "model": "Qwen/Qwen2.5-0.5B-Instruct",
+  "backend": "qlora_4bit_bitsandbytes",
+  "runtime": {
+    "run_1": {
+      "gpu": "NVIDIA A10",
+      "scope": "ModelScope real offline experiment result",
+      "artifacts_dir_recorded": "D:\\ProcureAgent_LocalArtifacts\\Phase3\\phase3_first_lora_run\\phase3"
+    },
+    "run_2": {
+      "gpu": "NVIDIA A10",
+      "torch": "2.2.2+cu118",
+      "cuda": "11.8",
+      "numpy": "1.26.4",
+      "bitsandbytes": "0.44.1",
+      "transformers": "4.46.3",
+      "scope": "ModelScope real offline experiment result"
+    }
+  },
+  "dataset": {
+    "seed": 42,
+    "train": 160,
+    "validation": 20,
+    "test": 20,
+    "source": "data/phase3/generated/*.jsonl"
+  },
+  "training_parameters": {
+    "run_1": {
+      "epochs": null,
+      "per_device_train_batch_size": null,
+      "gradient_accumulation_steps": null,
+      "max_seq_length": null,
+      "learning_rate": null,
+      "lora_r": null,
+      "lora_alpha": null,
+      "lora_dropout": null,
+      "missing_reason": "The committed first-run review records evaluation results and artifacts_dir, but not training parameters as a structured JSON object."
+    },
+    "run_2": {
+      "epochs": 3,
+      "per_device_train_batch_size": 2,
+      "gradient_accumulation_steps": 8,
+      "max_seq_length": 1024,
+      "learning_rate": 0.0002,
+      "lora_r": 16,
+      "lora_alpha": 32,
+      "lora_dropout": 0.05,
+      "changed_from_first_run": false
+    }
+  },
+  "run_1": {
+    "id": "phase3_first_lora_run",
+    "base_metrics": {
+      "format_compliance": 0,
+      "factual_consistency": 0.95,
+      "action_consistency": 0,
+      "anomaly_coverage": 0.1,
+      "hallucination_rate": 0.05,
+      "sample_count": 20
+    },
+    "fine_tuned_metrics": {
+      "format_compliance": 0.15,
+      "factual_consistency": 0.8,
+      "action_consistency": 0.85,
+      "anomaly_coverage": 0.7333333333333333,
+      "hallucination_rate": 0.2,
+      "sample_count": 20
+    },
+    "conclusion": "Improved action and anomaly coverage, but failed fact and hallucination safety needs."
+  },
+  "run_2": {
+    "id": "phase3g_second_lora_run",
+    "base_metrics": {
+      "format_compliance": 0,
+      "factual_consistency": 1,
+      "action_consistency": 0.05,
+      "anomaly_coverage": 0.5,
+      "hallucination_rate": 0.05
+    },
+    "fine_tuned_metrics": {
+      "format_compliance": 0,
+      "factual_consistency": 0.9,
+      "action_consistency": 0.45,
+      "anomaly_coverage": 0.425,
+      "hallucination_rate": 0.15
+    },
+    "hard_gate_passed": false,
+    "local_checkpoint_adapter_predictions_or_runtime_copy_present": false,
+    "conclusion": "The second LoRA adapter failed deployment hard gates and is not eligible for API integration or default user-facing explanation."
+  },
+  "hard_gates": {
+    "format_compliance": 0.9,
+    "factual_consistency": 0.95,
+    "action_consistency": 0.9,
+    "anomaly_coverage": 0.9,
+    "hallucination_rate_max": 0.05
+  },
+  "source_files": [
+    "reports/phase3/phase3e_lora_review.json",
+    "reports/phase3/phase3g_second_lora_review.json",
+    "reports/phase3/phase3f_constraint_audit.json"
+  ],
+  "limitations": [
+    "LoRA is offline experiment evidence only, not current web real-time inference.",
+    "Run 2 local checkpoint, adapter, predictions, and real runtime artifact copies are not present in Git.",
+    "The adapter must not change risk_level, recommended_action, anomaly types, evidence, or missing fields."
+  ]
+}

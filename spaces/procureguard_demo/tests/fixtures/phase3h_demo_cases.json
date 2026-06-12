@@ -1,0 +1,276 @@
+[
+  {
+    "case_id": "normal_invoice",
+    "facts": {
+      "invoice_id": "demo-normal",
+      "vendor_name": "Acme Office Supplies",
+      "invoice_number": "INV-DEMO-001",
+      "po_number": "PO-1001",
+      "grn_number": "GRN-1001",
+      "total_amount": 1200.0,
+      "currency": "USD",
+      "anomaly_types": [],
+      "evidence": [],
+      "missing_fields": [],
+      "risk_level": "low",
+      "recommended_action": "auto_approve"
+    },
+    "mode": "template",
+    "provider_behavior": "none",
+    "expected_source": "template",
+    "expected_fallback": "mvp_template_default"
+  },
+  {
+    "case_id": "missing_po_number",
+    "facts": {
+      "invoice_id": "demo-missing-po",
+      "vendor_name": "Contoso Industrial Parts",
+      "invoice_number": "INV-DEMO-002",
+      "po_number": null,
+      "grn_number": null,
+      "total_amount": 2400.0,
+      "currency": "USD",
+      "anomaly_types": ["missing_po_number"],
+      "evidence": [{"field": "po_number", "invoice_value": null, "expected_value": "required"}],
+      "missing_fields": ["po_number"],
+      "risk_level": "medium",
+      "recommended_action": "request_human_approval"
+    },
+    "mode": "template",
+    "provider_behavior": "none",
+    "expected_source": "template",
+    "expected_fallback": "mvp_template_default"
+  },
+  {
+    "case_id": "missing_goods_receipt",
+    "facts": {
+      "invoice_id": "demo-missing-grn",
+      "vendor_name": "Fabrikam Logistics",
+      "invoice_number": "INV-DEMO-003",
+      "po_number": "PO-3003",
+      "grn_number": null,
+      "total_amount": 3600.0,
+      "currency": "USD",
+      "anomaly_types": ["missing_goods_receipt"],
+      "evidence": [{"field": "grn_number", "invoice_value": null, "expected_value": "required"}],
+      "missing_fields": ["grn_number"],
+      "risk_level": "medium",
+      "recommended_action": "request_human_approval"
+    },
+    "mode": "template",
+    "provider_behavior": "none",
+    "expected_source": "template",
+    "expected_fallback": "mvp_template_default"
+  },
+  {
+    "case_id": "vendor_name_mismatch",
+    "facts": {
+      "invoice_id": "demo-vendor",
+      "vendor_name": "Adventure Works Services",
+      "invoice_number": "INV-DEMO-004",
+      "po_number": "PO-4004",
+      "grn_number": "GRN-4004",
+      "total_amount": 4100.0,
+      "currency": "USD",
+      "anomaly_types": ["vendor_name_mismatch"],
+      "evidence": [{"field": "vendor_name", "invoice_value": "Adventure Works Services", "expected_value": "Alpine Technology Group"}],
+      "missing_fields": [],
+      "risk_level": "medium",
+      "recommended_action": "request_human_approval"
+    },
+    "mode": "template",
+    "provider_behavior": "none",
+    "expected_source": "template",
+    "expected_fallback": "mvp_template_default"
+  },
+  {
+    "case_id": "amount_discrepancy",
+    "facts": {
+      "invoice_id": "demo-amount",
+      "vendor_name": "Blue Yonder Components",
+      "invoice_number": "INV-DEMO-005",
+      "po_number": "PO-5005",
+      "grn_number": "GRN-5005",
+      "total_amount": 5500.0,
+      "currency": "USD",
+      "anomaly_types": ["amount_discrepancy"],
+      "evidence": [{"field": "total_amount", "invoice_value": 5500.0, "expected_value": 5000.0, "diff": 500.0}],
+      "missing_fields": [],
+      "risk_level": "medium",
+      "recommended_action": "request_human_approval"
+    },
+    "mode": "template",
+    "provider_behavior": "none",
+    "expected_source": "template",
+    "expected_fallback": "mvp_template_default"
+  },
+  {
+    "case_id": "duplicate_invoice",
+    "facts": {
+      "invoice_id": "demo-duplicate",
+      "vendor_name": "Acme Office Supplies",
+      "invoice_number": "INV-DUP-001",
+      "po_number": "PO-1001",
+      "grn_number": "GRN-1001",
+      "total_amount": 1200.0,
+      "currency": "USD",
+      "anomaly_types": ["duplicate_invoice"],
+      "evidence": [{"field": "duplicate_invoice", "invoice_value": "INV-DUP-001", "received_value": "existing_record"}],
+      "missing_fields": [],
+      "risk_level": "high",
+      "recommended_action": "reject"
+    },
+    "mode": "template",
+    "provider_behavior": "none",
+    "expected_source": "template",
+    "expected_fallback": "mvp_template_default"
+  },
+  {
+    "case_id": "multi_issue_combination",
+    "facts": {
+      "invoice_id": "demo-multi",
+      "vendor_name": "Northwind Industrial",
+      "invoice_number": "INV-DEMO-007",
+      "po_number": "PO-2001",
+      "grn_number": "GRN-2001",
+      "total_amount": 12500.0,
+      "currency": "USD",
+      "anomaly_types": ["quantity_mismatch", "high_value_approval_required"],
+      "evidence": [{"field": "quantity", "item": "Machine Parts", "invoice_value": 10, "received_value": 8}],
+      "missing_fields": [],
+      "risk_level": "medium",
+      "recommended_action": "request_human_approval",
+      "policy_flags": ["high_value_approval_required"]
+    },
+    "mode": "template",
+    "provider_behavior": "none",
+    "expected_source": "template",
+    "expected_fallback": "mvp_template_default"
+  },
+  {
+    "case_id": "high_risk_template_fallback",
+    "facts": {
+      "invoice_id": "demo-high-risk",
+      "vendor_name": "Acme Office Supplies",
+      "invoice_number": "INV-DUP-002",
+      "po_number": "PO-1001",
+      "grn_number": "GRN-1001",
+      "total_amount": 1200.0,
+      "currency": "USD",
+      "anomaly_types": ["duplicate_invoice"],
+      "evidence": [{"field": "duplicate_invoice", "invoice_value": "INV-DUP-002", "received_value": "existing_record"}],
+      "missing_fields": [],
+      "risk_level": "high",
+      "recommended_action": "reject"
+    },
+    "mode": "experimental",
+    "provider_behavior": "pass",
+    "expected_source": "template",
+    "expected_fallback": "high_risk_template_only"
+  },
+  {
+    "case_id": "shadow_mode_trace_only",
+    "facts": {
+      "invoice_id": "demo-shadow",
+      "vendor_name": "Contoso Industrial Parts",
+      "invoice_number": "INV-DEMO-009",
+      "po_number": null,
+      "grn_number": null,
+      "total_amount": 2600.0,
+      "currency": "USD",
+      "anomaly_types": ["missing_po_number"],
+      "evidence": [{"field": "po_number", "invoice_value": null, "expected_value": "required"}],
+      "missing_fields": ["po_number"],
+      "risk_level": "medium",
+      "recommended_action": "request_human_approval"
+    },
+    "mode": "shadow",
+    "provider_behavior": "pass",
+    "expected_source": "template",
+    "expected_fallback": "shadow_mode_template_default"
+  },
+  {
+    "case_id": "experimental_guard_pass",
+    "facts": {
+      "invoice_id": "demo-exp-pass",
+      "vendor_name": "Fabrikam Logistics",
+      "invoice_number": "INV-DEMO-010",
+      "po_number": "PO-3010",
+      "grn_number": null,
+      "total_amount": 3700.0,
+      "currency": "USD",
+      "anomaly_types": ["missing_goods_receipt"],
+      "evidence": [{"field": "grn_number", "invoice_value": null, "expected_value": "required"}],
+      "missing_fields": ["grn_number"],
+      "risk_level": "medium",
+      "recommended_action": "request_human_approval"
+    },
+    "mode": "experimental",
+    "provider_behavior": "pass",
+    "expected_source": "controlled_rewrite",
+    "expected_fallback": null
+  },
+  {
+    "case_id": "experimental_guard_fail",
+    "facts": {
+      "invoice_id": "demo-exp-fail",
+      "vendor_name": "Blue Yonder Components",
+      "invoice_number": "INV-DEMO-011",
+      "po_number": "PO-5011",
+      "grn_number": "GRN-5011",
+      "total_amount": 5600.0,
+      "currency": "USD",
+      "anomaly_types": ["amount_discrepancy"],
+      "evidence": [{"field": "total_amount", "invoice_value": 5600.0, "expected_value": 5000.0, "diff": 600.0}],
+      "missing_fields": [],
+      "risk_level": "medium",
+      "recommended_action": "request_human_approval"
+    },
+    "mode": "experimental",
+    "provider_behavior": "guard_fail",
+    "expected_source": "template",
+    "expected_fallback": "guard_failed"
+  },
+  {
+    "case_id": "provider_runtime_error_fallback",
+    "facts": {
+      "invoice_id": "demo-runtime",
+      "vendor_name": "Adventure Works Services",
+      "invoice_number": "INV-DEMO-012",
+      "po_number": null,
+      "grn_number": null,
+      "total_amount": 4300.0,
+      "currency": "USD",
+      "anomaly_types": ["missing_po_number"],
+      "evidence": [{"field": "po_number", "invoice_value": null, "expected_value": "required"}],
+      "missing_fields": ["po_number"],
+      "risk_level": "medium",
+      "recommended_action": "request_human_approval"
+    },
+    "mode": "experimental",
+    "provider_behavior": "runtime_error",
+    "expected_source": "template",
+    "expected_fallback": "model_runtime_error"
+  },
+  {
+    "case_id": "invalid_output_fallback",
+    "facts": {
+      "invoice_id": "demo-invalid",
+      "vendor_name": "Alpine Technology Group",
+      "invoice_number": "INV-DEMO-013",
+      "po_number": "PO-4013",
+      "grn_number": null,
+      "total_amount": 4400.0,
+      "currency": "USD",
+      "anomaly_types": ["missing_goods_receipt"],
+      "evidence": [{"field": "grn_number", "invoice_value": null, "expected_value": "required"}],
+      "missing_fields": ["grn_number"],
+      "risk_level": "medium",
+      "recommended_action": "request_human_approval"
+    },
+    "mode": "experimental",
+    "provider_behavior": "invalid",
+    "expected_source": "template",
+    "expected_fallback": "invalid_lora_output"
+  }
+]
