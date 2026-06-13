@@ -1,0 +1,30 @@
+{
+  "source_files": [
+    "reports/phase1/baseline_sroie_task3_validation.json",
+    "reports/phase1/layoutlmv3_date_error_analysis.md",
+    "reports/phase1/checkpoint_inference/date_reconstruction_inference.json"
+  ],
+  "baseline_error_count": 337,
+  "baseline_error_count_by_field": {
+    "address": 141,
+    "date": 40,
+    "total": 95,
+    "company": 61
+  },
+  "baseline_error_type_distribution": {
+    "layout_change": 202,
+    "regex_rule_miss": 52,
+    "unknown": 83
+  },
+  "date_reconstruction": {
+    "before_f1": 0.14232209737827717,
+    "after_f1": 0.8764044943820225,
+    "recovery": 0.7340823970037453,
+    "summary": "The checkpoint often predicted a wider date span containing OCR labels or timestamps. The committed reconstruction cleanup removed non-date text without retraining."
+  },
+  "display_notes": [
+    "Use this as offline validation evidence only.",
+    "Do not claim official test-set performance.",
+    "Images are not included in the public Model Lab package."
+  ]
+}

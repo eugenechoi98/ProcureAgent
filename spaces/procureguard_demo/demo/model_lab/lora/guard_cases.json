@@ -1,0 +1,68 @@
+{
+  "source_files": [
+    "reports/phase3/phase3e_lora_review.json",
+    "tests/fixtures/phase3h_demo_cases.json"
+  ],
+  "cases": [
+    {
+      "case_id": "guard_reject_unknown_amount_phase3_quantity_mismatch_024",
+      "source_type": "real_offline_model_output",
+      "input_facts": {
+        "sample_id": "phase3-quantity_mismatch-024",
+        "risk_level": "medium",
+        "recommended_action": "request_human_approval",
+        "known_total_amount": 9537.15,
+        "anomaly_types": [
+          "quantity_mismatch"
+        ]
+      },
+      "rewrite_output": "Generated explanation included unsupported amount USD 8100.24.",
+      "guard_passed": false,
+      "rejection_reason": "unsupported unknown_amount:8100.24",
+      "fallback_reason": "hallucinated_amount_not_in_input_facts",
+      "final_source": "template",
+      "evidence_scope": "real_offline_model_output"
+    },
+    {
+      "case_id": "guard_reject_unknown_grn_phase3_missing_goods_receipt_024",
+      "source_type": "real_offline_model_output",
+      "input_facts": {
+        "sample_id": "phase3-missing_goods_receipt-024",
+        "risk_level": "medium",
+        "recommended_action": "request_human_approval",
+        "grn_number": null,
+        "anomaly_types": [
+          "missing_goods_receipt"
+        ]
+      },
+      "rewrite_output": "Generated explanation included unsupported GRN-20260149.",
+      "guard_passed": false,
+      "rejection_reason": "unsupported unknown_identifier:GRN-20260149",
+      "fallback_reason": "filled_missing_grn_by_pattern",
+      "final_source": "template",
+      "evidence_scope": "real_offline_model_output"
+    },
+    {
+      "case_id": "demo_missing_po_template_fallback",
+      "source_type": "test_fixture",
+      "input_facts": {
+        "invoice_id": "demo-missing-po",
+        "po_number": null,
+        "risk_level": "medium",
+        "recommended_action": "request_human_approval",
+        "anomaly_types": [
+          "missing_po_number"
+        ],
+        "missing_fields": [
+          "po_number"
+        ]
+      },
+      "rewrite_output": null,
+      "guard_passed": null,
+      "rejection_reason": null,
+      "fallback_reason": "mvp_template_default",
+      "final_source": "template",
+      "evidence_scope": "test_fixture"
+    }
+  ]
+}

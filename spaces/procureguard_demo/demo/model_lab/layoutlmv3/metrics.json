@@ -1,0 +1,116 @@
+{
+  "evaluation_split": "local_validation_split_seed_42",
+  "official_test": false,
+  "inference_scope": "offline_checkpoint_inference",
+  "integrated_into_api": false,
+  "sample_count": 142,
+  "baseline_macro_f1": 0.43872030739086737,
+  "first_layoutlmv3_macro_f1": 0.6231337901366925,
+  "corrected_layoutlmv3_macro_f1": 0.8066543893876288,
+  "hybrid_macro_f1": 0.7948703389628549,
+  "date_f1_before_fix": 0.14232209737827717,
+  "date_f1_after_fix": 0.8764044943820225,
+  "date_f1_recovery": 0.7340823970037453,
+  "field_metrics": {
+    "baseline_ocr_regex": [
+      {
+        "field": "company",
+        "precision": 0.5704225352112676,
+        "recall": 0.5704225352112676,
+        "f1": 0.5704225352112676,
+        "support": 142
+      },
+      {
+        "field": "address",
+        "precision": 0.007042253521126761,
+        "recall": 0.007042253521126761,
+        "f1": 0.007042253521126761,
+        "support": 142
+      },
+      {
+        "field": "date",
+        "precision": 0.9807692307692307,
+        "recall": 0.7183098591549296,
+        "f1": 0.8292682926829269,
+        "support": 142
+      },
+      {
+        "field": "total",
+        "precision": 0.3671875,
+        "recall": 0.33098591549295775,
+        "f1": 0.34814814814814815,
+        "support": 142
+      }
+    ],
+    "first_layoutlmv3": [
+      {
+        "field": "company",
+        "precision": 0.822429906542056,
+        "recall": 0.6197183098591549,
+        "f1": 0.7068273092369478,
+        "support": 142
+      },
+      {
+        "field": "address",
+        "precision": 0.7428571428571429,
+        "recall": 0.7323943661971831,
+        "f1": 0.7375886524822696,
+        "support": 142
+      },
+      {
+        "field": "date",
+        "precision": 0.152,
+        "recall": 0.13380281690140844,
+        "f1": 0.14232209737827717,
+        "support": 142
+      },
+      {
+        "field": "total",
+        "precision": 0.9328358208955224,
+        "recall": 0.8802816901408451,
+        "f1": 0.9057971014492754,
+        "support": 142
+      }
+    ],
+    "corrected_layoutlmv3": [
+      {
+        "field": "company",
+        "precision": 0.822429906542056,
+        "recall": 0.6197183098591549,
+        "f1": 0.7068273092369478,
+        "support": 142
+      },
+      {
+        "field": "address",
+        "precision": 0.7428571428571429,
+        "recall": 0.7323943661971831,
+        "f1": 0.7375886524822696,
+        "support": 142
+      },
+      {
+        "field": "date",
+        "precision": 0.936,
+        "recall": 0.823943661971831,
+        "f1": 0.8764044943820225,
+        "support": 142
+      },
+      {
+        "field": "total",
+        "precision": 0.9328358208955224,
+        "recall": 0.8802816901408451,
+        "f1": 0.9057971014492754,
+        "support": 142
+      }
+    ]
+  },
+  "source_files": [
+    "reports/phase1/baseline_sroie_task3_validation.json",
+    "reports/phase1/gpu_training/layoutlmv3_training_report.json",
+    "reports/phase1/checkpoint_inference/date_reconstruction_inference.json"
+  ],
+  "limitations": [
+    "Metrics are from a local validation split with seed 42, not an official test set.",
+    "Checkpoint inference is offline evidence and is not integrated into the FastAPI upload flow.",
+    "Hybrid macro F1 is retained as fallback analysis; corrected pure LayoutLMv3 is the Phase 1 MVP display path."
+  ]
+}
