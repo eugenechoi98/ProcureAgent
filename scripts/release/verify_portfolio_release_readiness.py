@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import sys
 from typing import Any, Sequence
+from urllib.request import urlopen
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
@@ -17,8 +18,8 @@ if str(PROJECT_ROOT) not in sys.path:
 from scripts.demo.run_unified_portfolio_demo_smoke import run_smoke as run_unified_smoke
 
 
-def verify_release_readiness() -> dict[str, Any]:
-    """只读聚合本地交付证据，不执行在线部署。"""
+def verify_release_readiness(*, include_online_check: bool = False) -> dict[str, Any]:
+    """聚合本地交付证据；仅显式启用时访问公网。"""
 
     warnings: list[str] = []
     blockers: list[str] = []
@@ -54,6 +55,11 @@ def verify_release_readiness() -> dict[str, Any]:
     documentation = _check_documentation()
     checks["documentation"] = documentation
 
+    deployment = _check_deployment_report(include_online_check=include_online_check)
+    checks["hf_spaces_public_deployment"] = deployment
+    if deployment.get("manual_browser_check_required"):
+        warnings.append("hf_spaces_manual_visual_browser_check_required")
+
     for name, result in checks.items():
         if not result.get("ready", False):
             blockers.append(f"{name}_not_ready")
@@ -64,9 +70,10 @@ def verify_release_readiness() -> dict[str, Any]:
         "checks": checks,
         "warnings": warnings,
         "blockers": blockers,
-        "hf_space_created": False,
-        "hf_space_uploaded": False,
-        "online_deployment_verified": False,
+        "hf_space_created": deployment.get("hf_space_created", False),
+        "hf_space_uploaded": deployment.get("hf_space_uploaded", False),
+        "online_deployment_verified": deployment.get("online_deployment_verified", False),
+        "manual_browser_check_required": deployment.get("manual_browser_check_required", True),
         "model_weights_included": False,
         "gpu_required": False,
         "api_key_required": False,
@@ -153,8 +160,65 @@ def _check_documentation() -> dict[str, Any]:
     ]
     missing = [path.relative_to(PROJECT_ROOT).as_posix() for path in paths if not path.exists()]
     hf_text = paths[-1].read_text(encoding="utf-8") if paths[-1].exists() else ""
-    boundary_present = "当前没有创建 Hugging Face Space" in hf_text and "公网链接" in hf_text
+    boundary_present = (
+        "https://huggingface.co/spaces/eugene-98/procureguard-ai-demo" in hf_text
+        and "在线 LayoutLMv3" in hf_text
+    )
     return {"ready": not missing and boundary_present, "missing": missing, "online_boundary_present": boundary_present}
+
+
+def _check_deployment_report(*, include_online_check: bool) -> dict[str, Any]:
+    path = PROJECT_ROOT / "reports" / "deployment" / "hf_spaces_public_deployment.json"
+    if not path.exists():
+        return {
+            "ready": False,
+            "hf_space_created": False,
+            "hf_space_uploaded": False,
+            "online_deployment_verified": False,
+            "manual_browser_check_required": True,
+            "errors": ["deployment_report_missing"],
+        }
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    ready = (
+        payload.get("visibility") == "public"
+        and payload.get("build_status") == "success"
+        and payload.get("runtime_status") == "running_cpu_basic"
+        and payload.get("remote_forbidden_hits") == []
+        and payload.get("model_weights_included") is False
+    )
+    result = {
+        "ready": ready,
+        "hf_space_created": True,
+        "hf_space_uploaded": True,
+        "online_deployment_verified": payload.get("online_deployment_verified", False),
+        "manual_browser_check_required": payload.get("manual_browser_check_required", True),
+        "hub_url": payload.get("space_hub_url"),
+        "app_url": payload.get("space_app_url"),
+        "remote_commit": payload.get("remote_commit"),
+        "runtime_status": payload.get("runtime_status"),
+        "online_check_included": include_online_check,
+    }
+    if include_online_check:
+        result["online_http"] = _check_public_urls(
+            payload["space_hub_url"], payload["space_app_url"]
+        )
+        result["ready"] = ready and result["online_http"]["ready"]
+    return result
+
+
+def _check_public_urls(hub_url: str, app_url: str) -> dict[str, Any]:
+    statuses: dict[str, int | None] = {}
+    for name, url in {
+        "hub": hub_url,
+        "app": app_url,
+        "config": f"{app_url.rstrip('/')}/config",
+    }.items():
+        try:
+            with urlopen(url, timeout=30) as response:
+                statuses[name] = response.status
+        except OSError:
+            statuses[name] = None
+    return {"ready": all(value == 200 for value in statuses.values()), "statuses": statuses}
 
 
 def _run_json_script(relative: str) -> dict[str, Any]:
@@ -174,12 +238,17 @@ def _run_json_script(relative: str) -> dict[str, Any]:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Verify local portfolio release readiness.")
     parser.add_argument("--output", type=Path, help="Optional JSON output path.")
+    parser.add_argument(
+        "--include-online-check",
+        action="store_true",
+        help="Also check the public Hub, App, and Gradio config URLs.",
+    )
     return parser
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    result = verify_release_readiness()
+    result = verify_release_readiness(include_online_check=args.include_online_check)
     rendered = json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True)
     print(rendered)
     if args.output is not None:

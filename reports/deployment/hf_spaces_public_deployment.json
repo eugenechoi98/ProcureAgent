@@ -1,0 +1,58 @@
+{
+  "space_owner": "eugene-98",
+  "space_name": "procureguard-ai-demo",
+  "space_hub_url": "https://huggingface.co/spaces/eugene-98/procureguard-ai-demo",
+  "space_app_url": "https://eugene-98-procureguard-ai-demo.hf.space",
+  "visibility": "public",
+  "deployment_scope": "cpu_only_unified_portfolio_demo",
+  "uploaded_package": "spaces/procureguard_demo/",
+  "remote_commit": "d1d12ae4529b47c34b6b4bd50cd27d0303cfa6c2",
+  "remote_file_count": 62,
+  "remote_forbidden_hits": [],
+  "allowlist_match": true,
+  "remote_generated_files": [
+    ".gitattributes"
+  ],
+  "build_status": "success",
+  "runtime_status": "running_cpu_basic",
+  "build_duration_seconds": 79,
+  "deployment_fix_rebuild_duration_seconds": 22,
+  "online_smoke_status": "http_config_and_gradio_api_passed_manual_visual_check_required",
+  "manual_browser_check_required": true,
+  "online_deployment_verified": false,
+  "model_weights_included": false,
+  "layoutlmv3_live_inference": false,
+  "real_lora_live_inference": false,
+  "gpu_required": false,
+  "api_key_required": false,
+  "secrets_required": false,
+  "uploaded_at": "2026-06-13T08:46:12Z",
+  "checks": {
+    "hub_http_status": 200,
+    "app_http_status": 200,
+    "config_http_status": 200,
+    "public_access_without_login": true,
+    "tabs": [
+      "Invoice Audit",
+      "Model Lab",
+      "Architecture"
+    ],
+    "default_case": "normal_invoice",
+    "default_mode": "template",
+    "invoice_audit_api": {
+      "status": "passed",
+      "risk_level": "low",
+      "recommended_action": "auto_approve",
+      "facts_hash_present": true,
+      "audit_report_present": true
+    },
+    "model_lab_required_evidence_present": true,
+    "architecture_chain_present": true
+  },
+  "limitations": [
+    "Automated visual browser loading timed out, so a manual visual browser check remains required.",
+    "Model Lab displays real offline artifacts and is not live model inference.",
+    "LayoutLMv3, Qwen, and real LoRA are not loaded by the public app.",
+    "This portfolio deployment is not a production service or an official model test."
+  ]
+}

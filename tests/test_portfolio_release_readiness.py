@@ -12,14 +12,15 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = PROJECT_ROOT / "scripts" / "release" / "verify_portfolio_release_readiness.py"
 
 
-def test_readiness_is_local_and_keeps_online_flags_false() -> None:
+def test_readiness_reads_deployment_record_without_network() -> None:
     result = verify_release_readiness()
 
     assert result["ready"] is True
     assert result["scope"] == "local_release_readiness"
-    assert result["hf_space_created"] is False
-    assert result["hf_space_uploaded"] is False
+    assert result["hf_space_created"] is True
+    assert result["hf_space_uploaded"] is True
     assert result["online_deployment_verified"] is False
+    assert result["manual_browser_check_required"] is True
     assert result["model_weights_included"] is False
     assert result["gpu_required"] is False
     assert result["api_key_required"] is False
@@ -37,10 +38,12 @@ def test_readiness_aggregates_all_delivery_checks() -> None:
         "docker_delivery",
         "github_actions_ci",
         "documentation",
+        "hf_spaces_public_deployment",
     }
     assert all(check["ready"] for check in result["checks"].values())
     assert result["langchain_benchmark_status"] == "ready"
     assert result["ci_config_status"] == "ready"
+    assert result["checks"]["hf_spaces_public_deployment"]["online_check_included"] is False
 
 
 def test_docker_runtime_is_not_claimed_without_cli() -> None:
