@@ -8,11 +8,11 @@ change the auditing business chain, deploy a Hugging Face Space, or enable live
 model inference.
 
 Engineering Closure has completed the Unified Demo, offline Model Lab artifacts,
-local HF package, offline LangChain compatibility benchmark, Docker Compose
-configuration, GitHub Actions CI, and local Release Readiness. SQLite FTS5 / BM25
-remains the official Policy RAG chain. Docker runtime is not verified in the
-current environment; the HF Space is not created or uploaded, and no public URL
-has been verified.
+offline LangChain compatibility benchmark, Docker Compose configuration, GitHub
+Actions CI, and Release Readiness. The CPU-only public Space is available at
+https://huggingface.co/spaces/eugene-98/procureguard-ai-demo. HTTP, configuration,
+and Gradio API checks passed; a manual visual browser check remains required.
+SQLite FTS5 / BM25 remains the official Policy RAG chain.
 
 ## 1. Current Problem
 
@@ -215,19 +215,18 @@ baseline. Evaluate additional live audit cases without changing Phase 2 rules.
 Current status: Batch B is complete locally. The Gradio app contains Invoice
 Audit, Model Lab, and Architecture tabs. Model Lab reads existing real offline
 lightweight artifacts only. The web UI does not run live LayoutLMv3 or real
-LoRA inference, and no Hugging Face Space has been deployed. Batch C waits for
-controller review.
+LoRA inference. The CPU-only Hugging Face Space is now public; automated HTTP,
+configuration, and API checks passed, while a manual visual check remains.
 
 ### Batch C: Hugging Face Spaces
 
 Deploy the CPU-only hybrid presentation with fixed fallback after local
 verification. No model upload or GPU is required for the default route.
 
-Batch C.1 status: local package preparation is complete in
-`spaces/procureguard_demo/`. It is a CPU-only Gradio package and has not been
-uploaded. Batch C.2 is user-created Space setup in the Hugging Face web UI and
-has not been executed. Batch C.3 is uploading the package and verifying the
-public URL and has not been executed.
+Batch C.1 local packaging, Batch C.2 Space creation, and Batch C.3 controlled
+upload are complete. The public app remains CPU-only and contains no model
+weights. A manual visual browser check is still required before setting full
+online deployment verification to true.
 
 ### Batch D: LangChain Policy RAG Comparison
 

@@ -1,21 +1,22 @@
 # CONTEXT.md
 
 ## 当前目标
-Engineering Closure Sprint 已完成本地实现与验证，等待合并和集中验收。
+Batch C.3 已完成受控上传与机器化公网 smoke，等待人工视觉验收和总控确认。
 
 ## 当前进度
-- LangChain Policy RAG 可选兼容层和 8 条真实离线 benchmark 已完成；SQLite FTS5 / BM25 仍是正式主链。
-- Docker Compose 的 API 与 Unified Demo CPU-only 配置已完成；当前环境无 Docker CLI，runtime 未验证。
-- GitHub Actions CPU-only CI 和 Portfolio Release Readiness 聚合检查已完成。
-- HF Spaces 仍只存在本地发布包，Space 未创建、未上传、公网链接未验证。
+- Public Space：https://huggingface.co/spaces/eugene-98/procureguard-ai-demo
+- Public App：https://eugene-98-procureguard-ai-demo.hf.space
+- Space 运行于 `cpu-basic`，HTTP、Gradio config 和 `run_audit` API 已通过。
+- Invoice Audit、Model Lab、Architecture 三页签已公开；Model Lab 仍只展示真实离线 artifacts。
+- 自动化可视化浏览器加载超时，因此 `manual_browser_check_required=true`，暂不声明完整在线部署验收完成。
 
 ## 下一步
-完成开发分支回归、受控合并 `main`、合并后回归并 push `origin/main`；之后只等待 Batch C.2 网页操作。
+用户仅需打开公网 App 完成一次人工视觉检查；通过后再更新 `online_deployment_verified`。
 
 ## 注意事项
-- 不加载或下载模型，不启动 GPU，不重新训练，不修改 Phase 1、Phase 2、Phase 3H 业务语义或数据库 schema。
-- 本地 release readiness 不等于在线部署验证。
-- Docker config ready；Docker runtime not verified in current environment。
+- 不加载 LayoutLMv3、Qwen 或真实 LoRA，不使用 GPU、API Key、secrets 或外部模型 API。
+- 公网 Unified Portfolio Demo 不等于在线模型推理，也不代表生产可用或 official test。
+- Docker runtime 仍未在当前本机环境验证。
 
 ## 最后更新时间
 2026-06-13

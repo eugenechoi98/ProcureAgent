@@ -121,3 +121,10 @@ Tab 3: Architecture
 - `.github/workflows/ci.yml` 在 CPU runner 安装 `demo + langchain + test` extras，执行离线 smoke、专项测试、readiness 和全量回归。
 - `verify_portfolio_release_readiness.py` 只读聚合本地证据，并把 HF 在线部署和 Docker runtime 状态与本地配置状态分开。
 - 默认后端、Demo、LangChain、Phase 1 与 Phase 3 GPU 依赖继续隔离；没有模型权重进入 Docker、CI 或 HF 本地发布包。
+
+## Public Portfolio Deployment
+
+- Hugging Face Space 公开运行 CPU-only Unified Demo：Invoice Audit、Model Lab 和 Architecture。
+- Invoice Audit 使用预生成字段与确定性业务链；Model Lab 只读取离线 JSON artifacts；Architecture 只展示治理边界。
+- 公网 runtime 不加载 LayoutLMv3、Qwen 或真实 LoRA，不使用 GPU、API Key、secrets 或外部模型 API。
+- 公开部署不改变 Phase 1、Phase 2、Phase 3H 或数据库 schema，也不代表生产可用或 official test。

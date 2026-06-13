@@ -52,3 +52,4 @@
 - 2026-06-13：完成 Batch B Unified Gradio Demo 本地初版，新增 Model Lab 与 Architecture 页签。
 - 2026-06-13：完成 Batch C.1 Hugging Face Spaces 本地最小发布包和离线 smoke 验证。
 - 2026-06-13：完成 LangChain Policy RAG 离线兼容 benchmark、Docker Compose 配置、GitHub Actions CI 和 Portfolio Release Readiness 本地检查。
+- 2026-06-13：完成 Hugging Face Spaces CPU-only Unified Portfolio Demo 受控上传、公开 HTTP/API smoke 和部署证据落档。

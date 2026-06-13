@@ -1,74 +1,51 @@
 # Hugging Face Spaces Deployment
 
-## Status
+## Public URLs
 
-Batch C.1：本地发布包准备完成。
+- Hub: https://huggingface.co/spaces/eugene-98/procureguard-ai-demo
+- App: https://eugene-98-procureguard-ai-demo.hf.space
+- Visibility: Public
+- Runtime: `RUNNING` on `cpu-basic`
 
-Batch C.2：用户网页端创建 Space，尚未执行。
+Batch C.1 本地发布包、Batch C.2 网页端 Space 创建和 Batch C.3 受控上传均已完成。远端 commit 为 `d1d12ae4529b47c34b6b4bd50cd27d0303cfa6c2`。
 
-Batch C.3：上传发布包并验证公网链接，尚未执行。
+## Public Scope
 
-当前没有创建 Hugging Face Space，没有登录 Hugging Face，没有上传代码，
-没有上传模型，也没有部署公网链接。
+公网 Demo 包含：
 
-Engineering Closure 已补齐 LangChain 离线 benchmark、Docker Compose 配置、GitHub Actions CI 和本地 Release Readiness。这些工作不改变上述在线状态，也没有进入 Batch C.2 或 C.3。
+1. Invoice Audit
+2. Model Lab 离线 artifacts
+3. Architecture
 
-## Local Package
+公开页面不加载 LayoutLMv3、Qwen 或真实 LoRA，不包含模型权重、checkpoint、adapter、Notebook、本地数据库或训练脚本，不需要 GPU、API Key、secrets 或外部模型 API。
 
-本地发布目录：
+## Verification
+
+- Hub、App 和 `/config` 返回 HTTP 200，无需登录。
+- 三个页签、默认 `normal_invoice + template`、Model Lab 指标和 Architecture 链路已从公开 Gradio config 核验。
+- 公开 `run_audit` API 返回 risk level、recommended action、facts hash 和完整 AuditReport。
+- 自动化视觉浏览器加载在当前环境超时，因此仍需人工打开 App 做一次视觉检查。
+
+当前准确状态：
 
 ```text
-spaces/procureguard_demo/
+hf_space_created=true
+hf_space_uploaded=true
+manual_browser_check_required=true
+online_deployment_verified=false
+layoutlmv3_live_inference=false
+real_lora_live_inference=false
 ```
 
-该目录是 CPU-only Gradio Space 最小包，只包含 Unified Portfolio Demo 运行
-所需文件、Model Lab 轻量 artifacts、fixture 和最小 Python runtime 模块。
+公网 Unified Portfolio Demo 已部署，不等于在线 LayoutLMv3、真实 LoRA 在线推理、生产可用、生产指标或 official test。
 
-发布包不包含：
-
-- LayoutLMv3、Qwen 或 LoRA 模型权重；
-- checkpoint、adapter、safetensors、bin、pt、pth、ckpt；
-- Notebook；
-- Phase 1 / Phase 3 训练脚本；
-- GPU requirements；
-- 本地 SQLite 数据库；
-- `.venv`、`.venv-phase3`、`artifacts` 或缓存目录。
-
-## Build Locally
+## Local Package Checks
 
 ```powershell
 .\.venv\Scripts\python.exe scripts\demo\build_hf_space_package.py
-```
-
-该命令只在本地复制 allowlist 文件并输出 JSON 摘要，不访问网络，不下载模型，
-不上传任何内容。
-
-## Smoke Check
-
-```powershell
 .\.venv\Scripts\python.exe scripts\demo\run_hf_space_package_smoke.py
+.\.venv\Scripts\python.exe scripts\release\verify_portfolio_release_readiness.py
+.\.venv\Scripts\python.exe scripts\release\verify_portfolio_release_readiness.py --include-online-check
 ```
 
-该命令从 `spaces/procureguard_demo/` 独立 import 并构建 Gradio App，不启动
-长期服务，不打开浏览器，不联网，不需要 GPU，不需要 API Key，不加载模型。
-
-## Windows Local Demo Start
-
-如需本地打开完整仓库内的 Demo，可先设置本机代理绕过和关闭 Gradio analytics：
-
-```powershell
-$env:NO_PROXY="127.0.0.1,localhost"
-$env:no_proxy="127.0.0.1,localhost"
-$env:GRADIO_ANALYTICS_ENABLED="False"
-.\.venv\Scripts\python.exe -m demo.app
-```
-
-`localhost 502` 属于本地 Gradio 自检 / 网络策略提示，不是业务链失败。
-
-## Public Space Steps Not Yet Done
-
-后续 Batch C.2 才由用户在 Hugging Face 网页端创建 Space。
-
-后续 Batch C.3 才上传 `spaces/procureguard_demo/` 内容并验证公网链接。
-
-不要把当前 C.1 本地发布包准备写成 Space 已上线、线上模型推理已启用或生产可用。
+默认 readiness 不访问公网；只有 `--include-online-check` 才检查公开 URL。
