@@ -1,0 +1,42 @@
+[
+  {
+    "case_id": "exact_keyword",
+    "query": "duplicate invoice vendor",
+    "expected_policy_ids": ["policy_004"]
+  },
+  {
+    "case_id": "policy_id_lookup",
+    "query": "policy_006",
+    "expected_policy_ids": ["policy_006"]
+  },
+  {
+    "case_id": "amount_threshold",
+    "query": "invoice amount differ PO amount 1 percent threshold",
+    "expected_policy_ids": ["policy_006"]
+  },
+  {
+    "case_id": "approval_requirement",
+    "query": "invoices exceeding USD 50000 CFO approval",
+    "expected_policy_ids": ["policy_002"]
+  },
+  {
+    "case_id": "semantic_like_paraphrase",
+    "query": "supplier bill needs boss authorization",
+    "expected_policy_ids": ["policy_001", "policy_002"]
+  },
+  {
+    "case_id": "multi_term_query",
+    "query": "purchase order goods receipt invoice approval",
+    "expected_policy_ids": ["policy_003"]
+  },
+  {
+    "case_id": "missing_policy",
+    "query": "carbon emissions sustainability reporting",
+    "expected_policy_ids": []
+  },
+  {
+    "case_id": "ambiguous_query",
+    "query": "invoice approval threshold",
+    "expected_policy_ids": ["policy_001", "policy_002", "policy_006"]
+  }
+]

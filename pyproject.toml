@@ -14,6 +14,9 @@ dependencies = [
 demo = [
     "gradio==5.50.0",
 ]
+langchain = [
+    "langchain-core==1.4.7",
+]
 extraction = [
     "datasets>=2.19,<4.0",
     "huggingface-hub>=0.24,<1.0",
