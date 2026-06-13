@@ -113,3 +113,11 @@ Tab 3: Architecture
 - **后续 optional live inference**：在线 LayoutLMv3、在线真实 LoRA、GPU Space 和 Phase 3I；这些能力当前未实现，也不作为免费 CPU Demo 的 blocker。
 
 当前 Local Gradio Demo 是 Tab 1 的稳定基线，不会被推翻。后续只在展示层增加 Model Lab 与 Architecture，并评估让 `normal_invoice`、`missing_po_number`、`duplicate_invoice`、`amount_discrepancy` 中 3 至 4 个案例走实时链；无法精确复现的案例继续明确标记 `STATIC FALLBACK`，且不修改 Phase 2 风险规则。
+
+## Engineering Delivery Layer
+
+- `procureguard.integrations.langchain_policy_demo` 是独立可选兼容层，只读取本地 mock 政策并返回来源、分数和匹配词；不进入 API 默认路径。
+- `Dockerfile` 与 `docker-compose.yml` 提供 CPU-only API 和 Unified Demo 服务，默认镜像只安装 `demo` extra。
+- `.github/workflows/ci.yml` 在 CPU runner 安装 `demo + langchain + test` extras，执行离线 smoke、专项测试、readiness 和全量回归。
+- `verify_portfolio_release_readiness.py` 只读聚合本地证据，并把 HF 在线部署和 Docker runtime 状态与本地配置状态分开。
+- 默认后端、Demo、LangChain、Phase 1 与 Phase 3 GPU 依赖继续隔离；没有模型权重进入 Docker、CI 或 HF 本地发布包。

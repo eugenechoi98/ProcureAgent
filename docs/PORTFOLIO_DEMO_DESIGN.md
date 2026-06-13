@@ -7,6 +7,13 @@ portfolio Demo and records the current local implementation status. It does not
 change the auditing business chain, deploy a Hugging Face Space, or enable live
 model inference.
 
+Engineering Closure has completed the Unified Demo, offline Model Lab artifacts,
+local HF package, offline LangChain compatibility benchmark, Docker Compose
+configuration, GitHub Actions CI, and local Release Readiness. SQLite FTS5 / BM25
+remains the official Policy RAG chain. Docker runtime is not verified in the
+current environment; the HF Space is not created or uploaded, and no public URL
+has been verified.
+
 ## 1. Current Problem
 
 The completed local Gradio Demo is a necessary foundation:

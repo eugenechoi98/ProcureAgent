@@ -51,3 +51,4 @@
 - 2026-06-13：完成 Batch A Model Lab 轻量 artifacts 初版，整理 LayoutLMv3 与两轮 LoRA 离线证据和只读校验。
 - 2026-06-13：完成 Batch B Unified Gradio Demo 本地初版，新增 Model Lab 与 Architecture 页签。
 - 2026-06-13：完成 Batch C.1 Hugging Face Spaces 本地最小发布包和离线 smoke 验证。
+- 2026-06-13：完成 LangChain Policy RAG 离线兼容 benchmark、Docker Compose 配置、GitHub Actions CI 和 Portfolio Release Readiness 本地检查。

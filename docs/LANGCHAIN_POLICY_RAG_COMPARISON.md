@@ -27,3 +27,9 @@
 - `reports/langchain/langchain_policy_rag_comparison.md`
 
 这些指标只属于当前本地 mock 政策 fixture，不是线上、生产或 official test 指标。本地延迟只用于证明脚本真实执行，不用于性能承诺。
+
+重新生成报告：
+
+```powershell
+.\.venv\Scripts\python.exe scripts\benchmark\run_langchain_policy_rag_comparison.py
+```

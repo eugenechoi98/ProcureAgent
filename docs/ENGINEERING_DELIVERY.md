@@ -32,3 +32,15 @@ runtime_not_verified=true
 ```
 
 这不是容器运行 PASS。安装 Docker Desktop 后应执行 `docker compose config`、build、up 和 health check，再记录真实 runtime 结果。
+
+## GitHub Actions CI
+
+`.github/workflows/ci.yml` 使用 Ubuntu CPU runner，安装 `.[demo,langchain,test]`，执行 `pip check`、Model Lab、Unified Demo、HF 本地包、LangChain、Docker 静态配置、Release Readiness 和全量 pytest。Workflow 不读取 secrets，不加载模型，也不要求 GPU。
+
+## Release Readiness
+
+```powershell
+.\.venv\Scripts\python.exe scripts\release\verify_portfolio_release_readiness.py
+```
+
+该脚本默认只打印 JSON，仅在显式传入 `--output` 时写文件。`ready=true` 表示本地发布材料完整，不表示 HF Space 已创建、已上传或公网部署已验证。
