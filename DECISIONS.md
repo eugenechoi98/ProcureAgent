@@ -1,5 +1,9 @@
 # DECISIONS.md
 
+## 2026-06-13：工程收口保持正式主链与可选能力隔离
+
+SQLite FTS5 / BM25 继续作为 Policy RAG 正式主链，LangChain 仅使用本地政策语料做可选兼容 benchmark，避免为简历能力项改变已封板业务行为。Docker 默认镜像只安装 Demo extra，CI 才显式安装 Demo、LangChain 和测试 extras，继续隔离模型训练依赖。当前主机没有 Docker CLI，因此只声明配置就绪，不声明容器 runtime 通过；本地 release readiness 也不等于 Hugging Face 在线部署验证。
+
 ## 2026-06-13：统一作品集 Demo 采用三页签，重型模型默认展示真实离线 artifacts
 
 稳定混合模式是作品集 Demo 的业务底座，不是最终唯一呈现。统一 Demo 冻结为 `Invoice Audit / Model Lab / Architecture` 三个页签：Invoice Audit 保留无 GPU、无 Key 的实时规则链；Model Lab 展示 LayoutLMv3 与两轮 LoRA 的真实离线指标、曲线、预测和失败分析；Architecture 解释模型、Agent 与确定性治理边界。

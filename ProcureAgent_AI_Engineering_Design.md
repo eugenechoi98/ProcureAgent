@@ -1254,12 +1254,12 @@ jobs:
 **完成标志**：`curl -X POST /invoices/upload` 上传一张发票，能返回完整 AuditReport JSON
 
 ### Phase 3（第 5-6 周）：LoRA + 工程交付
-- [ ] 异常说明训练数据构造（200 条）
-- [ ] Unsloth + LoRA SFT 训练
-- [ ] base vs fine-tuned 对比
-- [ ] 受控解释层：Canonical Audit Facts、确定性模板、LLM rewrite guard、fallback 和 audit trail
-- [ ] Docker Compose
-- [ ] GitHub Actions CI
+- [x] 异常说明训练数据构造（200 条）
+- [x] Unsloth + LoRA SFT 训练
+- [x] base vs fine-tuned 对比
+- [x] 受控解释层：Canonical Audit Facts、确定性模板、LLM rewrite guard、fallback 和 audit trail
+- [x] Docker Compose 配置（当前环境未验证 runtime）
+- [x] GitHub Actions CI
 - [ ] README + Demo GIF
 - [ ] 开源发布
 
@@ -1297,7 +1297,15 @@ Phase 3H 的工程边界：
 - Fallback Orchestrator 在 LLM 不可用、输出为空、guard 失败、高风险或解析失败时返回模板。
 - Audit Trail 记录 facts hash、template version、prompt version、model version、adapter version、raw LLM output、verifier result、fallback reason 和 final explanation。
 
-第三轮训练暂停。HF Spaces Demo、LangChain Policy RAG 对比和 Phase 3I 模型路线评估均不阻塞当前作品集交付。
+第三轮训练暂停。HF Spaces 本地发布包、LangChain Policy RAG 离线对比、Docker Compose 配置、GitHub Actions CI 和本地 Release Readiness 已完成；HF Space 创建、上传与公网验证仍未执行，Phase 3I 不阻塞当前作品集交付。
+
+## 10.2 Engineering Closure
+
+- SQLite FTS5 / BM25 保持正式 Policy RAG 主链。
+- LangChain compatibility retriever 只做本地确定性词法 benchmark，不使用 embedding、LLM 或 API Key。
+- Docker Compose 提供 API 与 Unified Demo 两个 CPU-only 服务，默认镜像不含 LangChain 和模型训练依赖。
+- GitHub Actions 使用 CPU runner 执行本地 artifacts、Demo、HF package、LangChain、Docker config、readiness 和全量测试。
+- Release Readiness 只证明本地交付材料完整，不表示 Hugging Face 在线部署或 Docker runtime 已验证。
 
 ---
 

@@ -1,31 +1,21 @@
 # CONTEXT.md
 
 ## 当前目标
-Batch C.1：Hugging Face Spaces 本地发布包准备已完成初版，等待集中总控验收。
+Engineering Closure Sprint 已完成本地实现与验证，等待合并和集中验收。
 
 ## 当前进度
-- Phase 1 已封板：corrected pure LayoutLMv3 macro F1=0.8067。
-- Phase 2 已封板：FastAPI、SQLite、5 个 Agent 工具、Policy RAG、Risk Engine 和 Audit Trace 已完成。
-- Phase 3 已完成两轮真实 QLoRA 训练与评测；第二轮未通过 hard gate，第三次训练暂停。
-- Phase 3H 已封板：Canonical Facts、Template、Guard、Fallback、Audit Trail 和 additive API explanation 已完成。
-- Local Gradio Demo Baseline 已完成并合并到 `main`，Gradio 使用独立 `demo` optional dependency。
-- 统一 Portfolio Demo 已在本地完成 Invoice Audit、Model Lab、Architecture 三个页签。
-- Model Lab 只读取 `demo/model_lab/` 真实离线轻量 artifacts。
-- HF Spaces 最小本地发布包已生成到 `spaces/procureguard_demo/`，仅用于后续手动上传前验收。
+- LangChain Policy RAG 可选兼容层和 8 条真实离线 benchmark 已完成；SQLite FTS5 / BM25 仍是正式主链。
+- Docker Compose 的 API 与 Unified Demo CPU-only 配置已完成；当前环境无 Docker CLI，runtime 未验证。
+- GitHub Actions CPU-only CI 和 Portfolio Release Readiness 聚合检查已完成。
+- HF Spaces 仍只存在本地发布包，Space 未创建、未上传、公网链接未验证。
 
 ## 下一步
-由审查与总控对话验收 Batch C.1；通过后再进入 Batch C.2：用户网页端创建 Space。
+完成开发分支回归、受控合并 `main`、合并后回归并 push `origin/main`；之后只等待 Batch C.2 网页操作。
 
 ## 注意事项
-- 不继续扩张 Phase 3H，不修改 Phase 2 风险规则、Agent、共享 schema 或数据库。
-- 不立即部署 Hugging Face Spaces；先完成 Model Lab artifacts packaging 和统一 Demo。
-- 默认实时路径继续使用 Phase 2、Policy RAG、Risk Engine、Canonical Facts、Template、Guard/Fallback 和 AuditReport。
-- LayoutLMv3 与 LoRA 默认展示真实离线实验结果，不表述为网页实时推理。
-- Model Lab package 不包含模型权重、adapter、checkpoint、公开图片副本或实时 inference。
-- 当前没有网页实时 LayoutLMv3，没有网页实时真实 LoRA，没有部署 Hugging Face Space。
-- Batch C.1 只准备本地发布包；没有创建 Space、登录 Hugging Face、上传代码或上传模型。
-- 在线 LayoutLMv3、在线真实 LoRA、GPU Space 和 Phase 3I 仅为后续 optional feasibility。
-- LangChain、Docker Compose、GitHub Actions CI 和最终 README/GIF/Resume 按冻结批次依次收口。
+- 不加载或下载模型，不启动 GPU，不重新训练，不修改 Phase 1、Phase 2、Phase 3H 业务语义或数据库 schema。
+- 本地 release readiness 不等于在线部署验证。
+- Docker config ready；Docker runtime not verified in current environment。
 
 ## 最后更新时间
 2026-06-13

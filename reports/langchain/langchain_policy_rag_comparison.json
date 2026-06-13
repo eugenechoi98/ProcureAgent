@@ -1,0 +1,567 @@
+{
+  "case_count": 8,
+  "cases": [
+    {
+      "baseline": {
+        "hit_policy_ids": [
+          "policy_004",
+          "policy_008",
+          "policy_010"
+        ],
+        "hits": [
+          {
+            "policy_id": "policy_004",
+            "score": -3.0068661049380196,
+            "section": "duplicate_invoice"
+          },
+          {
+            "policy_id": "policy_008",
+            "score": -0.5672837057202287,
+            "section": "vendor_validation"
+          },
+          {
+            "policy_id": "policy_010",
+            "score": -0.5118820050231241,
+            "section": "missing_fields"
+          }
+        ],
+        "latency_ms": 0.2233,
+        "recall_at_3": 1.0,
+        "top1_hit": true
+      },
+      "case_id": "exact_keyword",
+      "expected_policy_ids": [
+        "policy_004"
+      ],
+      "langchain": {
+        "hit_policy_ids": [
+          "policy_004",
+          "policy_005",
+          "policy_008"
+        ],
+        "hits": [
+          {
+            "matched_terms": [
+              "duplicate",
+              "invoice",
+              "vendor"
+            ],
+            "policy_id": "policy_004",
+            "score": 5.588516,
+            "section": "duplicate_invoice",
+            "source": "procureguard.db.seed_policies.MOCK_POLICIES"
+          },
+          {
+            "matched_terms": [
+              "invoice",
+              "vendor"
+            ],
+            "policy_id": "policy_005",
+            "score": 2.883768,
+            "section": "quantity_tolerance",
+            "source": "procureguard.db.seed_policies.MOCK_POLICIES"
+          },
+          {
+            "matched_terms": [
+              "invoice",
+              "vendor"
+            ],
+            "policy_id": "policy_008",
+            "score": 2.883768,
+            "section": "vendor_validation",
+            "source": "procureguard.db.seed_policies.MOCK_POLICIES"
+          }
+        ],
+        "latency_ms": 0.6787,
+        "recall_at_3": 1.0,
+        "top1_hit": true
+      },
+      "notes": "Same local policy corpus and top_k=3.",
+      "query": "duplicate invoice vendor",
+      "source_integrity": true
+    },
+    {
+      "baseline": {
+        "hit_policy_ids": [],
+        "hits": [],
+        "latency_ms": 0.0694,
+        "recall_at_3": 0.0,
+        "top1_hit": false
+      },
+      "case_id": "policy_id_lookup",
+      "expected_policy_ids": [
+        "policy_006"
+      ],
+      "langchain": {
+        "hit_policy_ids": [
+          "policy_006",
+          "policy_001",
+          "policy_002"
+        ],
+        "hits": [
+          {
+            "matched_terms": [
+              "006",
+              "policy",
+              "policy_006"
+            ],
+            "policy_id": "policy_006",
+            "score": 103.704748,
+            "section": "amount_tolerance",
+            "source": "procureguard.db.seed_policies.MOCK_POLICIES"
+          },
+          {
+            "matched_terms": [
+              "policy"
+            ],
+            "policy_id": "policy_001",
+            "score": 1.0,
+            "section": "approval_threshold",
+            "source": "procureguard.db.seed_policies.MOCK_POLICIES"
+          },
+          {
+            "matched_terms": [
+              "policy"
+            ],
+            "policy_id": "policy_002",
+            "score": 1.0,
+            "section": "approval_threshold",
+            "source": "procureguard.db.seed_policies.MOCK_POLICIES"
+          }
+        ],
+        "latency_ms": 0.162,
+        "recall_at_3": 1.0,
+        "top1_hit": true
+      },
+      "notes": "LangChain metadata lookup is compared with content-only FTS indexing.",
+      "query": "policy_006",
+      "source_integrity": true
+    },
+    {
+      "baseline": {
+        "hit_policy_ids": [
+          "policy_006",
+          "policy_010",
+          "policy_003"
+        ],
+        "hits": [
+          {
+            "policy_id": "policy_006",
+            "score": -9.192710086013111,
+            "section": "amount_tolerance"
+          },
+          {
+            "policy_id": "policy_010",
+            "score": -3.2678151089281915,
+            "section": "missing_fields"
+          },
+          {
+            "policy_id": "policy_003",
+            "score": -0.9337599669146,
+            "section": "three_way_match"
+          }
+        ],
+        "latency_ms": 0.135,
+        "recall_at_3": 1.0,
+        "top1_hit": true
+      },
+      "case_id": "amount_threshold",
+      "expected_policy_ids": [
+        "policy_006"
+      ],
+      "langchain": {
+        "hit_policy_ids": [
+          "policy_006",
+          "policy_010",
+          "policy_001"
+        ],
+        "hits": [
+          {
+            "matched_terms": [
+              "1",
+              "amount",
+              "differ",
+              "invoice",
+              "po",
+              "threshold"
+            ],
+            "policy_id": "policy_006",
+            "score": 12.827291,
+            "section": "amount_tolerance",
+            "source": "procureguard.db.seed_policies.MOCK_POLICIES"
+          },
+          {
+            "matched_terms": [
+              "amount",
+              "invoice",
+              "po"
+            ],
+            "policy_id": "policy_010",
+            "score": 5.406194,
+            "section": "missing_fields",
+            "source": "procureguard.db.seed_policies.MOCK_POLICIES"
+          },
+          {
+            "matched_terms": [
+              "invoice",
+              "threshold"
+            ],
+            "policy_id": "policy_001",
+            "score": 3.106911,
+            "section": "approval_threshold",
+            "source": "procureguard.db.seed_policies.MOCK_POLICIES"
+          }
+        ],
+        "latency_ms": 0.1672,
+        "recall_at_3": 1.0,
+        "top1_hit": true
+      },
+      "notes": "Same local policy corpus and top_k=3.",
+      "query": "invoice amount differ PO amount 1 percent threshold",
+      "source_integrity": true
+    },
+    {
+      "baseline": {
+        "hit_policy_ids": [
+          "policy_002",
+          "policy_001",
+          "policy_003"
+        ],
+        "hits": [
+          {
+            "policy_id": "policy_002",
+            "score": -5.116544180970557,
+            "section": "approval_threshold"
+          },
+          {
+            "policy_id": "policy_001",
+            "score": -3.050198372580832,
+            "section": "approval_threshold"
+          },
+          {
+            "policy_id": "policy_003",
+            "score": -0.6470530143355071,
+            "section": "three_way_match"
+          }
+        ],
+        "latency_ms": 0.1077,
+        "recall_at_3": 1.0,
+        "top1_hit": true
+      },
+      "case_id": "approval_requirement",
+      "expected_policy_ids": [
+        "policy_002"
+      ],
+      "langchain": {
+        "hit_policy_ids": [
+          "policy_002",
+          "policy_001",
+          "policy_003"
+        ],
+        "hits": [
+          {
+            "matched_terms": [
+              "approval",
+              "cfo",
+              "exceeding",
+              "invoices",
+              "usd"
+            ],
+            "policy_id": "policy_002",
+            "score": 10.122543,
+            "section": "approval_threshold",
+            "source": "procureguard.db.seed_policies.MOCK_POLICIES"
+          },
+          {
+            "matched_terms": [
+              "approval",
+              "exceeding",
+              "invoices",
+              "usd"
+            ],
+            "policy_id": "policy_001",
+            "score": 7.417795,
+            "section": "approval_threshold",
+            "source": "procureguard.db.seed_policies.MOCK_POLICIES"
+          },
+          {
+            "matched_terms": [
+              "approval",
+              "invoices"
+            ],
+            "policy_id": "policy_003",
+            "score": 3.330055,
+            "section": "three_way_match",
+            "source": "procureguard.db.seed_policies.MOCK_POLICIES"
+          }
+        ],
+        "latency_ms": 0.1589,
+        "recall_at_3": 1.0,
+        "top1_hit": true
+      },
+      "notes": "Same local policy corpus and top_k=3.",
+      "query": "invoices exceeding USD 50000 CFO approval",
+      "source_integrity": true
+    },
+    {
+      "baseline": {
+        "hit_policy_ids": [],
+        "hits": [],
+        "latency_ms": 0.0563,
+        "recall_at_3": 0.0,
+        "top1_hit": false
+      },
+      "case_id": "semantic_like_paraphrase",
+      "expected_policy_ids": [
+        "policy_001",
+        "policy_002"
+      ],
+      "langchain": {
+        "hit_policy_ids": [
+          "policy_001",
+          "policy_002",
+          "policy_004"
+        ],
+        "hits": [
+          {
+            "matched_terms": [
+              "approval",
+              "invoice",
+              "manager"
+            ],
+            "policy_id": "policy_001",
+            "score": 5.406194,
+            "section": "approval_threshold",
+            "source": "procureguard.db.seed_policies.MOCK_POLICIES"
+          },
+          {
+            "matched_terms": [
+              "approval",
+              "invoice",
+              "manager"
+            ],
+            "policy_id": "policy_002",
+            "score": 5.406194,
+            "section": "approval_threshold",
+            "source": "procureguard.db.seed_policies.MOCK_POLICIES"
+          },
+          {
+            "matched_terms": [
+              "invoice",
+              "vendor"
+            ],
+            "policy_id": "policy_004",
+            "score": 2.883768,
+            "section": "duplicate_invoice",
+            "source": "procureguard.db.seed_policies.MOCK_POLICIES"
+          }
+        ],
+        "latency_ms": 0.1605,
+        "recall_at_3": 1.0,
+        "top1_hit": true
+      },
+      "notes": "Uses explicit local lexical aliases; no embedding or semantic model.",
+      "query": "supplier bill needs boss authorization",
+      "source_integrity": true
+    },
+    {
+      "baseline": {
+        "hit_policy_ids": [
+          "policy_003",
+          "policy_001",
+          "policy_002"
+        ],
+        "hits": [
+          {
+            "policy_id": "policy_003",
+            "score": -6.387312333746621,
+            "section": "three_way_match"
+          },
+          {
+            "policy_id": "policy_001",
+            "score": -1.268563179783927,
+            "section": "approval_threshold"
+          },
+          {
+            "policy_id": "policy_002",
+            "score": -1.268563179783927,
+            "section": "approval_threshold"
+          }
+        ],
+        "latency_ms": 0.1053,
+        "recall_at_3": 1.0,
+        "top1_hit": true
+      },
+      "case_id": "multi_term_query",
+      "expected_policy_ids": [
+        "policy_003"
+      ],
+      "langchain": {
+        "hit_policy_ids": [
+          "policy_003",
+          "policy_005",
+          "policy_007"
+        ],
+        "hits": [
+          {
+            "matched_terms": [
+              "approval",
+              "goods",
+              "grn",
+              "order",
+              "purchase",
+              "receipt"
+            ],
+            "policy_id": "policy_003",
+            "score": 14.724411,
+            "section": "three_way_match",
+            "source": "procureguard.db.seed_policies.MOCK_POLICIES"
+          },
+          {
+            "matched_terms": [
+              "grn",
+              "invoice"
+            ],
+            "policy_id": "policy_005",
+            "score": 3.394593,
+            "section": "quantity_tolerance",
+            "source": "procureguard.db.seed_policies.MOCK_POLICIES"
+          },
+          {
+            "matched_terms": [
+              "invoice",
+              "receipt"
+            ],
+            "policy_id": "policy_007",
+            "score": 3.394593,
+            "section": "payment_terms",
+            "source": "procureguard.db.seed_policies.MOCK_POLICIES"
+          }
+        ],
+        "latency_ms": 0.1942,
+        "recall_at_3": 1.0,
+        "top1_hit": true
+      },
+      "notes": "Same local policy corpus and top_k=3.",
+      "query": "purchase order goods receipt invoice approval",
+      "source_integrity": true
+    },
+    {
+      "baseline": {
+        "hit_policy_ids": [],
+        "hits": [],
+        "latency_ms": 0.0762,
+        "recall_at_3": 1.0,
+        "top1_hit": true
+      },
+      "case_id": "missing_policy",
+      "expected_policy_ids": [],
+      "langchain": {
+        "hit_policy_ids": [],
+        "hits": [],
+        "latency_ms": 0.1887,
+        "recall_at_3": 1.0,
+        "top1_hit": true
+      },
+      "notes": "Same local policy corpus and top_k=3.",
+      "query": "carbon emissions sustainability reporting",
+      "source_integrity": true
+    },
+    {
+      "baseline": {
+        "hit_policy_ids": [
+          "policy_001",
+          "policy_002",
+          "policy_006"
+        ],
+        "hits": [
+          {
+            "policy_id": "policy_001",
+            "score": -2.121755361942621,
+            "section": "approval_threshold"
+          },
+          {
+            "policy_id": "policy_002",
+            "score": -2.121755361942621,
+            "section": "approval_threshold"
+          },
+          {
+            "policy_id": "policy_006",
+            "score": -0.7759423990658548,
+            "section": "amount_tolerance"
+          }
+        ],
+        "latency_ms": 0.1206,
+        "recall_at_3": 1.0,
+        "top1_hit": true
+      },
+      "case_id": "ambiguous_query",
+      "expected_policy_ids": [
+        "policy_001",
+        "policy_002",
+        "policy_006"
+      ],
+      "langchain": {
+        "hit_policy_ids": [
+          "policy_001",
+          "policy_002",
+          "policy_006"
+        ],
+        "hits": [
+          {
+            "matched_terms": [
+              "approval",
+              "invoice",
+              "threshold"
+            ],
+            "policy_id": "policy_001",
+            "score": 5.118512,
+            "section": "approval_threshold",
+            "source": "procureguard.db.seed_policies.MOCK_POLICIES"
+          },
+          {
+            "matched_terms": [
+              "approval",
+              "invoice",
+              "threshold"
+            ],
+            "policy_id": "policy_002",
+            "score": 5.118512,
+            "section": "approval_threshold",
+            "source": "procureguard.db.seed_policies.MOCK_POLICIES"
+          },
+          {
+            "matched_terms": [
+              "invoice",
+              "threshold"
+            ],
+            "policy_id": "policy_006",
+            "score": 3.106911,
+            "section": "amount_tolerance",
+            "source": "procureguard.db.seed_policies.MOCK_POLICIES"
+          }
+        ],
+        "latency_ms": 0.2061,
+        "recall_at_3": 1.0,
+        "top1_hit": true
+      },
+      "notes": "Same local policy corpus and top_k=3.",
+      "query": "invoice approval threshold",
+      "source_integrity": true
+    }
+  ],
+  "database_written": false,
+  "embedding_api_used": false,
+  "langchain_role": "optional_compatibility_benchmark_only",
+  "llm_api_used": false,
+  "network_used": false,
+  "official_main_chain": "sqlite_fts5_bm25",
+  "ready": true,
+  "scope": "offline_local_policy_retrieval_comparison",
+  "summary": {
+    "baseline_mean_recall_at_3": 0.75,
+    "baseline_top1_accuracy": 0.75,
+    "langchain_mean_recall_at_3": 1.0,
+    "langchain_top1_accuracy": 1.0
+  }
+}

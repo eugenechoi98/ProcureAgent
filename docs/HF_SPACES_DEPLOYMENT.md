@@ -11,6 +11,8 @@ Batch C.3：上传发布包并验证公网链接，尚未执行。
 当前没有创建 Hugging Face Space，没有登录 Hugging Face，没有上传代码，
 没有上传模型，也没有部署公网链接。
 
+Engineering Closure 已补齐 LangChain 离线 benchmark、Docker Compose 配置、GitHub Actions CI 和本地 Release Readiness。这些工作不改变上述在线状态，也没有进入 Batch C.2 或 C.3。
+
 ## Local Package
 
 本地发布目录：

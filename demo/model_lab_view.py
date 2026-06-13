@@ -36,6 +36,7 @@ def build_model_lab_tab(gr: Any, artifacts: dict[str, Any] | None = None) -> Non
     gr.Markdown(render_model_lab_summary(data), elem_id="model-lab-summary")
     gr.Dataframe(
         value=layout_metric_rows(data),
+        row_count=len(layout_metric_rows(data)),
         headers=["metric", "value"],
         datatype=["str", "str"],
         label="LayoutLMv3 Metrics",
@@ -44,6 +45,7 @@ def build_model_lab_tab(gr: Any, artifacts: dict[str, Any] | None = None) -> Non
     )
     gr.Dataframe(
         value=layout_field_f1_rows(data),
+        row_count=len(layout_field_f1_rows(data)),
         headers=[
             "field",
             "OCR + Regex",
@@ -57,6 +59,7 @@ def build_model_lab_tab(gr: Any, artifacts: dict[str, Any] | None = None) -> Non
     )
     gr.Dataframe(
         value=layout_training_curve_rows(data),
+        row_count=len(layout_training_curve_rows(data)),
         headers=["epoch", "train_loss", "validation_loss", "token_f1", "field_macro_f1"],
         datatype=["str", "str", "str", "str", "str"],
         label="LayoutLMv3 Training Curve",
@@ -65,6 +68,7 @@ def build_model_lab_tab(gr: Any, artifacts: dict[str, Any] | None = None) -> Non
     )
     gr.Dataframe(
         value=layout_prediction_rows(data),
+        row_count=len(layout_prediction_rows(data)),
         headers=[
             "case_id",
             "ground_truth_date",
@@ -85,6 +89,7 @@ def build_model_lab_tab(gr: Any, artifacts: dict[str, Any] | None = None) -> Non
     gr.Markdown(render_lora_summary(data), elem_id="lora-summary")
     gr.Dataframe(
         value=lora_metric_rows(data),
+        row_count=len(lora_metric_rows(data)),
         headers=["run", "variant", "metric", "value"],
         datatype=["str", "str", "str", "str"],
         label="LoRA Metrics",
@@ -93,6 +98,7 @@ def build_model_lab_tab(gr: Any, artifacts: dict[str, Any] | None = None) -> Non
     )
     gr.Dataframe(
         value=lora_training_curve_rows(data),
+        row_count=len(lora_training_curve_rows(data)),
         headers=["run", "epoch", "train_loss", "validation_loss"],
         datatype=["str", "str", "str", "str"],
         label="LoRA Training Curves",
@@ -101,6 +107,7 @@ def build_model_lab_tab(gr: Any, artifacts: dict[str, Any] | None = None) -> Non
     )
     gr.Dataframe(
         value=lora_hallucination_rows(data),
+        row_count=len(lora_hallucination_rows(data)),
         headers=[
             "run_id",
             "sample_id",
@@ -115,6 +122,7 @@ def build_model_lab_tab(gr: Any, artifacts: dict[str, Any] | None = None) -> Non
     )
     gr.Dataframe(
         value=lora_guard_case_rows(data),
+        row_count=len(lora_guard_case_rows(data)),
         headers=[
             "case_id",
             "source_type",

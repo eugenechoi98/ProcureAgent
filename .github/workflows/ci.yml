@@ -1,0 +1,58 @@
+name: CPU-only validation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GRADIO_ANALYTICS_ENABLED: "False"
+      NO_PROXY: 127.0.0.1,localhost
+      no_proxy: 127.0.0.1,localhost
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install CPU-only validation dependencies
+        run: python -m pip install -e ".[demo,langchain,test]"
+
+      - name: Check dependency consistency
+        run: python -m pip check
+
+      - name: Verify Model Lab artifacts
+        run: python scripts/demo/verify_model_lab_artifacts.py
+
+      - name: Run Unified Portfolio Demo smoke
+        run: python scripts/demo/run_unified_portfolio_demo_smoke.py
+
+      - name: Build Hugging Face Space package locally
+        run: python scripts/demo/build_hf_space_package.py
+
+      - name: Run Hugging Face package smoke
+        run: python scripts/demo/run_hf_space_package_smoke.py
+
+      - name: Run LangChain compatibility tests
+        run: python -m pytest tests/test_langchain_policy_demo.py tests/test_langchain_policy_benchmark.py -q
+
+      - name: Validate Docker delivery configuration
+        run: python -m pytest tests/test_docker_delivery_config.py -q
+
+      - name: Verify portfolio release readiness
+        run: python scripts/release/verify_portfolio_release_readiness.py
+
+      - name: Run full test suite
+        run: python -m pytest tests -q
