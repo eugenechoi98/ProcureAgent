@@ -43,7 +43,7 @@ ARCHITECTURE_MARKDOWN = """
 - Model Lab 展示真实离线 artifacts。
 - Architecture 只解释系统边界。
 - 当前网页不加载 LayoutLMv3、Qwen 或真实 LoRA。
-- 当前没有部署 Hugging Face Space。
+- 当前已部署 CPU-only Hugging Face Space，但不加载模型或启用 GPU。
 """
 
 
