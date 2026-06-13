@@ -42,4 +42,3 @@ def test_unknown_query_returns_no_documents() -> None:
     retriever = OfflinePolicyRetriever(top_k=3)
 
     assert retriever.invoke("carbon emissions sustainability reporting") == []
-

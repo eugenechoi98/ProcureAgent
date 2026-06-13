@@ -109,4 +109,3 @@ def _document_tokens(document: Document) -> list[str]:
         ]
     )
     return TOKEN_PATTERN.findall(text.lower())
-

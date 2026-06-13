@@ -50,4 +50,3 @@ def test_benchmark_writes_json_and_markdown(tmp_path: Path) -> None:
     assert json_path.exists()
     assert markdown_path.exists()
     assert "SQLite FTS5/BM25 remains the official main chain" in markdown_path.read_text(encoding="utf-8")
-
