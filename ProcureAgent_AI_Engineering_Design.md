@@ -110,7 +110,7 @@ demo.app
 - shadow 与 experimental 只使用 fake provider。
 - 页面展示 explanation trace 和完整 AuditReport JSON。
 - 本地启动不 share、不需要 API Key/GPU，不加载在线 LayoutLMv3、Qwen 或真实 LoRA。
-- 当前没有创建 Hugging Face Space，也不代表线上部署完成。
+- CPU-only Hugging Face Space 已公开部署；在线 LayoutLMv3、真实 LoRA 和 GPU runtime 仍未启用。
 
 ### Unified Portfolio Demo
 
@@ -1297,7 +1297,7 @@ Phase 3H 的工程边界：
 - Fallback Orchestrator 在 LLM 不可用、输出为空、guard 失败、高风险或解析失败时返回模板。
 - Audit Trail 记录 facts hash、template version、prompt version、model version、adapter version、raw LLM output、verifier result、fallback reason 和 final explanation。
 
-第三轮训练暂停。HF Spaces 本地发布包、LangChain Policy RAG 离线对比、Docker Compose 配置、GitHub Actions CI 和本地 Release Readiness 已完成；HF Space 创建、上传与公网验证仍未执行，Phase 3I 不阻塞当前作品集交付。
+第三轮训练暂停。HF Spaces CPU-only Unified Demo 已创建并受控上传，公开 HTTP、Gradio config 和审核 API 已通过；自动化视觉浏览器检查仍需人工补充。LangChain Policy RAG 离线对比、Docker Compose 配置、GitHub Actions CI 和 Release Readiness 也已完成，Phase 3I 不阻塞当前作品集交付。
 
 ## 10.2 Engineering Closure
 
@@ -1305,7 +1305,7 @@ Phase 3H 的工程边界：
 - LangChain compatibility retriever 只做本地确定性词法 benchmark，不使用 embedding、LLM 或 API Key。
 - Docker Compose 提供 API 与 Unified Demo 两个 CPU-only 服务，默认镜像不含 LangChain 和模型训练依赖。
 - GitHub Actions 使用 CPU runner 执行本地 artifacts、Demo、HF package、LangChain、Docker config、readiness 和全量测试。
-- Release Readiness 只证明本地交付材料完整，不表示 Hugging Face 在线部署或 Docker runtime 已验证。
+- Release Readiness 默认离线读取真实部署报告；Hugging Face Space 已创建并上传，但完整视觉验收仍待人工确认，Docker runtime 也未在当前环境验证。
 
 ---
 

@@ -1,5 +1,9 @@
 # DECISIONS.md
 
+## 2026-06-13：公网部署验收区分机器 smoke 与人工视觉检查
+
+Hugging Face Space 已运行在 CPU Basic，公开 HTTP、Gradio config 和审核 API 已通过，但当前自动化视觉浏览器加载超时。因此部署报告保守保持 `online_deployment_verified=false` 和 `manual_browser_check_required=true`，直到用户完成一次实际页面视觉检查。公网 Demo 只展示确定性审核链、真实离线 Model Lab artifacts 和 Architecture，不把它表述为在线模型推理或生产服务。
+
 ## 2026-06-13：工程收口保持正式主链与可选能力隔离
 
 SQLite FTS5 / BM25 继续作为 Policy RAG 正式主链，LangChain 仅使用本地政策语料做可选兼容 benchmark，避免为简历能力项改变已封板业务行为。Docker 默认镜像只安装 Demo extra，CI 才显式安装 Demo、LangChain 和测试 extras，继续隔离模型训练依赖。当前主机没有 Docker CLI，因此只声明配置就绪，不声明容器 runtime 通过；本地 release readiness 也不等于 Hugging Face 在线部署验证。
