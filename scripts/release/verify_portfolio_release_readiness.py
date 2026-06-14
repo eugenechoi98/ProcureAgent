@@ -74,6 +74,7 @@ def verify_release_readiness(*, include_online_check: bool = False) -> dict[str,
         "hf_space_uploaded": deployment.get("hf_space_uploaded", False),
         "online_deployment_verified": deployment.get("online_deployment_verified", False),
         "manual_browser_check_required": deployment.get("manual_browser_check_required", True),
+        "model_lab_presentation_polished": deployment.get("model_lab_presentation_polished", False),
         "model_weights_included": False,
         "gpu_required": False,
         "api_key_required": False,
@@ -184,6 +185,7 @@ def _check_deployment_report(*, include_online_check: bool) -> dict[str, Any]:
         and payload.get("build_status") == "success"
         and payload.get("runtime_status") == "running_cpu_basic"
         and payload.get("localized_ui") is True
+        and payload.get("model_lab_presentation_polished") is True
         and payload.get("remote_forbidden_hits") == []
         and payload.get("model_weights_included") is False
     )
@@ -198,6 +200,7 @@ def _check_deployment_report(*, include_online_check: bool) -> dict[str, Any]:
         "remote_commit": payload.get("remote_commit"),
         "runtime_status": payload.get("runtime_status"),
         "localized_ui": payload.get("localized_ui", False),
+        "model_lab_presentation_polished": payload.get("model_lab_presentation_polished", False),
         "online_check_included": include_online_check,
     }
     if include_online_check:

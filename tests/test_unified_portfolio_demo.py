@@ -111,7 +111,7 @@ def test_public_demo_contains_chinese_usage_guidance() -> None:
     assert "点击“运行审核”" in rendered
     assert "完整审核报告" in rendered
     assert "不需要 GPU、API Key 或在线模型" in rendered
-    assert "本页展示真实离线实验 artifacts" in rendered
+    assert "真实离线模型实验结果" in rendered
     assert "为什么模型不能直接决定风险" in rendered
 
 
@@ -139,16 +139,18 @@ def test_model_lab_loads_artifacts_and_displays_required_scope() -> None:
 
     assert artifacts["manifest"]["offline_only"] is True
     assert rows["official_test"] == "false"
-    assert "official_test=false" in summary
-    assert "offline_checkpoint_inference" in summary
-    assert "local_validation_split_seed_42" in summary
+    assert "OCR + Regex baseline Macro F1" in summary
+    assert "修复后 LayoutLMv3 Macro F1" in summary
+    assert "日期字段 F1" in summary
     assert "0.8067" in summary
     assert "0.1423" in summary
     assert "0.8764" in summary
-    assert "字段级 JSON" in summary
+    assert "不是当前网页实时模型推理" not in summary
+    assert "当前网页不会加载" not in summary
+    assert "缺失 artifacts" not in summary
 
 
-def test_model_lab_lora_scope_and_missing_artifacts_are_visible() -> None:
+def test_model_lab_lora_scope_and_manifest_evidence_are_preserved() -> None:
     artifacts = load_model_lab_artifacts()
     summary = render_lora_summary(artifacts)
     guard_sources = {row[1] for row in lora_guard_case_rows(artifacts)}
@@ -157,15 +159,26 @@ def test_model_lab_lora_scope_and_missing_artifacts_are_visible() -> None:
     }
 
     assert "第二轮 Adapter 是否通过 hard gate：`false`" in summary
-    assert "第二轮 adapter 未通过 hard gate" in summary
-    assert "第三次训练暂停" in summary
-    assert "LoRA 不作为默认审核解释器" in summary
-    assert "真实 LoRA 当前没有在网页运行" in summary
+    assert "没有作为默认解释器上线" in summary
+    assert "确定性模板 + 可选受控改写 + 输出守卫 + 模板回退" in summary
     assert "real_offline_model_output" in guard_sources
     assert "test_fixture" in guard_sources
     assert "first_lora_training_curve" in missing
     assert "second_lora_local_checkpoint_adapter_predictions_runtime_copy" in missing
     assert "public_receipt_images_for_selected_predictions" in missing
+
+
+def test_model_lab_raw_json_evidence_is_collapsed_by_default() -> None:
+    accordion = _component_props("model-lab-raw-evidence")
+    labels = _labels()
+
+    assert accordion["label"] == "查看原始 JSON 证据"
+    assert accordion["open"] is False
+    assert "LayoutLMv3 错误分析 JSON" in labels
+    assert "LoRA 指标 JSON" in labels
+    assert "Guard / Fallback 案例 JSON" in labels
+    assert "模型实验 manifest JSON" in labels
+    assert "缺失 artifacts" not in labels
 
 
 def test_unified_build_requires_no_model_network_gpu_or_api_key(monkeypatch) -> None:

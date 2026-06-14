@@ -123,12 +123,9 @@ Required evidence:
 - deterministic template fallback;
 - Phase 3F fact-constrained prompt and gold-answer design.
 
-The UI must display:
-
-```text
-ModelScope real offline experiment result
-Not current web real-time inference
-```
+The public UI presents the sealed ModelScope experiment results with neutral
+Chinese wording. Detailed source and runtime boundaries remain available in the
+collapsed raw JSON evidence.
 
 The second adapter failed the deployment hard gates. Model Lab presents this as
 an engineering result and governance decision, not as a production model
@@ -232,6 +229,10 @@ Batch C.1 local packaging, Batch C.2 Space creation, and Batch C.3 controlled
 upload are complete. The public app remains CPU-only and contains no model
 weights. A manual visual browser check is still required before setting full
 online deployment verification to true.
+
+Batch C.4 presentation polish is complete. Model Lab now leads with three core
+metrics, keeps LayoutLMv3 and LoRA evidence in a clear order, and places raw JSON
+inside a collapsed evidence section without changing the underlying artifacts.
 
 ### Batch D: LangChain Policy RAG Comparison
 

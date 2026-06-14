@@ -6,7 +6,7 @@
   "visibility": "public",
   "deployment_scope": "cpu_only_unified_portfolio_demo",
   "uploaded_package": "spaces/procureguard_demo/",
-  "remote_commit": "49423f166a8a0b92063178c121d8130990c14757",
+  "remote_commit": "5f541c99a11c59eaaa2b7dee579be946de544573",
   "remote_file_count": 62,
   "remote_forbidden_hits": [],
   "allowlist_match": true,
@@ -15,9 +15,10 @@
   ],
   "build_status": "success",
   "runtime_status": "running_cpu_basic",
-  "localization_build_duration_seconds": 32,
-  "online_smoke_status": "localized_config_and_gradio_api_passed_manual_visual_check_required",
+  "localization_build_duration_seconds": 23,
+  "online_smoke_status": "polished_config_and_gradio_api_passed_manual_visual_check_required",
   "localized_ui": true,
+  "model_lab_presentation_polished": true,
   "manual_browser_check_required": true,
   "online_deployment_verified": false,
   "model_weights_included": false,
@@ -26,7 +27,7 @@
   "gpu_required": false,
   "api_key_required": false,
   "secrets_required": false,
-  "uploaded_at": "2026-06-14T05:36:31Z",
+  "uploaded_at": "2026-06-14T06:35:24Z",
   "checks": {
     "app_http_status": 200,
     "config_http_status": 200,
@@ -39,7 +40,11 @@
     "default_case": "normal_invoice",
     "default_mode": "template",
     "invoice_usage_guide_present": true,
-    "model_lab_offline_notice_present": true,
+    "model_lab_core_metrics_present": true,
+    "model_lab_scope_keys_present": true,
+    "model_lab_missing_region_present": false,
+    "model_lab_raw_json_collapsed": true,
+    "model_lab_realtime_disclaimer_present": false,
     "architecture_chinese_chain_present": true,
     "bare_english_business_terms_present": false,
     "invoice_audit_api": {
@@ -51,8 +56,8 @@
     }
   },
   "limitations": [
-    "自动化视觉浏览器加载在当前环境超时，因此仍需用户完成人工视觉复验。",
-    "模型实验页展示真实离线 artifacts，不是实时模型推理。",
+    "自动化浏览器已确认公网首屏，切换模型实验页时连接超时，因此仍需用户完成人工视觉复验。",
+    "模型实验页展示已封板的真实离线实验结果。",
     "公网应用不会加载 LayoutLMv3、Qwen 或真实 LoRA。",
     "该作品集 Demo 不代表生产服务或 official test。"
   ]
