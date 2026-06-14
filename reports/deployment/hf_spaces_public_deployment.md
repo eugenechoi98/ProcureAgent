@@ -13,13 +13,24 @@
 
 公网 `run_audit` API 继续通过：`normal_invoice + template` 返回风险等级、建议动作、事实哈希和完整审核报告 JSON。
 
+## 人工浏览器验收
+
+- 公网页面：PASS
+- 中文化页面：PASS
+- 发票审核页：PASS
+- 模型实验页：PASS
+- 系统架构页：PASS
+- 前端错误：未发现
+- 设备专项结果：未单独记录
+
 ## 边界
 
 公网应用不会加载 LayoutLMv3、Qwen 或真实 LoRA，不使用 GPU、API Key、secrets 或外部模型 API。模型实验页只展示真实离线 artifacts，不代表在线模型推理、生产服务或 official test。
 
-自动化浏览器已确认公网首屏，切换模型实验页时连接超时，因此继续保持：
+用户已完成人工浏览器验收，当前状态：
 
 ```text
-manual_browser_check_required=true
-online_deployment_verified=false
+manual_browser_check_required=false
+online_deployment_verified=true
+production_ready=false
 ```
