@@ -65,6 +65,24 @@ def run_smoke() -> dict[str, Any]:
         for item in components
     ):
         errors.append("model_lab_missing_artifacts_visible")
+    guard_visual_text = "\n".join(
+        str(_component_value(components, elem_id) or "")
+        for elem_id in (
+            "lora-guard-visual-intro",
+            "lora-guard-visual-raw-output",
+            "lora-guard-visual-result",
+            "lora-guard-visual-fallback",
+        )
+    )
+    for term in (
+        "LoRA 幻觉与 Guard 拦截示例",
+        "GRN-20260149",
+        "REJECT",
+        "未补全未知 GRN",
+        "Phase 3I",
+    ):
+        if term not in guard_visual_text:
+            errors.append(f"model_lab_guard_visual_missing:{term}")
 
     required_architecture_terms = [
         "发票",

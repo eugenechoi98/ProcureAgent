@@ -1,7 +1,7 @@
 # ProcureGuard AI — 企业采购发票智能审核 Agent
 ## 完整工程设计方案 v1.0
 
-> **项目定位**：面向企业采购与财务场景，自动读取发票/收据/采购订单，完成字段抽取、三单匹配、异常检测、政策核验与人工审批流转的端到端 AI Agent 系统。
+> **项目定位**：受控采购发票审核 Agent。模型负责字段抽取和受控解释，五个工具负责证据查询，最终风险等级与建议动作由确定性规则生成。
 >
 > **你的核心目标**：通过这个项目证明你能做 PyTorch 模型微调 + Agent 工程落地，补齐 ContextGraph Studio 在模型训练层面的空白。
 
@@ -15,7 +15,7 @@
 | LayoutLMv3 微调 Notebook | 在 SROIE/CORD 数据集上训练，有 F1 对比数据 |
 | 异常说明 LoRA Notebook | Qwen2.5-0.5B SFT，有 base vs fine-tuned 对比 |
 | FastAPI 后端服务 | 发票上传、处理、结果查询 |
-| Agent 工作流 | 5 个工具 + function calling 主链 |
+| 受控审核工作流 | 5 个工具 + 固定业务依赖 + 确定性风险主链 |
 | Policy RAG 模块 | 复用 ContextGraph 检索逻辑 |
 | 结构化 JSON 输出 | 符合 AuditReport schema，含风险等级和证据链 |
 | Docker Compose | 一键启动整个服务 |
@@ -41,7 +41,7 @@
   ↓
 [Validation Engine]  →  确定性规则：三单匹配 / 重复检测 / 金额校验
   ↓
-[Agent Tool Router]  →  LLM function calling 决定下一步工具
+[Controlled Tool Chain]  →  按固定业务依赖查询审核证据
   ├── lookup_purchase_order
   ├── lookup_goods_receipt
   ├── check_duplicate_invoice
@@ -56,7 +56,8 @@
 ```
 
 **关键设计原则**：
-- LLM 负责规划、解释、选工具
+- 工具调用顺序服从固定采购审核依赖，不制造 LLM 自主规划的伪自由度
+- 模型负责字段抽取和受控解释
 - 确定性规则负责金额计算、匹配逻辑、风险阈值
 - 人类负责中高风险最终决策
 
@@ -765,7 +766,11 @@ def seed_policy_documents(conn):
     conn.commit()
 ```
 
-### 4.5 Agent 主链（Function Calling）
+### 4.5 历史方案：Agent 主链（Function Calling，未采用）
+
+> 本节保留早期方案草稿供设计演进参考，不代表当前实现。最终系统不引入
+> LLM Tool Router，也不让 LLM 自主决定工具顺序。当前五个工具按固定采购
+> 审核依赖执行，风险等级与建议动作由确定性规则生成。
 
 ```python
 # services/agent.py
@@ -1246,7 +1251,7 @@ jobs:
 - [ ] Three-way matcher 规则引擎
 - [ ] Policy RAG 模块
 - [ ] 5 个工具函数
-- [ ] Agent function calling 主链
+- [x] 五工具受控审核链（固定业务依赖，不使用 LLM Tool Router）
 - [ ] Risk Engine
 - [ ] FastAPI 路由
 - [ ] 单元测试覆盖
@@ -1297,7 +1302,7 @@ Phase 3H 的工程边界：
 - Fallback Orchestrator 在 LLM 不可用、输出为空、guard 失败、高风险或解析失败时返回模板。
 - Audit Trail 记录 facts hash、template version、prompt version、model version、adapter version、raw LLM output、verifier result、fallback reason 和 final explanation。
 
-第三轮训练暂停。HF Spaces CPU-only Unified Demo 已创建并受控上传，公开 HTTP、Gradio config 和审核 API 已通过；自动化视觉浏览器检查仍需人工补充。LangChain Policy RAG 离线对比、Docker Compose 配置、GitHub Actions CI 和 Release Readiness 也已完成，Phase 3I 不阻塞当前作品集交付。
+第三轮训练暂停。HF Spaces CPU-only Unified Demo 已创建并受控上传，公开 HTTP、Gradio config、审核 API 和用户人工浏览器验收均已通过。LangChain Policy RAG 离线对比、Docker Compose 配置、GitHub Actions CI 和 Release Readiness 也已完成，Phase 3I 不阻塞当前作品集交付。
 
 ## 10.2 Engineering Closure
 
@@ -1305,7 +1310,7 @@ Phase 3H 的工程边界：
 - LangChain compatibility retriever 只做本地确定性词法 benchmark，不使用 embedding、LLM 或 API Key。
 - Docker Compose 提供 API 与 Unified Demo 两个 CPU-only 服务，默认镜像不含 LangChain 和模型训练依赖。
 - GitHub Actions 使用 CPU runner 执行本地 artifacts、Demo、HF package、LangChain、Docker config、readiness 和全量测试。
-- Release Readiness 默认离线读取真实部署报告；Hugging Face Space 已创建并上传，但完整视觉验收仍待人工确认，Docker runtime 也未在当前环境验证。
+- Release Readiness 默认离线读取真实部署报告；Hugging Face Space 已创建、上传并通过用户人工浏览器验收，Docker runtime 仍未在当前环境验证。
 
 ---
 
@@ -1320,7 +1325,7 @@ Phase 3H 的工程边界：
 | LoRA | Hu et al. 2021 原始论文；Hugging Face PEFT 库 |
 | SFT 训练 | TRL SFTTrainer；Unsloth 框架 |
 | Qwen2.5-0.5B | Alibaba 开源，Apache 2.0 |
-| Function Calling | Anthropic Claude API 文档 |
+| 受控工具接口 | 项目内五工具契约与固定采购审核依赖 |
 | Policy RAG | 复用 ContextGraph Studio 的 BM25 检索逻辑 |
 | Three-way matching | UiPath Document Understanding 概念参考 |
 | Docker | 标准容器化 |

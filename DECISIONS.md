@@ -1,5 +1,9 @@
 # DECISIONS.md
 
+## 2026-06-14：最终作品集定位采用受控 Agent，不补 LLM Tool Router
+
+采购审核中的 PO、GRN、重复检测、政策查询和人工审核流转存在固定业务依赖，强行让 LLM 自主选择工具顺序只会制造不可解释的伪自由度。最终作品集统一定位为“受控采购发票审核 Agent”：LayoutLMv3 负责字段抽取，五个工具负责证据查询，确定性风险引擎决定风险等级和建议动作，LoRA 只作为受控解释候选，并由 Guard / Fallback 阻止未知事实或结论篡改。
+
 ## 2026-06-13：公网部署验收区分机器 smoke 与人工视觉检查
 
 Hugging Face Space 已运行在 CPU Basic，公开 HTTP、Gradio config 和审核 API 已通过，但当前自动化视觉浏览器加载超时。因此部署报告保守保持 `online_deployment_verified=false` 和 `manual_browser_check_required=true`，直到用户完成一次实际页面视觉检查。公网 Demo 只展示确定性审核链、真实离线 Model Lab artifacts 和 Architecture，不把它表述为在线模型推理或生产服务。

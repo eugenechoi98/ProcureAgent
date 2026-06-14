@@ -13,6 +13,10 @@ from demo.model_lab_view import (
     layout_metric_rows,
     load_model_lab_artifacts,
     lora_guard_case_rows,
+    lora_guard_visual_case,
+    render_lora_fallback,
+    render_lora_guard_result,
+    render_lora_raw_output,
     render_lora_summary,
     render_model_lab_summary,
 )
@@ -166,6 +170,34 @@ def test_model_lab_lora_scope_and_manifest_evidence_are_preserved() -> None:
     assert "first_lora_training_curve" in missing
     assert "second_lora_local_checkpoint_adapter_predictions_runtime_copy" in missing
     assert "public_receipt_images_for_selected_predictions" in missing
+
+
+def test_model_lab_surfaces_real_lora_guard_fallback_evidence() -> None:
+    artifacts = load_model_lab_artifacts()
+    case = lora_guard_visual_case(artifacts)
+
+    assert case["source_type"] == "real_offline_model_output"
+    assert case["rewrite_output"] == (
+        "Generated explanation included unsupported GRN-20260149."
+    )
+    assert "REJECT" in render_lora_guard_result(case)
+    assert "unknown_identifier:GRN-20260149" in render_lora_guard_result(case)
+    assert "未补全未知 GRN" in render_lora_fallback(case)
+    assert "request_human_approval" in render_lora_fallback(case)
+    assert "real_offline_model_output" in render_lora_raw_output(case)
+
+    rendered = "\n".join(
+        _component_props(elem_id)["value"]
+        for elem_id in (
+            "lora-guard-visual-intro",
+            "lora-guard-visual-raw-output",
+            "lora-guard-visual-result",
+            "lora-guard-visual-fallback",
+        )
+    )
+    assert "LoRA 幻觉与 Guard 拦截示例" in rendered
+    assert "GRN-20260149" in rendered
+    assert "Phase 3I" in rendered
 
 
 def test_model_lab_raw_json_evidence_is_collapsed_by_default() -> None:

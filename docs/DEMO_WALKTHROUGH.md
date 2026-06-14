@@ -1,0 +1,47 @@
+# ProcureGuard AI Demo Walkthrough
+
+## 打开 Demo
+
+访问 [Hugging Face Space](https://huggingface.co/spaces/eugene-98/procureguard-ai-demo)。该 Demo 使用 CPU 运行，不需要登录、API Key、GPU 或模型下载。
+
+## 1. 发票审核
+
+1. 保持默认案例 `normal_invoice`。
+2. 保持默认解释模式 `template`。
+3. 点击“运行审核”。
+4. 查看风险等级、建议动作、异常类型、证据、审核解释和完整审核报告 JSON。
+
+这一页展示稳定的采购审核主链。五个工具负责查询采购订单、收货记录、重复发票、政策规则和人工审核流转；最终风险等级与建议动作由确定性规则生成。
+
+## 2. 模型实验
+
+首先查看三个核心指标：
+
+- OCR + Regex baseline Macro F1：`0.4387`
+- 修复后 LayoutLMv3 Macro F1：`0.8067`
+- Date F1：`0.1423 -> 0.8764`
+
+继续向下查看 LayoutLMv3 字段级 F1、训练曲线、预测案例和错误分析。LoRA 区域展示两轮真实 QLoRA 实验、hard gate、hallucination 案例，以及具体的“原始输出 -> Guard 拒绝 -> 确定性模板回退”证据。
+
+示例中的 `GRN-20260149` 来自已提交的真实离线模型评测。输入事实中没有该收货记录编号，因此 Guard 拒绝输出，正式解释回退到不补全未知事实的确定性模板。
+
+LoRA 当前不是默认解释器，也没有被永久废弃。它保留为 `shadow / experimental / Phase 3I` 后续模型路线评估候选。
+
+## 3. 系统架构
+
+这一页重点解释职责边界：
+
+- LayoutLMv3 负责发票字段抽取。
+- 五个审核工具按固定业务依赖查询证据。
+- 三单匹配、重复检测、政策 RAG 和风险规则引擎生成审核结论。
+- LoRA 只能尝试润色已有事实，不能改变风险等级、建议动作或异常类型。
+- Guard 发现未知事实时拒绝输出，Fallback 返回确定性模板。
+
+采购审核不是适合伪造“自主工具规划”的场景。固定业务依赖让审核过程更可复现、更容易审计，也更适合作为高风险业务系统的正式主链。
+
+## 当前运行边界
+
+- 公网 Demo 已通过用户人工浏览器验收。
+- 在线 LayoutLMv3、网页实时真实 LoRA 和 GPU Space 未启用。
+- 不使用外部模型 API、API Key 或 secrets。
+- 该作品集 Demo 不是生产服务，也不代表 official test 或生产指标。
