@@ -1,0 +1,53 @@
+{
+  "canonical_facts": {
+    "anomaly_types": [
+      "missing_goods_receipt"
+    ],
+    "currency": "EUR",
+    "evidence": [
+      {
+        "expected_value": "required",
+        "field": "grn_number",
+        "invoice_value": null
+      }
+    ],
+    "grn_number": null,
+    "invoice_id": "phase3-missing_goods_receipt-024",
+    "invoice_number": "INV-20260149",
+    "missing_fields": [
+      "grn_number"
+    ],
+    "po_number": "PO-710149",
+    "policy_flags": [],
+    "recommended_action": "request_human_approval",
+    "risk_level": "medium",
+    "source": "phase2_canonical_audit_facts",
+    "total_amount": 1234.91,
+    "vendor_name": "Adventure Works Services"
+  },
+  "case_id": "case_c_lora_guard_fallback",
+  "facts_hash": "bd8266df4fcba3ee21d2ad60ddb694f4cd8c6f59676f448a1da70df2d15fbf9c",
+  "fallback_reason": "guard_failed",
+  "final_explanation": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：缺少收货记录\n关键证据：供应商 Adventure Works Services；发票号 INV-20260149；采购订单号 PO-710149；收货单号 未提供（缺失）；发票金额 EUR 1234.91；{\"expected_value\": \"required\", \"field\": \"grn_number\", \"invoice_value\": null}\n缺失字段：grn_number：未提供（缺失）\n风险等级：medium\n建议动作：request_human_approval",
+  "final_explanation_source": "deterministic_template",
+  "guard": {
+    "check_type": "real_guard_check",
+    "decision": "REJECT",
+    "expected_key_violation": "unknown_identifier:GRN-20260149",
+    "passed": false,
+    "violations": [
+      "missing_section:审核摘要：",
+      "missing_section:关键证据：",
+      "missing_section:缺失字段：",
+      "missing_section:风险等级：",
+      "missing_section:建议动作：",
+      "unknown_identifier:GRN-20260149",
+      "changed_risk_level:missing",
+      "changed_recommended_action:missing"
+    ]
+  },
+  "lora_raw_output_source": "existing_review_artifact",
+  "phase2_facts_type": "existing_synthetic_evaluation_fixture",
+  "prompt_version": "phase3h-controlled-rewrite-v1",
+  "template_version": "phase3h-template-v1"
+}

@@ -1,0 +1,30 @@
+{
+  "case_id": "case_c_lora_guard_fallback",
+  "case_title": "真实离线 LoRA 幻觉、Guard 拦截与模板回退",
+  "claims_allowed": [
+    "The raw text is an existing first-run offline LoRA model output.",
+    "The current Guard rejects unsupported GRN-20260149.",
+    "The final explanation is the deterministic template fallback."
+  ],
+  "claims_forbidden": [
+    "The input facts represent a real enterprise invoice.",
+    "LoRA determines the risk level or recommended action.",
+    "The LoRA model ran online in the public Demo.",
+    "This case includes LayoutLMv3 image inference."
+  ],
+  "evidence_file_sha256": {
+    "audit_facts.json": "83198b4780873791897926e19d535a616d48afe58184f921eab64604f0f52cc7",
+    "fallback_explanation.md": "9c40dcc32eb3726929eed7ff42397e3a36fdd4d447b0564806a6cd2f12004a2a",
+    "final_audit_report.json": "73349f9c19a5d65c0510976c7af1f0ef4e71cb1c2cfc3ca9689754d34a706ce3",
+    "final_explanation.md": "f9a97a3b9c91f5129d604e80c8ae90b98be74741bc9d68e2ce51a07e2dc8c8f0",
+    "guard_result.json": "bc302dbda65aaf8f55671472c0c7785a0d7b5460beb4082558281c86d3539867",
+    "lora_raw_output.txt": "28991f48c8db8b51a8ec15c6e17d8b91256863361b803932f959ac6936333dc1"
+  },
+  "guard_result_type": "real_guard_check",
+  "image_is_public_safe": false,
+  "layoutlmv3_prediction_type": "not_available",
+  "lora_result_type": "real_offline_model_output",
+  "phase2_result_type": "fixture_only",
+  "source_license_or_note": "Input facts are a generated Phase 3 evaluation fixture; raw LoRA output is copied from the first real offline ModelScope evaluation review.",
+  "source_type": "existing_fixture"
+}

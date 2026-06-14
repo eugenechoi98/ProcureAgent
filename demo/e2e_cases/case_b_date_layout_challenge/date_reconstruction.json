@@ -1,0 +1,8 @@
+{
+  "claim_scope": "single_case_example_only",
+  "cleaned_date": "2018-04-30",
+  "ground_truth_date": "30-04-2018",
+  "legacy_date": ": 30-04-2018 19:50:14",
+  "sample_id": "68f28c63d47a8203ad798055",
+  "source": "offline_real_checkpoint_word_predictions_plus_existing_reconstruction_logic"
+}

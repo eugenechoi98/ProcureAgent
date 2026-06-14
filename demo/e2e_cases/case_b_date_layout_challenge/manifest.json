@@ -1,0 +1,51 @@
+{
+  "case_id": "case_b_date_layout_challenge",
+  "case_title": "日期版式挑战与日期重建",
+  "claims_allowed": [
+    "The image, OCR boxes, and LayoutLMv3 word predictions share the same SROIE sample_id.",
+    "LayoutLMv3 predictions were generated offline from the saved local checkpoint.",
+    "The existing Phase 2 engine produced the committed audit result from the packaged input.",
+    "PO and GRN are explicitly marked mock procurement context."
+  ],
+  "claims_forbidden": [
+    "This single case proves overall LayoutLMv3 F1.",
+    "PO number, GRN number, or invoice number were extracted from the SROIE image.",
+    "The Phase 2 audit uses a real enterprise PO/GRN system.",
+    "This is official SROIE test performance."
+  ],
+  "evidence_file_sha256": {
+    "date_reconstruction.json": "3445fc9876f3a7249365cb68eeb9a91759588967488f28e2fd9332f5f8d2f643",
+    "extracted_fields.json": "9892ac2927b7c3197de4d64cf021ac6ec5c61384c0a110bb48efe51da198e596",
+    "final_audit_report.json": "6c0d63d32c238b686adae28ac1f49dad0875873761725436fe89c35ac3b783ef",
+    "layoutlmv3_predictions.png": "49ba5a9ad856a4ac6a28f039cf2e390efaf5a93f06bdd9407da8999f5f102267",
+    "ocr_boxes.png": "cc337eecdbcfe05361c4e3faa5cc907903f507ca28fff01dd9c343269fefd7b9",
+    "ocr_output.json": "7de9737d7883d44ba94f05a841ed89bf4db08bc9b94ab9ad6ed1fa1eaeea82fa",
+    "phase2_audit_input.json": "1f3b7da0231173fc66bce7c3962a1eaaf5a6c4940a08c51a84b1e3468807fc24",
+    "phase2_audit_result.json": "6c0d63d32c238b686adae28ac1f49dad0875873761725436fe89c35ac3b783ef",
+    "source_invoice.png": "89222f55fbc79d38966b9afa8c7691dad9595d95f4200f3c56532879eb62dec4"
+  },
+  "field_provenance": {
+    "currency": "mock_context_matching_source_dataset_locale",
+    "invoice_date": "offline_real_layoutlmv3_checkpoint_prediction",
+    "invoice_number": "mock_procurement_linkage_not_extracted_from_image",
+    "line_items": "not_available_from_sroie_four_field_task",
+    "po_number": "mock_procurement_linkage_not_extracted_from_image",
+    "total_amount": "offline_real_layoutlmv3_checkpoint_prediction",
+    "vendor_name": "offline_real_layoutlmv3_checkpoint_prediction"
+  },
+  "guard_result_type": "not_available",
+  "image_is_public_safe": true,
+  "layoutlmv3_prediction_type": "real_checkpoint_inference",
+  "lora_result_type": "not_available",
+  "ocr_result_type": "existing_artifact",
+  "phase2_context_type": "mock_po_grn_context",
+  "phase2_result_type": "real_runtime_engine",
+  "privacy_note": "Public dataset receipt with business address/phone or order data; review again before external publication.",
+  "result_summary": {
+    "recommended_action": "auto_approve",
+    "risk_level": "low"
+  },
+  "source_license_or_note": "Source: Voxel51/scanned_receipts, derived from ICDAR 2019 SROIE; dataset card license CC BY 4.0. The selected image contains business contact/order data but no identified natural-person customer name.",
+  "source_sample_id": "68f28c63d47a8203ad798055",
+  "source_type": "SROIE"
+}
