@@ -4,9 +4,15 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from demo.app import build_app
+from demo.app import _run_for_ui, build_app
 from demo.demo_service import DemoService
-from demo.invoice_case_view import load_invoice_case_catalog
+from demo.invoice_case_view import (
+    EXPLANATION_MODE_LABELS,
+    explanation_mode_choices,
+    load_invoice_case_catalog,
+    preview_values,
+    render_case_summary,
+)
 from scripts.demo.run_invoice_case_demo_smoke import run_smoke
 
 
@@ -119,6 +125,69 @@ def test_invoice_case_brief_and_metric_note_are_visible() -> None:
     assert "演示用合成示意图" in image_note
     assert "不代表单图模型评测结论" in image_note
     assert "整体 F1 指标请见“模型实验”页" in metric_note
+
+
+def test_explanation_modes_use_chinese_labels_and_stable_internal_values() -> None:
+    service = DemoService()
+    choices = explanation_mode_choices(service.explanation_modes)
+
+    assert [value for _, value in choices] == service.explanation_modes
+    assert dict((value, label) for label, value in choices) == (
+        EXPLANATION_MODE_LABELS
+    )
+    selector = _component_props("explanation-mode-selector")
+    assert selector["choices"] == choices
+    assert selector["value"] == "template"
+
+
+def test_invoice_run_status_is_visible_and_completed_output_is_concise() -> None:
+    catalog = load_invoice_case_catalog()
+    service = DemoService()
+    initial_status = _component_props("invoice-run-status")["value"]
+
+    assert "审核状态：待运行" in initial_status
+    output = _run_for_ui(
+        service,
+        catalog,
+        "vendor_name_mismatch",
+        "experimental_guard_fail",
+    )
+    completed_status = output[2]
+    assert "审核状态：已完成" in completed_status
+    assert catalog["vendor_name_mismatch"]["display_name"] in completed_status
+    assert "中风险" in completed_status
+    assert "转人工审批" in completed_status
+    assert "Guard 拦截后回退到确定性模板" in completed_status
+    assert output[0] == catalog["vendor_name_mismatch"]["match_rows"]
+    assert output[1] == catalog["vendor_name_mismatch"]["evidence_rows"]
+
+
+def test_case_preview_does_not_prepopulate_audit_results() -> None:
+    catalog = load_invoice_case_catalog()
+
+    for case_id in catalog:
+        preview = preview_values(catalog, case_id)
+        assert preview[4] == [
+            ["审核状态", "尚未运行", "点击“运行审核”后生成"]
+        ]
+        assert preview[5] == [
+            ["审核状态", "尚未运行", "点击“运行审核”后生成"]
+        ]
+        assert "审核结果：** 尚未运行" in preview[6]
+        assert "正式解释：** 尚未运行" in preview[7]
+
+
+def test_each_case_summary_explains_the_governance_path() -> None:
+    catalog = load_invoice_case_catalog()
+
+    for case in catalog.values():
+        summary = render_case_summary(case)
+        assert "解释路径" in summary
+        assert "确定性模板" in summary
+
+    assert "Guard 拦截" in render_case_summary(
+        catalog["vendor_name_mismatch"]
+    )
 
 
 def test_invoice_case_smoke_is_ready() -> None:

@@ -13,7 +13,14 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from demo.demo_service import DemoService
-from demo.invoice_case_view import load_invoice_case_catalog
+from demo.invoice_case_view import (
+    EXPLANATION_MODE_LABELS,
+    explanation_mode_choices,
+    load_invoice_case_catalog,
+    render_case_summary,
+    render_completed_status,
+    preview_values,
+)
 
 
 def run_smoke() -> dict[str, Any]:
@@ -23,6 +30,12 @@ def run_smoke() -> dict[str, Any]:
     catalog = load_invoice_case_catalog()
     service = DemoService()
     results: list[dict[str, Any]] = []
+
+    mode_choices = explanation_mode_choices(service.explanation_modes)
+    if [value for _, value in mode_choices] != service.explanation_modes:
+        errors.append("explanation_mode_values_changed")
+    if {value: label for label, value in mode_choices} != EXPLANATION_MODE_LABELS:
+        errors.append("explanation_mode_labels_incomplete")
 
     if len(catalog) != 5:
         errors.append("case_count_not_five")
@@ -35,6 +48,13 @@ def run_smoke() -> dict[str, Any]:
             errors.append(f"unsafe_source_type:{case_id}")
         if "不证明" not in case["scope_note"]:
             errors.append(f"missing_metric_scope:{case_id}")
+        if "解释路径" not in render_case_summary(case):
+            errors.append(f"missing_governance_summary:{case_id}")
+        preview = preview_values(catalog, case_id)
+        if preview[4][0][1] != "尚未运行":
+            errors.append(f"match_result_prepopulated:{case_id}")
+        if preview[5][0][1] != "尚未运行":
+            errors.append(f"audit_evidence_prepopulated:{case_id}")
         if any(
             row[2] != "未运行" or row[3] != "未运行"
             for row in case["extraction_rows"]
@@ -47,6 +67,9 @@ def run_smoke() -> dict[str, Any]:
             errors.append(f"risk_level_mismatch:{case_id}")
         if result.recommended_action != case["recommended_action"]:
             errors.append(f"recommended_action_mismatch:{case_id}")
+        completed_status = render_completed_status(case, result)
+        if "审核状态：已完成" not in completed_status:
+            errors.append(f"missing_completed_status:{case_id}")
         results.append(
             {
                 "case_id": case_id,
@@ -66,6 +89,9 @@ def run_smoke() -> dict[str, Any]:
         "single_case_f1_claim": False,
         "layoutlmv3_live_inference": False,
         "real_lora_live_inference": False,
+        "chinese_explanation_mode_labels": True,
+        "near_button_completion_status": True,
+        "results_hidden_until_run": True,
         "results": results,
         "errors": errors,
     }
