@@ -27,10 +27,12 @@ ProcureGuard AI 是采购发票智能审核 Agent 的 CPU-only 作品集 Demo。
 - 不需要 GPU
 - 不需要 API Key
 - 不需要 secrets
+- 发票审核页展示已验收的端到端离线证据包
 - 模型实验页展示真实离线 artifacts，不是网页实时推理
 
 ## 运行边界
 
-发票审核使用预生成字段和本地确定性审核链。模型实验仅读取轻量 JSON
-artifacts。系统架构只解释工程与治理边界。当前没有启用线上模型推理，
-也不把本作品集 Demo 表述为生产服务。
+发票审核展示 SROIE 图片、离线 checkpoint 预测、Phase 2 审核结果与
+Guard/fallback 证据；其中 PO/GRN 为明确标注的 mock 上下文。模型实验
+仅读取轻量 JSON artifacts。当前没有启用线上模型推理，也不把本作品集
+Demo 表述为生产服务。

@@ -20,10 +20,12 @@ The public presentation is localized into three Chinese tabs: `发票审核`,
 guidance, and architecture descriptions are shown in Chinese while model and
 framework names such as LayoutLMv3, LoRA, RAG, Guard, and Fallback are retained.
 
-The invoice audit tab includes five synthetic image cases and six focused
-sections: image, extraction comparison, three-way match, evidence, risk/action,
-and controlled explanation. These web cases are presentation fixtures, not
-SROIE evaluation samples or evidence for dataset-level LayoutLMv3 F1.
+The invoice audit tab now leads with three H0 evidence-chain cases. Cases A/B
+connect SROIE images, OCR, real offline checkpoint predictions, and committed
+Phase 2 runtime results; mock PO/GRN context remains explicitly labeled. Case C
+connects a real offline LoRA artifact to a real Guard rejection and deterministic
+fallback. Five synthetic workflow cases remain available in a collapsed
+supplementary section. No single image is evidence for dataset-level F1.
 
 The final portfolio position is a controlled procurement invoice review agent,
 not an autonomous LLM decision maker. The five tools follow fixed business

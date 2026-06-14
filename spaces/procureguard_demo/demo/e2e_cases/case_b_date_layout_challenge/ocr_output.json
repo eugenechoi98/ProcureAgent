@@ -1,0 +1,386 @@
+{
+  "sample_id": "68f28c63d47a8203ad798055",
+  "source": "existing_sroie_task3_dataset_artifact",
+  "tokens": [
+    {
+      "bbox": [
+        72,
+        148,
+        739,
+        169
+      ],
+      "confidence": 1.0,
+      "text": "PANDAH INDAH PULAU KETAM RESTAURANT"
+    },
+    {
+      "bbox": [
+        111,
+        173,
+        715,
+        194
+      ],
+      "confidence": 1.0,
+      "text": "M4-A-8, JALAN PANDAH INDAH 4/1A,"
+    },
+    {
+      "bbox": [
+        111,
+        197,
+        734,
+        218
+      ],
+      "confidence": 1.0,
+      "text": "PANDAH INDAH, 55100 KUALA LUMPUR,"
+    },
+    {
+      "bbox": [
+        150,
+        221,
+        701,
+        242
+      ],
+      "confidence": 1.0,
+      "text": "TEL:012-2673122 / 010-2022293"
+    },
+    {
+      "bbox": [
+        148,
+        270,
+        719,
+        307
+      ],
+      "confidence": 1.0,
+      "text": "* GUEST CHECK *"
+    },
+    {
+      "bbox": [
+        38,
+        333,
+        301,
+        371
+      ],
+      "confidence": 1.0,
+      "text": "TABLE 6"
+    },
+    {
+      "bbox": [
+        35,
+        397,
+        183,
+        417
+      ],
+      "confidence": 1.0,
+      "text": "CHECK #:"
+    },
+    {
+      "bbox": [
+        231,
+        396,
+        341,
+        415
+      ],
+      "confidence": 1.0,
+      "text": "113355"
+    },
+    {
+      "bbox": [
+        527,
+        396,
+        702,
+        418
+      ],
+      "confidence": 1.0,
+      "text": "PAX(S): 0"
+    },
+    {
+      "bbox": [
+        35,
+        421,
+        112,
+        440
+      ],
+      "confidence": 1.0,
+      "text": "DATE"
+    },
+    {
+      "bbox": [
+        173,
+        421,
+        571,
+        439
+      ],
+      "confidence": 1.0,
+      "text": ": 30-04-2018 19:50:14"
+    },
+    {
+      "bbox": [
+        35,
+        445,
+        151,
+        464
+      ],
+      "confidence": 1.0,
+      "text": "SERVER"
+    },
+    {
+      "bbox": [
+        174,
+        445,
+        342,
+        464
+      ],
+      "confidence": 1.0,
+      "text": ": CASHIER"
+    },
+    {
+      "bbox": [
+        40,
+        492,
+        53,
+        512
+      ],
+      "confidence": 1.0,
+      "text": "1"
+    },
+    {
+      "bbox": [
+        128,
+        492,
+        489,
+        514
+      ],
+      "confidence": 1.0,
+      "text": "KUO POH (C) (2 PAX)"
+    },
+    {
+      "bbox": [
+        716,
+        493,
+        798,
+        512
+      ],
+      "confidence": 1.0,
+      "text": "6.00"
+    },
+    {
+      "bbox": [
+        35,
+        540,
+        59,
+        559
+      ],
+      "confidence": 1.0,
+      "text": "2"
+    },
+    {
+      "bbox": [
+        131,
+        539,
+        584,
+        561
+      ],
+      "confidence": 1.0,
+      "text": "TEA EXTRA PERSON (1 PAX)"
+    },
+    {
+      "bbox": [
+        718,
+        541,
+        795,
+        559
+      ],
+      "confidence": 1.0,
+      "text": "2.00"
+    },
+    {
+      "bbox": [
+        40,
+        587,
+        53,
+        606
+      ],
+      "confidence": 1.0,
+      "text": "1"
+    },
+    {
+      "bbox": [
+        130,
+        587,
+        283,
+        607
+      ],
+      "confidence": 1.0,
+      "text": "TONG HOU"
+    },
+    {
+      "bbox": [
+        704,
+        589,
+        796,
+        608
+      ],
+      "confidence": 1.0,
+      "text": "10.00"
+    },
+    {
+      "bbox": [
+        38,
+        635,
+        54,
+        654
+      ],
+      "confidence": 1.0,
+      "text": "1"
+    },
+    {
+      "bbox": [
+        128,
+        634,
+        359,
+        654
+      ],
+      "confidence": 1.0,
+      "text": "MUTTAN SLICE"
+    },
+    {
+      "bbox": [
+        703,
+        636,
+        797,
+        656
+      ],
+      "confidence": 1.0,
+      "text": "15.00"
+    },
+    {
+      "bbox": [
+        41,
+        683,
+        56,
+        702
+      ],
+      "confidence": 1.0,
+      "text": "1"
+    },
+    {
+      "bbox": [
+        130,
+        683,
+        208,
+        703
+      ],
+      "confidence": 1.0,
+      "text": "SOUP"
+    },
+    {
+      "bbox": [
+        717,
+        684,
+        796,
+        702
+      ],
+      "confidence": 1.0,
+      "text": "0.00"
+    },
+    {
+      "bbox": [
+        41,
+        731,
+        53,
+        749
+      ],
+      "confidence": 1.0,
+      "text": "1"
+    },
+    {
+      "bbox": [
+        128,
+        729,
+        267,
+        750
+      ],
+      "confidence": 1.0,
+      "text": "TOM YUM"
+    },
+    {
+      "bbox": [
+        716,
+        731,
+        798,
+        750
+      ],
+      "confidence": 1.0,
+      "text": "0.00"
+    },
+    {
+      "bbox": [
+        35,
+        777,
+        55,
+        795
+      ],
+      "confidence": 1.0,
+      "text": "3"
+    },
+    {
+      "bbox": [
+        130,
+        777,
+        603,
+        798
+      ],
+      "confidence": 1.0,
+      "text": "NO. OF HEAD (2 SET ABOVE)"
+    },
+    {
+      "bbox": [
+        698,
+        779,
+        797,
+        798
+      ],
+      "confidence": 1.0,
+      "text": "60.00"
+    },
+    {
+      "bbox": [
+        35,
+        848,
+        223,
+        868
+      ],
+      "confidence": 1.0,
+      "text": "SUBTOTAL :"
+    },
+    {
+      "bbox": [
+        699,
+        850,
+        793,
+        869
+      ],
+      "confidence": 1.0,
+      "text": "93.00"
+    },
+    {
+      "bbox": [
+        37,
+        897,
+        255,
+        935
+      ],
+      "confidence": 1.0,
+      "text": "TOTAL :"
+    },
+    {
+      "bbox": [
+        603,
+        899,
+        792,
+        935
+      ],
+      "confidence": 1.0,
+      "text": "93.00"
+    }
+  ]
+}

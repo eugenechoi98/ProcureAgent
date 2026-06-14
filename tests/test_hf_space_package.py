@@ -78,6 +78,9 @@ def test_package_can_import_and_build_gradio_app() -> None:
     assert result["default_mode"] == "template"
     assert result["invoice_cases"]["count"] == 5
     assert result["invoice_cases"]["images_present"] is True
+    assert result["e2e_cases"]["count"] == 3
+    assert result["e2e_cases"]["default_case"] == "case_a_standard_pass"
+    assert result["e2e_cases"]["evidence_present"] is True
     assert result["model_lab"]["manifest_loaded"] is True
     assert result["model_lab"]["layoutlmv3_metrics_loaded"] is True
     assert result["model_lab"]["lora_metrics_loaded"] is True

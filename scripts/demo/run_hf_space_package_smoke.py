@@ -22,6 +22,7 @@ def run_smoke() -> dict[str, Any]:
     sys.path = [str(SPACE_ROOT), *[item for item in sys.path if item != str(PROJECT_ROOT)]]
     try:
         from demo.app import build_app
+        from demo.e2e_case_view import load_e2e_case_catalog
         from demo.invoice_case_view import load_invoice_case_catalog
         from demo.model_lab_view import load_model_lab_artifacts
 
@@ -35,12 +36,16 @@ def run_smoke() -> dict[str, Any]:
         ]
         artifacts = load_model_lab_artifacts()
         case_catalog = load_invoice_case_catalog()
+        e2e_catalog = load_e2e_case_catalog()
+        e2e_default_case = _component_value(components, "e2e-case-selector")
         default_case = _component_value(components, "demo-case-selector")
         default_mode = _component_value(components, "explanation-mode-selector")
     except Exception as exc:  # pragma: no cover - returned in smoke JSON
         tabs = []
         artifacts = {}
         case_catalog = {}
+        e2e_catalog = {}
+        e2e_default_case = None
         default_case = None
         default_mode = None
         errors.append(f"{exc.__class__.__name__}: {exc}")
@@ -57,11 +62,26 @@ def run_smoke() -> dict[str, Any]:
         errors.append("default_mode_not_template")
     if len(case_catalog) != 5:
         errors.append("invoice_case_count_not_five")
+    if len(e2e_catalog) != 3:
+        errors.append("e2e_case_count_not_three")
+    if e2e_default_case != "case_a_standard_pass":
+        errors.append("e2e_default_case_mismatch")
     if not all(
         (SPACE_ROOT / "demo" / case["image"]).is_file()
         for case in case_catalog.values()
     ):
         errors.append("invoice_case_image_missing")
+    if not all(
+        (
+            SPACE_ROOT
+            / "demo"
+            / "e2e_cases"
+            / case_id
+            / "manifest.json"
+        ).is_file()
+        for case_id in e2e_catalog
+    ):
+        errors.append("e2e_case_evidence_missing")
 
     return {
         "ready": not errors,
@@ -75,6 +95,14 @@ def run_smoke() -> dict[str, Any]:
             "case_ids": list(case_catalog),
             "images_present": not any(
                 error == "invoice_case_image_missing" for error in errors
+            ),
+        },
+        "e2e_cases": {
+            "count": len(e2e_catalog),
+            "case_ids": list(e2e_catalog),
+            "default_case": e2e_default_case,
+            "evidence_present": not any(
+                error == "e2e_case_evidence_missing" for error in errors
             ),
         },
         "model_lab": {

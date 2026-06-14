@@ -1,0 +1,459 @@
+{
+  "checkpoint_source": "local_external_artifact_layoutlmv3_best",
+  "ground_truth": {
+    "address": "LEVEL 6, BANGUNAN TH, DAMANSARA UPTOWN3 NO.3, JALAN SS21/39,47400 PETALING JAYA SELANGOR",
+    "company": "GOLDEN ARCHES RESTAURANTS SDN BHD",
+    "date": "25/12/2016",
+    "total": "29.30"
+  },
+  "inference_type": "offline_real_checkpoint_inference",
+  "prediction": {
+    "address": "LEVEL 6, BANGUNAN TH, DAMANSARA UPTOWN3 NO.3, JALAN SS21/39,47400 PETALING JAYA SELANGOR",
+    "company": "GOLDEN ARCHES RESTAURANTS SDN BHD",
+    "date": "2016-12-25",
+    "total": "29.30"
+  },
+  "sample_id": "68f28c61d47a8203ad797fd1",
+  "word_predictions": [
+    {
+      "bbox": [
+        32,
+        85,
+        906,
+        115
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "YOUR ORDER NUMBER IS"
+    },
+    {
+      "bbox": [
+        340,
+        123,
+        662,
+        194
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "264"
+    },
+    {
+      "bbox": [
+        98,
+        254,
+        824,
+        270
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "B-COMPANY",
+      "text": "GOLDEN ARCHES RESTAURANTS SDN BHD"
+    },
+    {
+      "bbox": [
+        364,
+        274,
+        552,
+        292
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "(65351-M)"
+    },
+    {
+      "bbox": [
+        32,
+        294,
+        888,
+        311
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "B-ADDRESS",
+      "text": "LEVEL 6, BANGUNAN TH, DAMANSARA UPTOWN3"
+    },
+    {
+      "bbox": [
+        34,
+        316,
+        884,
+        333
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "I-ADDRESS",
+      "text": "NO.3, JALAN SS21/39,47400 PETALING JAYA"
+    },
+    {
+      "bbox": [
+        362,
+        336,
+        534,
+        353
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "I-ADDRESS",
+      "text": "SELANGOR"
+    },
+    {
+      "bbox": [
+        192,
+        356,
+        732,
+        375
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "(GST ID NO: 000504664064)"
+    },
+    {
+      "bbox": [
+        74,
+        377,
+        814,
+        392
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "MCDONALD'S KOTA DAMANSARA DT(#178)"
+    },
+    {
+      "bbox": [
+        233,
+        397,
+        689,
+        412
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "TEL NO. 03-6156-2180"
+    },
+    {
+      "bbox": [
+        336,
+        417,
+        581,
+        432
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "TAX INVOICE"
+    },
+    {
+      "bbox": [
+        362,
+        458,
+        577,
+        473
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "MFY SIDE 1"
+    },
+    {
+      "bbox": [
+        39,
+        497,
+        470,
+        514
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "INV# 001780200112117"
+    },
+    {
+      "bbox": [
+        32,
+        519,
+        824,
+        536
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "B-DATE",
+      "text": "ORD #64 -REG #2- 25/12/2016 13:51:47"
+    },
+    {
+      "bbox": [
+        96,
+        885,
+        796,
+        902
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "THANK YOU AND PLEASE COME AGAIN."
+    },
+    {
+      "bbox": [
+        34,
+        539,
+        209,
+        555
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "QTY ITEM"
+    },
+    {
+      "bbox": [
+        779,
+        539,
+        886,
+        554
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "TOTAL"
+    },
+    {
+      "bbox": [
+        79,
+        559,
+        384,
+        575
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "2 L FILETOFISH"
+    },
+    {
+      "bbox": [
+        780,
+        559,
+        887,
+        575
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "21.18"
+    },
+    {
+      "bbox": [
+        122,
+        581,
+        297,
+        596
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "2 L COKE"
+    },
+    {
+      "bbox": [
+        165,
+        601,
+        299,
+        617
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "NO ICE"
+    },
+    {
+      "bbox": [
+        122,
+        621,
+        316,
+        636
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "2 L FRIES"
+    },
+    {
+      "bbox": [
+        82,
+        642,
+        299,
+        657
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "1 6NUGGETS"
+    },
+    {
+      "bbox": [
+        799,
+        642,
+        887,
+        657
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "7.10"
+    },
+    {
+      "bbox": [
+        124,
+        662,
+        470,
+        678
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "1 BARBECUE SAUCE"
+    },
+    {
+      "bbox": [
+        82,
+        683,
+        341,
+        698
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "1 SAMLL CONE"
+    },
+    {
+      "bbox": [
+        806,
+        683,
+        886,
+        698
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "1.00"
+    },
+    {
+      "bbox": [
+        32,
+        723,
+        532,
+        739
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "EAT-IN TOTAL (INCL GST)"
+    },
+    {
+      "bbox": [
+        779,
+        723,
+        887,
+        738
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "B-TOTAL",
+      "text": "29.28"
+    },
+    {
+      "bbox": [
+        32,
+        744,
+        356,
+        761
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "ROUNDING ADJUST"
+    },
+    {
+      "bbox": [
+        799,
+        744,
+        887,
+        759
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "0.02"
+    },
+    {
+      "bbox": [
+        34,
+        764,
+        319,
+        781
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "TOTAL ROUNDED"
+    },
+    {
+      "bbox": [
+        780,
+        764,
+        887,
+        779
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "B-TOTAL",
+      "text": "29.30"
+    },
+    {
+      "bbox": [
+        32,
+        785,
+        322,
+        802
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "CASH TENDERED"
+    },
+    {
+      "bbox": [
+        777,
+        783,
+        887,
+        799
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "50.00"
+    },
+    {
+      "bbox": [
+        32,
+        805,
+        163,
+        821
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "CHANGE"
+    },
+    {
+      "bbox": [
+        777,
+        805,
+        888,
+        820
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "20.70"
+    },
+    {
+      "bbox": [
+        30,
+        844,
+        496,
+        861
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "TOTAL INCLUDES 6% GST"
+    },
+    {
+      "bbox": [
+        805,
+        846,
+        888,
+        861
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "1.66"
+    },
+    {
+      "bbox": [
+        27,
+        906,
+        888,
+        923
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "CUSTOMER SERVICE HOTLINE : 03-2726-5600"
+    }
+  ]
+}

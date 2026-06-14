@@ -23,7 +23,7 @@ LoRA 当前不是默认正式解释器，也没有被永久废弃。它保留为
 
 ## Demo 怎么看
 
-1. 打开 Live Demo，进入“发票审核”，从 5 个预置案例中选择一项，查看合成发票图、字段对比、三单匹配和审核证据，再点击“运行审核”。
+1. 打开 Live Demo，进入“发票审核”，先看案例 A/B 的 SROIE 图片、离线 LayoutLMv3 checkpoint 预测与 Phase 2 审核结果，再看案例 C 的真实离线 LoRA、Guard 拦截和模板回退。
 2. 进入“模型实验”，查看 LayoutLMv3 字段抽取指标、LoRA 两轮训练结果、hallucination 案例和 Guard / Fallback 证据。
 3. 进入“系统架构”，查看为什么风险判断由确定性规则完成，而不是交给生成模型自由决定。
 
@@ -46,7 +46,7 @@ LoRA 当前不是默认正式解释器，也没有被永久废弃。它保留为
 - Phase 3F Gold Answer 约束：固定章节、缺失字段显式写未提供/缺失、禁止补全未知 PO/GRN/金额/供应商/异常类型
 - Phase 3H 受控解释层：Canonical Audit Facts 适配、确定性模板、受控改写契约、LoRA 输出 guard、fallback orchestrator 和 audit trail
 - Model Lab 轻量 artifacts：整理 LayoutLMv3 与两轮 LoRA 的真实离线指标、曲线、预测案例、幻觉案例和缺失项说明，见 [demo/model_lab/README.md](/D:/ProcureAgent/demo/model_lab/README.md)
-- Unified Gradio Demo：保留“发票审核 / 模型实验 / 系统架构”三页签；发票审核页提供 5 个合成图片案例和六区块故事线
+- Unified Gradio Demo：保留“发票审核 / 模型实验 / 系统架构”三页签；发票审核页主视图接入 3 个 H0 真实证据链案例，5 个合成流程案例收进补充折叠区
 - Hugging Face Spaces 本地发布包：`spaces/procureguard_demo/`，CPU-only、无模型权重、无 GPU requirements、无本地数据库，部署流程见 [docs/HF_SPACES_DEPLOYMENT.md](/D:/ProcureAgent/docs/HF_SPACES_DEPLOYMENT.md)
 - Hugging Face 公网 Demo：[Hub](https://huggingface.co/spaces/eugene-98/procureguard-ai-demo) / [App](https://eugene-98-procureguard-ai-demo.hf.space)，发票审核案例故事线与模型实验离线证据均已公开
 - LangChain Policy RAG 兼容实验：8 条本地 fixture 的真实离线对比，现有 SQLite FTS5 / BM25 仍是正式主链
@@ -55,7 +55,7 @@ LoRA 当前不是默认正式解释器，也没有被永久废弃。它保留为
 
 ## 当前 Batch B 状态
 
-Unified Gradio Demo 已在本地与 Hugging Face Spaces 公开部署，包含“发票审核 / 模型实验 / 系统架构”三个中文页签，并提供中文使用说明。模型实验页读取真实离线轻量 artifacts。当前没有网页实时 LayoutLMv3，也没有网页实时真实 LoRA。
+Unified Gradio Demo 已在本地与 Hugging Face Spaces 公开部署，包含“发票审核 / 模型实验 / 系统架构”三个中文页签。发票审核页读取 H0 已验收证据包，模型实验页读取真实离线轻量 artifacts。当前没有网页实时 LayoutLMv3，也没有网页实时真实 LoRA。
 
 ## 当前 Batch C.1 状态
 
@@ -296,7 +296,7 @@ Phase 3H 与 Local Gradio Demo Baseline 已合并到 `main`。当前本地 readi
 - 本地稳定 Gradio Demo Baseline 已完成。
 - 三页签 Unified Demo 和 Model Lab 已完成本地离线实现。
 - Hugging Face Spaces CPU-only Unified Demo 已公开部署并通过用户人工浏览器验收。
-- 发票审核页的 5 个合成图片案例已完成公开部署；单图案例不作为 LayoutLMv3 数据集级 F1 证明。
+- 发票审核页主视图展示 3 个 H0 证据链案例；5 个合成流程案例保留在折叠补充区。单图案例不作为 LayoutLMv3 数据集级 F1 证明。
 - LangChain Policy RAG 离线兼容 benchmark 已完成，SQLite FTS5 / BM25 保持正式主链。
 - Docker Compose 配置与 GitHub Actions CI 已完成；Docker runtime 尚未在当前环境验证。
 - 在线 LayoutLMv3 与真实 LoRA 推理均未启用；现阶段优先展示真实离线 artifacts。

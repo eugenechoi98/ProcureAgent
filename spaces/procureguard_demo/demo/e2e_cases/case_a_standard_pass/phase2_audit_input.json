@@ -1,0 +1,38 @@
+{
+  "extracted_fields": {
+    "currency": "MYR",
+    "extraction_confidence": 1.0,
+    "extraction_model": "layoutlmv3_best_offline_checkpoint",
+    "invoice_date": "2016-12-25",
+    "invoice_number": "SROIE-E2E-A",
+    "line_items": [],
+    "po_number": "PO-E2E-A",
+    "subtotal": null,
+    "tax": null,
+    "total_amount": 29.3,
+    "vendor_name": "GOLDEN ARCHES RESTAURANTS SDN BHD"
+  },
+  "field_provenance": {
+    "currency": "mock_context_matching_source_dataset_locale",
+    "invoice_date": "offline_real_layoutlmv3_checkpoint_prediction",
+    "invoice_number": "mock_procurement_linkage_not_extracted_from_image",
+    "line_items": "not_available_from_sroie_four_field_task",
+    "po_number": "mock_procurement_linkage_not_extracted_from_image",
+    "total_amount": "offline_real_layoutlmv3_checkpoint_prediction",
+    "vendor_name": "offline_real_layoutlmv3_checkpoint_prediction"
+  },
+  "goods_receipt_context": {
+    "grn_number": "GRN-E2E-A",
+    "line_items": [],
+    "po_number": "PO-E2E-A",
+    "source": "mock"
+  },
+  "purchase_order_context": {
+    "currency": "MYR",
+    "po_number": "PO-E2E-A",
+    "source": "mock",
+    "total_amount": 29.3,
+    "vendor_name": "GOLDEN ARCHES RESTAURANTS SDN BHD"
+  },
+  "runtime": "existing_phase2_agent_invoice_processor"
+}

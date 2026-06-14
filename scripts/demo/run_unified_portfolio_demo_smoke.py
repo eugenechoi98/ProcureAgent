@@ -14,6 +14,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from demo.app import build_app
 from demo.architecture_view import ARCHITECTURE_MARKDOWN
+from demo.e2e_case_view import load_e2e_case_catalog
 from demo.invoice_case_view import load_invoice_case_catalog, preview_values
 from demo.model_lab_view import load_model_lab_artifacts, render_model_lab_summary
 
@@ -38,6 +39,15 @@ def run_smoke() -> dict[str, Any]:
         errors.append("unexpected_tab_structure")
 
     case_catalog = load_invoice_case_catalog()
+    e2e_catalog = load_e2e_case_catalog()
+    if len(e2e_catalog) != 3:
+        errors.append("e2e_case_count_not_three")
+    if _component_value(components, "e2e-case-selector") != "case_a_standard_pass":
+        errors.append("e2e_default_case_mismatch")
+    if _component_props(components, "synthetic-case-showcase").get("open") is not False:
+        errors.append("synthetic_cases_not_collapsed")
+    if _component_props(components, "e2e-case-technical-details").get("open") is not False:
+        errors.append("e2e_technical_details_not_collapsed")
     if len(case_catalog) != 5:
         errors.append("invoice_case_count_not_five")
     for case_id, case in case_catalog.items():
@@ -166,6 +176,13 @@ def run_smoke() -> dict[str, Any]:
                 case["source_type"] == "synthetic_imagegen"
                 for case in case_catalog.values()
             ),
+            "single_case_f1_claim": False,
+        },
+        "e2e_cases": {
+            "count": len(e2e_catalog),
+            "case_ids": list(e2e_catalog),
+            "default_case": _component_value(components, "e2e-case-selector"),
+            "model_weights_included": False,
             "single_case_f1_claim": False,
         },
         "model_lab": {

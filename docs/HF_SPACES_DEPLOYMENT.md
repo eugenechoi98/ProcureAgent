@@ -6,7 +6,7 @@
 - App: https://eugene-98-procureguard-ai-demo.hf.space
 - Visibility: Public
 - Runtime: `RUNNING` on `cpu-basic`
-- 当前远端 commit：`c1a6bccec34f2fca53a5890372854dc0ee9d2179`
+- 当前远端 commit：`1235f47642277cb9c03c45f2ea44f8632d990710`
 
 Batch C.1 本地发布包、Batch C.2 网页端 Space 创建和 Batch C.3 受控上传均已完成。远端 commit 为 `d1d12ae4529b47c34b6b4bd50cd27d0303cfa6c2`。
 
@@ -14,7 +14,7 @@ Batch C.1 本地发布包、Batch C.2 网页端 Space 创建和 Batch C.3 受控
 
 公网 Demo 已完成中文化，包含：
 
-1. 发票审核：中文操作引导、5 个案例摘要、六区块故事线和默认折叠技术输出
+1. 发票审核：3 个 H0 端到端证据链案例为主视图，5 个合成流程案例保留在默认收起的补充区
 2. 模型实验：三项核心指标与 LoRA Guard 亮点前置，完整指标、长表和原始 JSON 默认折叠
 3. 系统架构：统一中文链路术语，突出受控采购审核 Agent 定位
 
@@ -32,6 +32,8 @@ Batch C.1 本地发布包、Batch C.2 网页端 Space 创建和 Batch C.3 受控
 - 公开 Gradio config 已确认三个中文页签、中文使用说明和中文架构链路。
 - 用户已完成人工浏览器验收：公网页面、中文化页面、发票审核、模型实验和系统架构均为 PASS，未发现前端错误。
 - 未单独记录桌面与移动设备专项视觉结果。
+- H1 远端 config 已确认默认案例 A、三案例选择器、三张证据图、默认折叠技术明细和默认折叠合成案例区。
+- A/B 的 SROIE 图片保留 CC BY 4.0 归属；人工复核未发现可识别自然人客户姓名，本次不做遮罩。
 
 当前准确状态：
 
@@ -51,7 +53,7 @@ production_ready=false
 
 公网 Unified Portfolio Demo 已部署，不等于在线 LayoutLMv3、真实 LoRA 在线推理、生产可用、生产指标或 official test。
 
-模型实验页新增真实离线 `GRN-20260149` 案例，展示 LoRA 原始输出、Guard 拒绝原因和确定性模板回退。发票审核页图片全部是合成示意图，不是 SROIE 样本或单图 checkpoint 输出，不启用真实 LoRA 在线推理，也不改变审核结论。
+发票审核页 A/B 展示 SROIE 图片、OCR、真实离线 checkpoint 预测和已提交 Phase 2 结果，PO/GRN 明确为 mock 上下文；案例 C 展示真实离线 LoRA artifact、Guard 拒绝和确定性模板回退。单案例不作为整体 F1 证明，也不启用在线模型推理。
 
 ## Local Package Checks
 
