@@ -34,6 +34,15 @@ def build_model_lab_tab(gr: Any, artifacts: dict[str, Any] | None = None) -> Non
 
     data = artifacts or load_model_lab_artifacts()
     gr.Markdown(render_model_lab_summary(data), elem_id="model-lab-summary")
+    gr.Markdown(
+        "### LayoutLMv3 字段抽取实验\n\n"
+        "任务：从发票图片中抽取 `company`、`address`、`date`、`total` 四类关键字段。  \n"
+        "评测口径：本地固定验证集 `seed=42`，离线 checkpoint inference。  \n"
+        "- `official_test=false`：不是官方测试集结果  \n"
+        "- `local_validation_split_seed_42`：本地固定验证集  \n"
+        "- `offline_checkpoint_inference`：离线 checkpoint 推理",
+        elem_id="layoutlmv3-experiment-intro",
+    )
     gr.Dataframe(
         value=layout_metric_rows(data),
         row_count=len(layout_metric_rows(data)),
@@ -80,11 +89,6 @@ def build_model_lab_tab(gr: Any, artifacts: dict[str, Any] | None = None) -> Non
         label="真实离线预测样例",
         interactive=False,
         elem_id="layoutlmv3-predictions-table",
-    )
-    gr.JSON(
-        value=data["layout_errors"],
-        label="LayoutLMv3 错误分析",
-        elem_id="layoutlmv3-error-analysis-json",
     )
     gr.Markdown(render_lora_summary(data), elem_id="lora-summary")
     gr.Dataframe(
@@ -136,37 +140,45 @@ def build_model_lab_tab(gr: Any, artifacts: dict[str, Any] | None = None) -> Non
         interactive=False,
         elem_id="lora-guard-cases-table",
     )
-    gr.JSON(
-        value=localized_missing_artifacts(data),
-        label="缺失 artifacts",
-        elem_id="model-lab-missing-artifacts-json",
-    )
+    with gr.Accordion(
+        "查看原始 JSON 证据",
+        open=False,
+        elem_id="model-lab-raw-evidence",
+    ):
+        gr.JSON(
+            value=data["layout_errors"],
+            label="LayoutLMv3 错误分析 JSON",
+            elem_id="layoutlmv3-error-analysis-json",
+        )
+        gr.JSON(
+            value=data["lora_metrics"],
+            label="LoRA 指标 JSON",
+            elem_id="lora-metrics-json",
+        )
+        gr.JSON(
+            value=data["lora_guard_cases"],
+            label="Guard / Fallback 案例 JSON",
+            elem_id="lora-guard-cases-json",
+        )
+        gr.JSON(
+            value=data["manifest"],
+            label="模型实验 manifest JSON",
+            elem_id="model-lab-manifest-json",
+        )
 
 
 def render_model_lab_summary(data: dict[str, Any]) -> str:
     """生成 Model Lab 顶部和 LayoutLMv3 摘要。"""
 
     metrics = data["layout_metrics"]
-    manifest = data["manifest"]
-    missing = manifest["missing_artifacts"]
     return (
         "## 模型实验\n\n"
-        "**本页展示真实离线实验 artifacts，不是当前网页实时模型推理。"
-        "当前网页不会加载 LayoutLMv3、Qwen 或真实 LoRA。**\n\n"
-        "### LayoutLMv3 字段抽取实验\n\n"
-        f"- OCR + Regex 基线 Macro F1：`{metrics['baseline_macro_f1']:.4f}`\n"
-        f"- 首次 LayoutLMv3 Macro F1：`{metrics['first_layoutlmv3_macro_f1']:.4f}`\n"
-        f"- 修正后 LayoutLMv3 Macro F1：`{metrics['corrected_layoutlmv3_macro_f1']:.4f}`\n"
-        f"- 混合方案 Macro F1：`{metrics['hybrid_macro_f1']:.4f}`\n"
-        f"- 日期 F1 修复前：`{metrics['date_f1_before_fix']:.4f}`\n"
-        f"- 日期 F1 修复后：`{metrics['date_f1_after_fix']:.4f}`\n"
-        f"- evaluation_split = `{metrics['evaluation_split']}`：本地固定验证集\n"
-        f"- inference_scope = `{metrics['inference_scope']}`：离线 checkpoint 推理\n"
-        "- official_test=false：不是官方测试集结果\n\n"
-        "真实离线预测样例只保留字段级 JSON。由于图片来源、许可证与隐私尚未完成公开审查，"
-        "本发布包不包含公开票据图片。\n\n"
-        "### 缺失 artifacts\n\n"
-        + "\n".join(_localized_missing_artifact_line(item) for item in missing)
+        "本页展示 ProcureGuard AI 的真实离线模型实验结果：LayoutLMv3 用于发票字段抽取，"
+        "LoRA 用于异常解释实验。公开 Demo 重点展示模型训练效果、错误分析和受控解释架构。\n\n"
+        "### 核心指标\n\n"
+        f"- **OCR + Regex baseline Macro F1：`{metrics['baseline_macro_f1']:.4f}`**\n"
+        f"- **修复后 LayoutLMv3 Macro F1：`{metrics['corrected_layoutlmv3_macro_f1']:.4f}`**\n"
+        f"- **日期字段 F1：`{metrics['date_f1_before_fix']:.4f}` → `{metrics['date_f1_after_fix']:.4f}`**"
     )
 
 
@@ -178,16 +190,15 @@ def render_lora_summary(data: dict[str, Any]) -> str:
     hard_gates = metrics["hard_gates"]
     return (
         "### LoRA 异常解释实验\n\n"
+        "LoRA 用于审核解释实验，不参与风险等级、建议动作或异常类型判断。\n\n"
         f"- 模型：`{metrics['model']}`\n"
         f"- 训练后端：`{metrics['backend']}`\n"
         "- 运行来源：ModelScope 真实离线实验结果\n"
         f"- 数据集：seed `{metrics['dataset']['seed']}`，训练 `{metrics['dataset']['train']}`，"
         f"验证 `{metrics['dataset']['validation']}`，测试 `{metrics['dataset']['test']}`\n"
         f"- 第二轮 Adapter 是否通过 hard gate：`{str(run_2['hard_gate_passed']).lower()}`\n"
-        "- 第二轮 adapter 未通过 hard gate。\n"
-        "- 第三次训练暂停。\n"
-        "- LoRA 不作为默认审核解释器。\n"
-        "- 真实 LoRA 当前没有在网页运行。\n"
+        "- 第二轮 LoRA 未通过 hard gate，因此没有作为默认解释器上线。\n"
+        "- 最终系统采用“确定性模板 + 可选受控改写 + 输出守卫 + 模板回退”的受控解释架构。\n"
         "- 守卫案例会明确区分 `real_offline_model_output`、`test_fixture` 和 `demo_fixture`。\n\n"
         "hard gate 阈值：\n"
         + "\n".join(f"- `{key}`: `{value}`" for key, value in hard_gates.items())
@@ -210,41 +221,6 @@ def layout_metric_rows(data: dict[str, Any]) -> list[list[str]]:
         "official_test",
     ]
     return [[key, _format_value(metrics[key])] for key in keys]
-
-
-def localized_missing_artifacts(data: dict[str, Any]) -> list[dict[str, str]]:
-    """把缺失 artifacts 的展示备注转换为中文。"""
-
-    return [
-        {
-            "artifact": item["artifact"],
-            "status": _localized_artifact_status(item["status"]),
-            "note": _localized_artifact_note(item["artifact"]),
-        }
-        for item in data["manifest"]["missing_artifacts"]
-    ]
-
-
-def _localized_missing_artifact_line(item: dict[str, str]) -> str:
-    return (
-        f"- `{item['artifact']}`：{_localized_artifact_status(item['status'])} - "
-        f"{_localized_artifact_note(item['artifact'])}"
-    )
-
-
-def _localized_artifact_status(status: str) -> str:
-    return {
-        "not_present_in_git": "Git 中不存在",
-        "not_included": "未包含",
-    }.get(status, status)
-
-
-def _localized_artifact_note(artifact: str) -> str:
-    return {
-        "first_lora_training_curve": "首轮 LoRA 报告包含评测指标和幻觉案例，但没有提交训练/验证损失历史。",
-        "second_lora_local_checkpoint_adapter_predictions_runtime_copy": "第二轮只保留经确认的 ModelScope 指标，未将 checkpoint、Adapter、预测或运行时产物复制到 Git。",
-        "public_receipt_images_for_selected_predictions": "预测样例只保留字段级 JSON，公开模型实验包没有复制票据图片。",
-    }.get(artifact, "该 artifact 当前未纳入公开展示包。")
 
 
 def layout_field_f1_rows(data: dict[str, Any]) -> list[list[str]]:
