@@ -128,3 +128,6 @@ ContextPack 属于 ContextGraph Studio 的 AI Coding Agent 输出格式。Procur
 
 ## 2026-06-10：重复发票采用确定性直接拒绝
 重复发票属于高风险硬规则。检测到相同供应商与发票号重复提交后，将 `ValidationResult.duplicate_check` 写为 `False`，风险等级设为 `high`，建议动作设为 `reject`，不进入普通人工审核队列。
+# Batch H0 端到端证据必须逐字段标注来源
+
+SROIE Task 3 只提供 `company/address/date/total` 四字段，不能把为了进入采购审核链而补充的 invoice number、PO、GRN 写成图片抽取结果。Batch H0 因此把模型预测字段和 mock 采购上下文分开记录，并要求 manifest 同时保存允许与禁止的 claim。这样既能复用真实 Phase 2 引擎，又不会制造一条看似完整但来源混乱的证据链。

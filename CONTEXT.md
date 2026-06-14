@@ -1,25 +1,22 @@
 # CONTEXT.md
 
 ## 当前目标
-完成公网 Demo 发票案例交互修复，并通过浏览器验证运行前后状态。
+完成 Batch H0 端到端真实证据资产生成，不修改公网 Demo 页面。
 
 ## 当前进度
-- Public Space：https://huggingface.co/spaces/eugene-98/procureguard-ai-demo
-- Public App：https://eugene-98-procureguard-ai-demo.hf.space
-- Space 运行于 `cpu-basic`；交互修复远端 commit 为 `e5923d2`，状态为 `RUNNING`。
-- 三页签和 5 个案例保持不变；解释模式使用中文标签但内部值不变。
-- 案例切换后，三单匹配、审核证据、最终风险和正式解释显示“尚未运行”。
-- 点击“运行审核”会执行既有 `DemoService` 审核链，并在按钮下方显示完成摘要，同时生成各结果区内容。
-- 本地 Space 包已通过浏览器逐案例运行验证；公网 5 个案例 API 和三个页签复验通过，技术 JSON 继续默认折叠。
-- 案例图片不是 SROIE 样本，不运行单图 LayoutLMv3，也不用于证明数据集级 F1。
+- 找到 SROIE validation 原图、OCR bbox、完整 LayoutLMv3 checkpoint 和既有 prediction artifact。
+- case A/B 已生成同 sample_id 的原图、OCR 可视化、CPU 离线真实 checkpoint prediction、结构化字段和 Phase 2 运行结果。
+- Phase 2 使用真实现有引擎；PO/GRN/invoice number 是明确标注的 mock 采购上下文，不冒充图片抽取字段。
+- case C 使用首轮真实离线 LoRA 输出，当前 Guard 实际拒绝 `GRN-20260149`，并回退确定性模板。
+- 证据包包含 manifest、claim 边界和 SHA-256；未修改或上传 Hugging Face Space。
 
 ## 下一步
-合并 main 并 push origin/main，随后等待用户再次人工验收。
+完成验证、提交、合并 main，等待用户确认后再进入 Batch H1。
 
 ## 注意事项
-- 不加载 LayoutLMv3、Qwen 或真实 LoRA，不使用 GPU、API Key、secrets 或外部模型 API。
-- Guard / fallback 仅使用现有本地 fake provider 展示治理路径，模板仍是正式输出。
-- 不新增第 4 页签，不修改 Phase 1、Phase 2 风险规则或 Phase 3H 语义。
+- 单案例不能证明整体 F1，整体指标仍只属于 Model Lab。
+- SROIE 图片按 CC BY 4.0 数据卡口径归属，仍需保留企业联系信息的隐私复核提示。
+- 不修改 Phase 1、Phase 2 风险规则或 Phase 3H Guard/fallback 语义。
 
 ## 最后更新时间
 2026-06-14
