@@ -9,6 +9,8 @@ ProcureGuard AI 是一个面向企业采购发票审核的受控 Agent 系统，
 [Hugging Face Space](https://huggingface.co/spaces/eugene-98/procureguard-ai-demo)
 
 CPU-only 公网 Demo，不需要 API Key、GPU 或模型下载。
+当前页面不支持上传任意发票并现场运行 LayoutLMv3；主入口展示已验收的
+端到端离线模型证据，以及轻量 CPU 审核规则链。
 
 ## 关键成果
 
@@ -23,9 +25,11 @@ LoRA 当前不是默认正式解释器，也没有被永久废弃。它保留为
 
 ## Demo 怎么看
 
-1. 打开 Live Demo，进入“发票审核”，先看案例 A/B 的 SROIE 图片、离线 LayoutLMv3 checkpoint 预测与 Phase 2 审核结果，再看案例 C 的真实离线 LoRA、Guard 拦截和模板回退。
-2. 进入“模型实验”，查看 LayoutLMv3 字段抽取指标、LoRA 两轮训练结果、hallucination 案例和 Guard / Fallback 证据。
-3. 进入“系统架构”，查看为什么风险判断由确定性规则完成，而不是交给生成模型自由决定。
+1. 进入“发票审核”，先看案例 A/B 的真实 SROIE validation 图片、OCR bbox、LayoutLMv3 离线 checkpoint prediction、字段 JSON 和 Phase 2 审核结果。
+2. A/B 的 PO/GRN 是 mock 采购上下文，用于让真实抽取字段进入三单匹配、Policy RAG 和风险规则链，不是企业真实系统数据。
+3. 查看案例 C，理解真实离线 LoRA artifact 为什么不能直接上线，以及 Guard 如何拒绝 `GRN-20260149` 并 fallback 到确定性模板。
+4. 进入“模型实验”，查看数据集级 LayoutLMv3 Macro F1、Date F1 和 LoRA hard gate；单个网页案例不用于证明整体指标。
+5. 进入“系统架构”，理解为什么模型负责抽取和受控解释，而风险等级与建议动作由确定性规则生成。
 
 详细操作见 [Demo Walkthrough](docs/DEMO_WALKTHROUGH.md)。
 
@@ -56,6 +60,13 @@ LoRA 当前不是默认正式解释器，也没有被永久废弃。它保留为
 ## 当前 Batch B 状态
 
 Unified Gradio Demo 已在本地与 Hugging Face Spaces 公开部署，包含“发票审核 / 模型实验 / 系统架构”三个中文页签。发票审核页读取 H0 已验收证据包，模型实验页读取真实离线轻量 artifacts。当前没有网页实时 LayoutLMv3，也没有网页实时真实 LoRA。
+
+三个主案例的证据边界如下：
+
+- 案例 A/B：SROIE validation 图片、OCR bbox、真实离线 LayoutLMv3 checkpoint prediction，以及已验证的 Phase 2 审核结果。
+- 案例 A/B 的 PO/GRN：mock 采购上下文，不冒充图片抽取字段或企业真实系统数据。
+- 案例 C：真实离线 LoRA artifact、真实 Guard 检测结果和确定性模板 fallback。
+- 原 5 个合成案例：只补充展示审核流程分支，不是主模型证据链。
 
 ## 当前 Batch C.1 状态
 

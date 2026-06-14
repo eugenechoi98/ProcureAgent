@@ -20,6 +20,13 @@ Batch C.1 本地发布包、Batch C.2 网页端 Space 创建和 Batch C.3 受控
 
 公开页面不加载 LayoutLMv3、Qwen 或真实 LoRA，不包含模型权重、checkpoint、adapter、Notebook、本地数据库或训练脚本，不需要 GPU、API Key、secrets 或外部模型 API。
 
+发票审核页读取 `demo/e2e_cases/` 中的已验收 evidence package：
+
+- A/B：SROIE validation 图片、OCR bbox、LayoutLMv3 离线 checkpoint prediction、字段 JSON 和已验证 Phase 2 审核结果。
+- A/B 的 PO/GRN：明确标注为 mock 采购上下文，不是企业真实系统数据。
+- C：synthetic evaluation fixture、真实离线 LoRA artifact、真实 Guard `REJECT` 和确定性模板 fallback。
+- 当前页面不支持任意发票上传和在线模型推理。
+
 ## Verification
 
 - Hub、App 和 `/config` 返回 HTTP 200，无需登录。
@@ -34,6 +41,9 @@ Batch C.1 本地发布包、Batch C.2 网页端 Space 创建和 Batch C.3 受控
 - 未单独记录桌面与移动设备专项视觉结果。
 - H1 远端 config 已确认默认案例 A、三案例选择器、三张证据图、默认折叠技术明细和默认折叠合成案例区。
 - A/B 的 SROIE 图片保留 CC BY 4.0 归属；人工复核未发现可识别自然人客户姓名，本次不做遮罩。
+- 案例 A：检查 SROIE 原图、OCR bbox、LayoutLMv3 预测图、低风险和自动通过结果。
+- 案例 B：检查日期清理与重建说明，以及单样本不代表整体 F1 的边界。
+- 案例 C：检查无伪造图片、真实离线 LoRA 输出、Guard `REJECT`、`unknown_identifier:GRN-20260149` 和模板 fallback。
 
 当前准确状态：
 

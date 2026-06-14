@@ -41,16 +41,10 @@ The completed local Gradio Demo is a necessary foundation:
 - no model download;
 - visible Guard, Fallback, and Audit Trail behavior.
 
-It is not the final portfolio destination by itself:
-
-- the real LayoutLMv3 results are not visible in the UI;
-- the two real LoRA training runs are not visible in the UI;
-- most canonical cases currently use clearly labeled `STATIC FALLBACK`;
-- a visitor may incorrectly conclude that the project is only a rule system.
-
-The stable Demo will be retained as the business baseline. The portfolio layer
-will add model evidence and architecture explanation without weakening runtime
-reliability or changing sealed Phase 2 decisions.
+H0 and H1 upgraded the presentation from a synthetic-first workflow showcase
+to a traceable evidence-chain presentation. The stable business workflow remains
+available, while the primary view now exposes real offline model evidence and
+its exact boundary without changing sealed Phase 2 decisions.
 
 ## 2. Unified Gradio App
 
@@ -64,37 +58,34 @@ Tab 3: Architecture
 
 ### 2.1 Tab 1: Invoice Audit
 
-Displayed live flow:
+Primary evidence chain:
 
 ```text
-Pre-generated ExtractedFields
--> live Phase 2
--> Policy RAG
--> Risk Engine
--> Canonical Audit Facts
--> Template / Guard / Fallback
--> AuditReport
+SROIE image
+-> OCR boxes
+-> LayoutLMv3 offline checkpoint prediction
+-> extracted_fields
+-> Phase 2 runtime audit evidence
+-> risk/action and AuditReport
+
+LoRA offline artifact
+-> real Guard reject
+-> deterministic template fallback
 ```
 
-Goals:
+Runtime and evidence boundaries:
 
-- preserve the current stable, CPU-only baseline;
-- evaluate whether 3 to 4 representative cases can run through the live chain;
-- never modify Phase 2 risk rules to make a Demo case convenient;
-- keep unsupported cases explicitly labeled `STATIC FALLBACK`.
+- Cases A/B use SROIE validation images and real offline checkpoint predictions.
+- PO/GRN in Cases A/B are explicitly labeled mock procurement context.
+- Case C uses synthetic evaluation facts, a real offline LoRA artifact, and a
+  real Guard result.
+- The public page does not accept arbitrary invoice uploads or run online
+  LayoutLMv3/LoRA inference.
+- Five synthetic workflow cases remain in a collapsed supplementary section.
 
-Priority cases:
-
-```text
-normal_invoice
-missing_po_number
-duplicate_invoice
-amount_discrepancy
-```
-
-`normal_invoice` already runs the live hybrid chain. The other cases require a
-separate feasibility review against existing Phase 2 fixtures. A case remains
-static when exact reproduction would require changing sealed business logic.
+The synthetic cases demonstrate additional branches such as missing PO/GRN,
+vendor mismatch, and duplicate invoices. They are not the primary model evidence
+and are never described as SROIE checkpoint outputs.
 
 ### 2.2 Tab 2: Model Lab
 
@@ -186,6 +177,10 @@ Guard / Fallback demonstration
 AuditReport
 ```
 
+The evidence-package view itself is read-only. Phase 2 and Guard are lightweight
+CPU-compatible logic or committed verified results; selecting a case does not
+load a model.
+
 ### Real Offline Artifacts
 
 ```text
@@ -207,6 +202,9 @@ Phase 3I
 
 These items are not implemented and are not blockers for the first portfolio
 release.
+
+Arbitrary invoice upload with live model inference is also outside the current
+public Demo scope.
 
 ## 4. Delivery Batches
 
@@ -251,8 +249,9 @@ unsupported `GRN-20260149`, Guard rejection, and deterministic template
 fallback. LoRA remains a shadow, experimental, and Phase 3I evaluation
 candidate rather than a default or permanently abandoned component.
 
-Recommended next batch: Batch G0 invoice image case storytelling enhancement.
-It is not implemented in this verification update.
+Batch H0 packaged three traceable evidence cases. Batch H1 integrated those
+cases into the public Space and moved the five synthetic cases into a collapsed
+supplementary section.
 
 ### Batch D: LangChain Policy RAG Comparison
 
