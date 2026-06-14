@@ -1,13 +1,14 @@
 # CONTEXT.md
 
 ## 当前目标
-Batch C.3 已完成受控上传与机器化公网 smoke，等待人工视觉验收和总控确认。
+Batch C.4 公网 Demo 中文化与使用说明修复已完成，等待用户人工视觉复验。
 
 ## 当前进度
 - Public Space：https://huggingface.co/spaces/eugene-98/procureguard-ai-demo
 - Public App：https://eugene-98-procureguard-ai-demo.hf.space
-- Space 运行于 `cpu-basic`，HTTP、Gradio config 和 `run_audit` API 已通过。
-- Invoice Audit、Model Lab、Architecture 三页签已公开；Model Lab 仍只展示真实离线 artifacts。
+- Space 运行于 `cpu-basic`，中文化版本远端 commit 为 `49423f1`。
+- 发票审核、模型实验、系统架构三个中文页签已公开，使用说明和业务标签已中文化。
+- HTTP、Gradio config 和 `run_audit` API 已通过；模型实验仍只展示真实离线 artifacts。
 - 自动化可视化浏览器加载超时，因此 `manual_browser_check_required=true`，暂不声明完整在线部署验收完成。
 
 ## 下一步

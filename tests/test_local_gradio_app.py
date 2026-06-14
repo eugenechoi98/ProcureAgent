@@ -35,12 +35,12 @@ def test_app_contains_explanation_and_audit_outputs():
     labels = {component.get("props", {}).get("label") for component in components}
 
     assert {
-        "Explanation Text",
-        "Explanation Source",
-        "Raw Rewrite Output",
-        "Complete AuditReport JSON",
-        "Evidence",
-        "Missing Fields",
+        "审核解释",
+        "解释来源",
+        "原始改写输出",
+        "完整审核报告 JSON（AuditReport）",
+        "证据",
+        "缺失字段",
     } <= labels
 
 

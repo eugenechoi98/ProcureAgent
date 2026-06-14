@@ -14,6 +14,11 @@ https://huggingface.co/spaces/eugene-98/procureguard-ai-demo. HTTP, configuratio
 and Gradio API checks passed; a manual visual browser check remains required.
 SQLite FTS5 / BM25 remains the official Policy RAG chain.
 
+The public presentation is localized into three Chinese tabs: `发票审核`,
+`模型实验`, and `系统架构`. Business objects, audit flow, report labels, usage
+guidance, and architecture descriptions are shown in Chinese while model and
+framework names such as LayoutLMv3, LoRA, RAG, Guard, and Fallback are retained.
+
 ## 1. Current Problem
 
 The completed local Gradio Demo is a necessary foundation:

@@ -183,6 +183,7 @@ def _check_deployment_report(*, include_online_check: bool) -> dict[str, Any]:
         payload.get("visibility") == "public"
         and payload.get("build_status") == "success"
         and payload.get("runtime_status") == "running_cpu_basic"
+        and payload.get("localized_ui") is True
         and payload.get("remote_forbidden_hits") == []
         and payload.get("model_weights_included") is False
     )
@@ -196,6 +197,7 @@ def _check_deployment_report(*, include_online_check: bool) -> dict[str, Any]:
         "app_url": payload.get("space_app_url"),
         "remote_commit": payload.get("remote_commit"),
         "runtime_status": payload.get("runtime_status"),
+        "localized_ui": payload.get("localized_ui", False),
         "online_check_included": include_online_check,
     }
     if include_online_check:
@@ -247,6 +249,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     args = build_parser().parse_args(argv)
     result = verify_release_readiness(include_online_check=args.include_online_check)
     rendered = json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True)

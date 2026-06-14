@@ -53,3 +53,4 @@
 - 2026-06-13：完成 Batch C.1 Hugging Face Spaces 本地最小发布包和离线 smoke 验证。
 - 2026-06-13：完成 LangChain Policy RAG 离线兼容 benchmark、Docker Compose 配置、GitHub Actions CI 和 Portfolio Release Readiness 本地检查。
 - 2026-06-13：完成 Hugging Face Spaces CPU-only Unified Portfolio Demo 受控上传、公开 HTTP/API smoke 和部署证据落档。
+- 2026-06-14：完成公网 Demo 中文化、中文使用说明、Space 重新上传和公开配置/API smoke。

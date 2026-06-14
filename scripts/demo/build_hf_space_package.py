@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 import shutil
+import sys
 from typing import Any
 
 
@@ -28,9 +29,9 @@ ProcureGuard AI 是采购发票智能审核 Agent 的 CPU-only 作品集 Demo。
 
 页面包含：
 
-1. Invoice Audit
-2. Model Lab
-3. Architecture
+1. 发票审核
+2. 模型实验
+3. 系统架构
 
 当前公开 Demo：
 
@@ -40,13 +41,13 @@ ProcureGuard AI 是采购发票智能审核 Agent 的 CPU-only 作品集 Demo。
 - 不需要 GPU
 - 不需要 API Key
 - 不需要 secrets
-- Model Lab 展示真实离线 artifacts，不是网页实时推理
+- 模型实验页展示真实离线 artifacts，不是网页实时推理
 
-## Runtime Boundary
+## 运行边界
 
-Invoice Audit 使用预生成字段和本地确定性审核链。Model Lab 仅读取轻量 JSON
-artifacts。Architecture 只解释系统边界。当前没有创建生产服务，也没有启用
-线上模型推理。
+发票审核使用预生成字段和本地确定性审核链。模型实验仅读取轻量 JSON
+artifacts。系统架构只解释工程与治理边界。当前没有启用线上模型推理，
+也不把本作品集 Demo 表述为生产服务。
 """
 
 APP_TEXT = '''"""Hugging Face Spaces entrypoint for ProcureGuard AI Demo."""
@@ -242,6 +243,8 @@ def _has_forbidden_part(path: Path) -> bool:
 
 
 def main() -> int:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     result = build_package()
     print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True))
     return 0 if result["ready"] else 1

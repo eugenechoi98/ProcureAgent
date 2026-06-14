@@ -15,14 +15,14 @@ ProcureGuard AI 是一个企业采购发票智能审核 Agent。Phase 1、Phase 
 - Model Lab 轻量 artifacts：整理 LayoutLMv3 与两轮 LoRA 的真实离线指标、曲线、预测案例、幻觉案例和缺失项说明，见 [demo/model_lab/README.md](/D:/ProcureAgent/demo/model_lab/README.md)
 - Unified Gradio Demo：本地三页签 `Invoice Audit / Model Lab / Architecture`，保留 Invoice Audit 稳定实时路径，Model Lab 仅读取离线 artifacts，Architecture 解释治理边界
 - Hugging Face Spaces 本地发布包：`spaces/procureguard_demo/`，CPU-only、无模型权重、无 GPU requirements、无本地数据库，部署流程见 [docs/HF_SPACES_DEPLOYMENT.md](/D:/ProcureAgent/docs/HF_SPACES_DEPLOYMENT.md)
-- Hugging Face 公网 Demo：[Hub](https://huggingface.co/spaces/eugene-98/procureguard-ai-demo) / [App](https://eugene-98-procureguard-ai-demo.hf.space)，公开展示 Invoice Audit、Model Lab 和 Architecture
+- Hugging Face 公网 Demo：[Hub](https://huggingface.co/spaces/eugene-98/procureguard-ai-demo) / [App](https://eugene-98-procureguard-ai-demo.hf.space)，公开展示“发票审核 / 模型实验 / 系统架构”三个中文页签
 - LangChain Policy RAG 兼容实验：8 条本地 fixture 的真实离线对比，现有 SQLite FTS5 / BM25 仍是正式主链
 - Docker Compose：CPU-only API 与 Unified Demo 双服务配置；当前环境没有 Docker CLI，runtime 尚未验证
 - GitHub Actions：CPU-only 依赖、离线 smoke、专项测试、release readiness 和全量测试
 
 ## 当前 Batch B 状态
 
-Unified Gradio Demo 已在本地与 Hugging Face Spaces 公开部署，包含 Invoice Audit、Model Lab、Architecture 三个页签。Model Lab 读取真实离线轻量 artifacts。当前没有网页实时 LayoutLMv3，也没有网页实时真实 LoRA。
+Unified Gradio Demo 已在本地与 Hugging Face Spaces 公开部署，包含“发票审核 / 模型实验 / 系统架构”三个中文页签，并提供中文使用说明。模型实验页读取真实离线轻量 artifacts。当前没有网页实时 LayoutLMv3，也没有网页实时真实 LoRA。
 
 ## 当前 Batch C.1 状态
 

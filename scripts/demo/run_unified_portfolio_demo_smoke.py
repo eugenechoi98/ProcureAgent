@@ -29,7 +29,7 @@ def run_smoke() -> dict[str, Any]:
         for item in components
         if item.get("type") == "tabitem"
     ]
-    expected_tabs = ["Invoice Audit", "Model Lab", "Architecture"]
+    expected_tabs = ["发票审核", "模型实验", "系统架构"]
     for label in expected_tabs:
         if label not in tab_labels:
             errors.append(f"missing_tab:{label}")
@@ -37,6 +37,7 @@ def run_smoke() -> dict[str, Any]:
     artifacts = load_model_lab_artifacts()
     model_lab_text = render_model_lab_summary(artifacts)
     required_model_lab_terms = [
+        "本页展示真实离线实验 artifacts",
         "offline_checkpoint_inference",
         "local_validation_split_seed_42",
         "official_test=false",
@@ -50,19 +51,19 @@ def run_smoke() -> dict[str, Any]:
             errors.append(f"model_lab_missing:{term}")
 
     required_architecture_terms = [
-        "Invoice",
-        "OCR + LayoutLMv3",
-        "Agent Tools",
-        "Three-Way Match",
-        "Policy RAG",
-        "Risk Engine",
-        "Canonical Facts",
-        "Deterministic Template",
-        "Optional Controlled Rewrite",
-        "Guard",
-        "Fallback",
-        "Audit Trail",
-        "AuditReport",
+        "发票",
+        "OCR + LayoutLMv3 字段抽取",
+        "Agent 工具链",
+        "三单匹配",
+        "政策 RAG",
+        "风险规则引擎",
+        "标准审核事实",
+        "确定性解释模板",
+        "可选受控改写",
+        "输出守卫",
+        "模板回退",
+        "审计轨迹",
+        "审核报告",
         "第三次训练暂停",
     ]
     for term in required_architecture_terms:
@@ -127,6 +128,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     args = build_parser().parse_args(argv)
     result = run_smoke()
     rendered = json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True)

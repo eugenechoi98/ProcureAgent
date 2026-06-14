@@ -45,7 +45,7 @@ def run_smoke() -> dict[str, Any]:
         sys.path = original_path
         sys.dont_write_bytecode = original_dont_write_bytecode
 
-    for expected in ("Invoice Audit", "Model Lab", "Architecture"):
+    for expected in ("发票审核", "模型实验", "系统架构"):
         if expected not in tabs:
             errors.append(f"missing_tab:{expected}")
     if default_case != "normal_invoice":
@@ -88,6 +88,8 @@ def _component_value(components: list[dict[str, Any]], elem_id: str) -> Any:
 
 
 def main() -> int:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     result = run_smoke()
     print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True))
     return 0 if result["ready"] else 1

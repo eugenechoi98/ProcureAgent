@@ -44,6 +44,7 @@ def test_readiness_aggregates_all_delivery_checks() -> None:
     assert result["langchain_benchmark_status"] == "ready"
     assert result["ci_config_status"] == "ready"
     assert result["checks"]["hf_spaces_public_deployment"]["online_check_included"] is False
+    assert result["checks"]["hf_spaces_public_deployment"]["localized_ui"] is True
 
 
 def test_docker_runtime_is_not_claimed_without_cli() -> None:
