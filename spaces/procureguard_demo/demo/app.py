@@ -88,7 +88,7 @@ def build_app(service: DemoService | None = None) -> Any:
     ) as app:
         gr.Markdown(
             "# ProcureGuard AI\n"
-            "采购发票智能审核 Agent 演示。发票审核页运行稳定的离线业务主链；"
+            "受控采购发票审核 Agent。发票审核页运行稳定的确定性业务主链；"
             "模型实验和系统架构页展示真实离线证据与工程决策。"
         )
         with gr.Tabs(elem_id="unified-portfolio-tabs"):

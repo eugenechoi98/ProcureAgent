@@ -140,6 +140,27 @@ def build_model_lab_tab(gr: Any, artifacts: dict[str, Any] | None = None) -> Non
         interactive=False,
         elem_id="lora-guard-cases-table",
     )
+    gr.Markdown(
+        "### LoRA 幻觉与 Guard 拦截示例\n\n"
+        "以下案例来自已提交的真实离线模型评测。LoRA 当前保留为 "
+        "`shadow / experimental / Phase 3I` 后续模型路线评估候选；"
+        "正式解释继续使用可复现的确定性模板。",
+        elem_id="lora-guard-visual-intro",
+    )
+    guard_visual = lora_guard_visual_case(data)
+    with gr.Row(elem_id="lora-guard-visual-case"):
+        gr.Markdown(
+            render_lora_raw_output(guard_visual),
+            elem_id="lora-guard-visual-raw-output",
+        )
+        gr.Markdown(
+            render_lora_guard_result(guard_visual),
+            elem_id="lora-guard-visual-result",
+        )
+        gr.Markdown(
+            render_lora_fallback(guard_visual),
+            elem_id="lora-guard-visual-fallback",
+        )
     with gr.Accordion(
         "查看原始 JSON 证据",
         open=False,
@@ -338,6 +359,53 @@ def lora_guard_case_rows(data: dict[str, Any]) -> list[list[str]]:
         ]
         for case in data["lora_guard_cases"]["cases"]
     ]
+
+
+def lora_guard_visual_case(data: dict[str, Any]) -> dict[str, Any]:
+    """选择一个真实离线 LoRA 输出作为 Guard/Fallback 展示证据。"""
+
+    for case in data["lora_guard_cases"]["cases"]:
+        if (
+            case["source_type"] == "real_offline_model_output"
+            and case["case_id"]
+            == "guard_reject_unknown_grn_phase3_missing_goods_receipt_024"
+        ):
+            return case
+    raise ValueError("缺少预期的真实 LoRA Guard 展示案例")
+
+
+def render_lora_raw_output(case: dict[str, Any]) -> str:
+    """渲染真实离线 LoRA 原始输出。"""
+
+    return (
+        "#### 1. LoRA 原始输出\n\n"
+        f"> {case['rewrite_output']}\n\n"
+        f"证据类型：`{case['evidence_scope']}`"
+    )
+
+
+def render_lora_guard_result(case: dict[str, Any]) -> str:
+    """渲染 Guard 的拒绝结果。"""
+
+    return (
+        "#### 2. Guard 检测\n\n"
+        f"- 结果：`{'PASS' if case['guard_passed'] else 'REJECT'}`\n"
+        f"- 原因：`{case['rejection_reason']}`\n"
+        f"- 回退触发：`{case['fallback_reason']}`"
+    )
+
+
+def render_lora_fallback(case: dict[str, Any]) -> str:
+    """根据同一输入事实渲染确定性模板回退说明。"""
+
+    facts = case["input_facts"]
+    return (
+        "#### 3. 确定性模板回退\n\n"
+        f"发票缺少收货记录编号，未补全未知 GRN。风险等级保持为 "
+        f"`{facts['risk_level']}`，建议动作保持为 "
+        f"`{facts['recommended_action']}`。\n\n"
+        f"最终解释来源：`{case['final_source']}`"
+    )
 
 
 def _read_json(path: Path) -> dict[str, Any]:
