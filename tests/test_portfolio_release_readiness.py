@@ -19,8 +19,10 @@ def test_readiness_reads_deployment_record_without_network() -> None:
     assert result["scope"] == "local_release_readiness"
     assert result["hf_space_created"] is True
     assert result["hf_space_uploaded"] is True
-    assert result["online_deployment_verified"] is False
-    assert result["manual_browser_check_required"] is True
+    assert result["online_deployment_verified"] is True
+    assert result["manual_browser_check_required"] is False
+    assert result["manual_visual_check"] == "passed"
+    assert result["production_ready"] is False
     assert result["model_lab_presentation_polished"] is True
     assert result["model_weights_included"] is False
     assert result["gpu_required"] is False
@@ -47,6 +49,8 @@ def test_readiness_aggregates_all_delivery_checks() -> None:
     assert result["checks"]["hf_spaces_public_deployment"]["online_check_included"] is False
     assert result["checks"]["hf_spaces_public_deployment"]["localized_ui"] is True
     assert result["checks"]["hf_spaces_public_deployment"]["model_lab_presentation_polished"] is True
+    assert result["checks"]["hf_spaces_public_deployment"]["manual_visual_check"] == "passed"
+    assert result["checks"]["hf_spaces_public_deployment"]["production_ready"] is False
 
 
 def test_docker_runtime_is_not_claimed_without_cli() -> None:

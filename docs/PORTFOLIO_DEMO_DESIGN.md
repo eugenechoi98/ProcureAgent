@@ -11,7 +11,8 @@ Engineering Closure has completed the Unified Demo, offline Model Lab artifacts,
 offline LangChain compatibility benchmark, Docker Compose configuration, GitHub
 Actions CI, and Release Readiness. The CPU-only public Space is available at
 https://huggingface.co/spaces/eugene-98/procureguard-ai-demo. HTTP, configuration,
-and Gradio API checks passed; a manual visual browser check remains required.
+and Gradio API checks passed. The user manual browser review also passed for
+the public page, Chinese UI, Invoice Audit, Model Lab, and Architecture tabs.
 SQLite FTS5 / BM25 remains the official Policy RAG chain.
 
 The public presentation is localized into three Chinese tabs: `发票审核`,
@@ -218,7 +219,7 @@ Current status: Batch B is complete locally. The Gradio app contains Invoice
 Audit, Model Lab, and Architecture tabs. Model Lab reads existing real offline
 lightweight artifacts only. The web UI does not run live LayoutLMv3 or real
 LoRA inference. The CPU-only Hugging Face Space is now public; automated HTTP,
-configuration, and API checks passed, while a manual visual check remains.
+configuration, API, and user manual browser checks passed.
 
 ### Batch C: Hugging Face Spaces
 
@@ -227,12 +228,15 @@ verification. No model upload or GPU is required for the default route.
 
 Batch C.1 local packaging, Batch C.2 Space creation, and Batch C.3 controlled
 upload are complete. The public app remains CPU-only and contains no model
-weights. A manual visual browser check is still required before setting full
-online deployment verification to true.
+weights. User manual browser verification is complete, so
+`online_deployment_verified=true` and `manual_browser_check_required=false`.
 
 Batch C.4 presentation polish is complete. Model Lab now leads with three core
 metrics, keeps LayoutLMv3 and LoRA evidence in a clear order, and places raw JSON
 inside a collapsed evidence section without changing the underlying artifacts.
+
+Recommended next batch: Batch G0 invoice image case storytelling enhancement.
+It is not implemented in this verification update.
 
 ### Batch D: LangChain Policy RAG Comparison
 

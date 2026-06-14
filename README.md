@@ -26,7 +26,7 @@ Unified Gradio Demo 已在本地与 Hugging Face Spaces 公开部署，包含“
 
 ## 当前 Batch C.1 状态
 
-Batch C.1 本地发布包、Batch C.2 Space 创建和 Batch C.3 受控上传均已完成。Space 在 `cpu-basic` 上运行，HTTP、Gradio config 和公开 `run_audit` API 已通过；自动化视觉浏览器检查仍需人工补充。
+Batch C.1 本地发布包、Batch C.2 Space 创建和 Batch C.3 受控上传均已完成。Space 在 `cpu-basic` 上运行，HTTP、Gradio config、公开 `run_audit` API 和用户人工浏览器验收均已通过。
 
 ## Dataset
 
@@ -262,7 +262,7 @@ Phase 3H 与 Local Gradio Demo Baseline 已合并到 `main`。当前本地 readi
 
 - 本地稳定 Gradio Demo Baseline 已完成。
 - 三页签 Unified Demo 和 Model Lab 已完成本地离线实现。
-- Hugging Face Spaces CPU-only Unified Demo 已公开部署；人工视觉浏览器检查仍待补充。
+- Hugging Face Spaces CPU-only Unified Demo 已公开部署并通过用户人工浏览器验收。
 - LangChain Policy RAG 离线兼容 benchmark 已完成，SQLite FTS5 / BM25 保持正式主链。
 - Docker Compose 配置与 GitHub Actions CI 已完成；Docker runtime 尚未在当前环境验证。
 - 在线 LayoutLMv3 与真实 LoRA 推理均未启用；现阶段优先展示真实离线 artifacts。
@@ -283,7 +283,9 @@ Phase 3H 与 Local Gradio Demo Baseline 已合并到 `main`。当前本地 readi
 .\.venv\Scripts\python.exe scripts\release\verify_portfolio_release_readiness.py
 ```
 
-默认 readiness 仍是离线聚合，但会读取真实部署报告：Space 已创建并上传；由于自动化视觉浏览器加载超时，`online_deployment_verified=false` 且需要人工视觉检查。Docker config ready，但当前环境没有 Docker CLI，因此 Docker runtime not verified。详细步骤见 [ENGINEERING_DELIVERY.md](docs/ENGINEERING_DELIVERY.md)、[HF_SPACES_DEPLOYMENT.md](docs/HF_SPACES_DEPLOYMENT.md) 和 [LANGCHAIN_POLICY_RAG_COMPARISON.md](docs/LANGCHAIN_POLICY_RAG_COMPARISON.md)。
+默认 readiness 仍是离线聚合，但会读取真实部署报告：Space 已创建并上传，且用户人工浏览器验收已通过，`online_deployment_verified=true`。Docker config ready，但当前环境没有 Docker CLI，因此 Docker runtime not verified。详细步骤见 [ENGINEERING_DELIVERY.md](docs/ENGINEERING_DELIVERY.md)、[HF_SPACES_DEPLOYMENT.md](docs/HF_SPACES_DEPLOYMENT.md) 和 [LANGCHAIN_POLICY_RAG_COMPARISON.md](docs/LANGCHAIN_POLICY_RAG_COMPARISON.md)。
+
+下一批建议：Batch G0 发票图片案例故事线增强。本轮尚未实施。
 
 Phase 3B 环境检查入口：
 

@@ -26,20 +26,28 @@ Batch C.1 本地发布包、Batch C.2 网页端 Space 创建和 Batch C.3 受控
 - 三个页签、默认 `normal_invoice + template`、Model Lab 指标和 Architecture 链路已从公开 Gradio config 核验。
 - 公开 `run_audit` API 返回 risk level、recommended action、facts hash 和完整 AuditReport。
 - 公开 Gradio config 已确认三个中文页签、中文使用说明和中文架构链路。
-- 自动化浏览器确认公网首屏后，在切换模型实验页时连接超时，因此仍需人工打开 App 做一次视觉检查。
+- 用户已完成人工浏览器验收：公网页面、中文化页面、发票审核、模型实验和系统架构均为 PASS，未发现前端错误。
+- 未单独记录桌面与移动设备专项视觉结果。
 
 当前准确状态：
 
 ```text
 hf_space_created=true
 hf_space_uploaded=true
-manual_browser_check_required=true
-online_deployment_verified=false
+manual_browser_check_required=false
+online_deployment_verified=true
 layoutlmv3_live_inference=false
 real_lora_live_inference=false
+model_weights_included=false
+gpu_required=false
+api_key_required=false
+secrets_required=false
+production_ready=false
 ```
 
 公网 Unified Portfolio Demo 已部署，不等于在线 LayoutLMv3、真实 LoRA 在线推理、生产可用、生产指标或 official test。
+
+下一批建议：Batch G0 发票图片案例故事线增强。本轮不实施。
 
 ## Local Package Checks
 
