@@ -35,6 +35,35 @@ def build_model_lab_tab(gr: Any, artifacts: dict[str, Any] | None = None) -> Non
     data = artifacts or load_model_lab_artifacts()
     gr.Markdown(render_model_lab_summary(data), elem_id="model-lab-summary")
     gr.Markdown(
+        "### 本页怎么看\n\n"
+        "- **LayoutLMv3**：展示真实离线字段抽取实验，回答“模型有没有提升抽取质量”。\n"
+        "- **LoRA**：展示真实解释层实验，回答“生成式解释为什么不能直接上线”。\n"
+        "- **Guard / fallback**：展示当模型补出未知事实时，系统如何拒绝并回到确定性模板。\n"
+        "- 本页是离线实验展示；当前网页运行时不做实时模型推理。",
+        elem_id="model-lab-how-to-read",
+    )
+    guard_visual = lora_guard_visual_case(data)
+    gr.Markdown(
+        "### LoRA 幻觉与 Guard 拦截示例\n\n"
+        "这个例子是本页最重要的治理证据：LoRA 生成了输入中不存在的 "
+        "`GRN-20260149`，Guard 拒绝该输出，正式解释回退到确定性模板。"
+        "LoRA 保留为 `shadow / experimental / Phase 3I` 后续评估候选。",
+        elem_id="lora-guard-visual-intro",
+    )
+    with gr.Row(elem_id="lora-guard-visual-case"):
+        gr.Markdown(
+            render_lora_raw_output(guard_visual),
+            elem_id="lora-guard-visual-raw-output",
+        )
+        gr.Markdown(
+            render_lora_guard_result(guard_visual),
+            elem_id="lora-guard-visual-result",
+        )
+        gr.Markdown(
+            render_lora_fallback(guard_visual),
+            elem_id="lora-guard-visual-fallback",
+        )
+    gr.Markdown(
         "### LayoutLMv3 字段抽取实验\n\n"
         "任务：从发票图片中抽取 `company`、`address`、`date`、`total` 四类关键字段。  \n"
         "评测口径：本地固定验证集 `seed=42`，离线 checkpoint inference。  \n"
@@ -42,15 +71,6 @@ def build_model_lab_tab(gr: Any, artifacts: dict[str, Any] | None = None) -> Non
         "- `local_validation_split_seed_42`：本地固定验证集  \n"
         "- `offline_checkpoint_inference`：离线 checkpoint 推理",
         elem_id="layoutlmv3-experiment-intro",
-    )
-    gr.Dataframe(
-        value=layout_metric_rows(data),
-        row_count=len(layout_metric_rows(data)),
-        headers=["指标", "数值"],
-        datatype=["str", "str"],
-        label="LayoutLMv3 实验指标",
-        interactive=False,
-        elem_id="layoutlmv3-metrics-table",
     )
     gr.Dataframe(
         value=layout_field_f1_rows(data),
@@ -66,100 +86,98 @@ def build_model_lab_tab(gr: Any, artifacts: dict[str, Any] | None = None) -> Non
         interactive=False,
         elem_id="layoutlmv3-field-f1-table",
     )
-    gr.Dataframe(
-        value=layout_training_curve_rows(data),
-        row_count=len(layout_training_curve_rows(data)),
-        headers=["轮次", "训练损失", "验证损失", "Token F1", "字段 Macro F1"],
-        datatype=["str", "str", "str", "str", "str"],
-        label="LayoutLMv3 训练曲线",
-        interactive=False,
-        elem_id="layoutlmv3-training-curve-table",
-    )
-    gr.Dataframe(
-        value=layout_prediction_rows(data),
-        row_count=len(layout_prediction_rows(data)),
-        headers=[
-            "案例编号",
-            "真实日期",
-            "修复前日期",
-            "清洗后日期",
-            "错误归因",
-        ],
-        datatype=["str", "str", "str", "str", "str"],
-        label="真实离线预测样例",
-        interactive=False,
-        elem_id="layoutlmv3-predictions-table",
-    )
+    with gr.Accordion(
+        "查看 LayoutLMv3 完整指标、训练曲线与预测样例",
+        open=False,
+        elem_id="layoutlmv3-detail-tables",
+    ):
+        gr.Dataframe(
+            value=layout_metric_rows(data),
+            row_count=len(layout_metric_rows(data)),
+            headers=["指标", "数值"],
+            datatype=["str", "str"],
+            label="LayoutLMv3 完整实验指标",
+            interactive=False,
+            elem_id="layoutlmv3-metrics-table",
+        )
+        gr.Dataframe(
+            value=layout_training_curve_rows(data),
+            row_count=len(layout_training_curve_rows(data)),
+            headers=["轮次", "训练损失", "验证损失", "Token F1", "字段 Macro F1"],
+            datatype=["str", "str", "str", "str", "str"],
+            label="LayoutLMv3 训练曲线",
+            interactive=False,
+            elem_id="layoutlmv3-training-curve-table",
+        )
+        gr.Dataframe(
+            value=layout_prediction_rows(data),
+            row_count=len(layout_prediction_rows(data)),
+            headers=[
+                "案例编号",
+                "真实日期",
+                "修复前日期",
+                "清洗后日期",
+                "错误归因",
+            ],
+            datatype=["str", "str", "str", "str", "str"],
+            label="真实离线预测样例",
+            interactive=False,
+            elem_id="layoutlmv3-predictions-table",
+        )
     gr.Markdown(render_lora_summary(data), elem_id="lora-summary")
-    gr.Dataframe(
-        value=lora_metric_rows(data),
-        row_count=len(lora_metric_rows(data)),
-        headers=["训练轮次", "模型版本", "指标", "数值"],
-        datatype=["str", "str", "str", "str"],
-        label="LoRA 实验指标",
-        interactive=False,
-        elem_id="lora-metrics-table",
-    )
-    gr.Dataframe(
-        value=lora_training_curve_rows(data),
-        row_count=len(lora_training_curve_rows(data)),
-        headers=["训练轮次", "Epoch", "训练损失", "验证损失"],
-        datatype=["str", "str", "str", "str"],
-        label="LoRA 训练曲线",
-        interactive=False,
-        elem_id="lora-training-curves-table",
-    )
-    gr.Dataframe(
-        value=lora_hallucination_rows(data),
-        row_count=len(lora_hallucination_rows(data)),
-        headers=[
-            "训练编号",
-            "样例编号",
-            "幻觉类型",
-            "无依据内容",
-            "来源文件",
-        ],
-        datatype=["str", "str", "str", "str", "str"],
-        label="LoRA 幻觉案例",
-        interactive=False,
-        elem_id="lora-hallucination-cases-table",
-    )
-    gr.Dataframe(
-        value=lora_guard_case_rows(data),
-        row_count=len(lora_guard_case_rows(data)),
-        headers=[
-            "案例编号",
-            "来源类型",
-            "守卫是否通过",
-            "回退原因",
-            "最终来源",
-            "证据范围",
-        ],
-        datatype=["str", "str", "str", "str", "str", "str"],
-        label="守卫与回退案例",
-        interactive=False,
-        elem_id="lora-guard-cases-table",
-    )
-    gr.Markdown(
-        "### LoRA 幻觉与 Guard 拦截示例\n\n"
-        "以下案例来自已提交的真实离线模型评测。LoRA 当前保留为 "
-        "`shadow / experimental / Phase 3I` 后续模型路线评估候选；"
-        "正式解释继续使用可复现的确定性模板。",
-        elem_id="lora-guard-visual-intro",
-    )
-    guard_visual = lora_guard_visual_case(data)
-    with gr.Row(elem_id="lora-guard-visual-case"):
-        gr.Markdown(
-            render_lora_raw_output(guard_visual),
-            elem_id="lora-guard-visual-raw-output",
+    with gr.Accordion(
+        "查看 LoRA 完整指标、训练曲线和 Guard 明细",
+        open=False,
+        elem_id="lora-detail-tables",
+    ):
+        gr.Dataframe(
+            value=lora_metric_rows(data),
+            row_count=len(lora_metric_rows(data)),
+            headers=["训练轮次", "模型版本", "指标", "数值"],
+            datatype=["str", "str", "str", "str"],
+            label="LoRA 完整实验指标",
+            interactive=False,
+            elem_id="lora-metrics-table",
         )
-        gr.Markdown(
-            render_lora_guard_result(guard_visual),
-            elem_id="lora-guard-visual-result",
+        gr.Dataframe(
+            value=lora_training_curve_rows(data),
+            row_count=len(lora_training_curve_rows(data)),
+            headers=["训练轮次", "Epoch", "训练损失", "验证损失"],
+            datatype=["str", "str", "str", "str"],
+            label="LoRA 训练曲线",
+            interactive=False,
+            elem_id="lora-training-curves-table",
         )
-        gr.Markdown(
-            render_lora_fallback(guard_visual),
-            elem_id="lora-guard-visual-fallback",
+        gr.Dataframe(
+            value=lora_hallucination_rows(data),
+            row_count=len(lora_hallucination_rows(data)),
+            headers=[
+                "训练编号",
+                "样例编号",
+                "幻觉类型",
+                "无依据内容",
+                "来源文件",
+            ],
+            datatype=["str", "str", "str", "str", "str"],
+            label="LoRA 幻觉案例",
+            interactive=False,
+            elem_id="lora-hallucination-cases-table",
+        )
+        gr.Dataframe(
+            value=lora_guard_case_rows(data),
+            row_count=len(lora_guard_case_rows(data)),
+            headers=[
+                "案例编号",
+                "来源类型",
+                "守卫是否通过",
+                "回退原因",
+                "最终来源",
+                "证据范围",
+            ],
+            datatype=["str", "str", "str", "str", "str", "str"],
+            label="守卫与回退案例",
+            interactive=False,
+            elem_id="lora-guard-cases-table",
         )
     with gr.Accordion(
         "查看原始 JSON 证据",
@@ -194,8 +212,8 @@ def render_model_lab_summary(data: dict[str, Any]) -> str:
     metrics = data["layout_metrics"]
     return (
         "## 模型实验\n\n"
-        "本页展示 ProcureGuard AI 的真实离线模型实验结果：LayoutLMv3 用于发票字段抽取，"
-        "LoRA 用于异常解释实验。公开 Demo 重点展示模型训练效果、错误分析和受控解释架构。\n\n"
+        "本页展示真实离线模型实验结果：LayoutLMv3 负责发票字段抽取，"
+        "LoRA 负责解释层探索。先看核心指标，再看 Guard 如何拦住不可靠解释。\n\n"
         "### 核心指标\n\n"
         f"- **OCR + Regex baseline Macro F1：`{metrics['baseline_macro_f1']:.4f}`**\n"
         f"- **修复后 LayoutLMv3 Macro F1：`{metrics['corrected_layoutlmv3_macro_f1']:.4f}`**\n"
@@ -211,7 +229,8 @@ def render_lora_summary(data: dict[str, Any]) -> str:
     hard_gates = metrics["hard_gates"]
     return (
         "### LoRA 异常解释实验\n\n"
-        "LoRA 用于审核解释实验，不参与风险等级、建议动作或异常类型判断。\n\n"
+        "LoRA 用于审核解释实验，不参与风险等级、建议动作或异常类型判断。"
+        "第二轮未通过 hard gate，因此正式 Demo 默认使用确定性模板。\n\n"
         f"- 模型：`{metrics['model']}`\n"
         f"- 训练后端：`{metrics['backend']}`\n"
         "- 运行来源：ModelScope 真实离线实验结果\n"

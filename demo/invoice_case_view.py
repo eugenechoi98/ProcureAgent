@@ -51,6 +51,8 @@ def preview_values(
 
     case = catalog[case_id]
     return (
+        render_case_summary(case),
+        render_image_note(case),
         str((DEMO_ROOT / case["image"]).resolve()),
         case["extraction_rows"],
         case["match_rows"],
@@ -58,6 +60,28 @@ def preview_values(
         render_risk_action(case),
         render_explanation(case),
         case["recommended_mode"],
+    )
+
+
+def render_case_summary(case: dict[str, Any]) -> str:
+    """渲染案例摘要卡片。"""
+
+    return (
+        "### 当前案例\n"
+        f"**{case['display_name']}**  \n"
+        f"{case['summary']}  \n"
+        f"预期风险：**{RISK_LABELS.get(case['risk_level'], case['risk_level'])}**；"
+        f"建议动作：**{ACTION_LABELS.get(case['recommended_action'], case['recommended_action'])}**。"
+    )
+
+
+def render_image_note(case: dict[str, Any]) -> str:
+    """渲染轻量图片说明。"""
+
+    return (
+        "#### 1. 发票示意图\n"
+        f"演示用合成示意图。{case['source_note']}；用于演示案例流程，"
+        "不代表单图模型评测结论。"
     )
 
 
@@ -73,7 +97,7 @@ def render_risk_action(
         f"### 5. 建议动作 + 风险等级\n"
         f"**{state}：** {RISK_LABELS.get(risk_level, risk_level)}  \n"
         f"**建议动作：** {ACTION_LABELS.get(action, action)}  \n"
-        f"**证据边界：** {case['scope_note']}"
+        "**说明：** 这是案例级演示结果，整体模型指标请见“模型实验”页。"
     )
 
 
@@ -85,20 +109,30 @@ def render_explanation(
     if result is None:
         return (
             "### 6. 审核解释\n"
-            "点击“运行审核”后显示确定性模板解释。特定案例会演示受控的 "
-            "Guard / fallback 路径；这里不会调用真实 LoRA。"
+            "点击“运行审核”后先显示最终正式解释。特定案例会出现简短的 "
+            "Guard / fallback 摘要；详细版本号和原始输出收在下方折叠区。"
         )
 
-    guard_state = "通过" if result.guard_passed else "未通过或未启用"
-    raw_output = result.raw_rewrite_output or "无"
     fallback = result.fallback_reason or "无"
+    governance_note = _governance_note(result)
     return (
         "### 6. 审核解释\n"
         f"{result.explanation_text}\n\n"
         f"**解释来源：** `{result.explanation_source}`  \n"
-        f"**Guard：** {guard_state}  \n"
-        f"**fallback：** `{fallback}`  \n"
-        f"**受控改写原始输出：** {raw_output}\n\n"
-        "> 受控改写使用本地 fake provider 演示治理路径，不是真实 LoRA 在线推理；"
-        "模板始终是默认正式输出。"
+        f"**治理摘要：** {governance_note}  \n"
+        f"**fallback：** `{fallback}`"
     )
+
+
+def _governance_note(result: DemoOutput) -> str:
+    """生成面向展示的 Guard/fallback 摘要。"""
+
+    if result.fallback_reason == "guard_failed":
+        return "Guard 未通过，已自动回退到确定性模板。"
+    if result.fallback_reason == "high_risk_template_only":
+        return "高风险场景默认使用确定性模板解释。"
+    if result.fallback_reason and result.fallback_reason != "mvp_template_default":
+        return "已使用 fallback，正式输出仍来自确定性模板。"
+    if result.used_rewrite and result.guard_passed:
+        return "受控 rewrite 已通过 Guard，但不会改变风险等级或建议动作。"
+    return "模板解释为当前正式输出。"
