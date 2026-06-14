@@ -63,3 +63,4 @@
 - 2026-06-14：完成 Batch H0 三个端到端证据包，打通 SROIE 图片、离线 LayoutLMv3、Phase 2 审核及真实 LoRA Guard/fallback 证据。
 - 2026-06-14：完成 Batch H1 端到端证据链 Demo 接入，主视图展示 H0 三案例并将合成流程案例收进补充折叠区。
 - 2026-06-15：完成端到端证据链 Demo 文档与面试口径同步，主展示明确为 SROIE、LayoutLMv3 离线预测、Phase 2 审核和 LoRA Guard/fallback 证据链。
+- 2026-06-15：完成 Phase 3I LoRA 后续路线评估，比较第三轮 LoRA、结构化输出、检索约束解释、继续 shadow research 和更大模型路线。
