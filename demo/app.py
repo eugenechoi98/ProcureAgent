@@ -33,16 +33,16 @@ def _summary_markdown(result: DemoOutput) -> str:
     """生成紧凑状态摘要，并明确标记静态 fallback。"""
 
     path_label = (
-        "STATIC FALLBACK" if result.static_fallback else "LIVE HYBRID AUDIT"
+        "静态回退结果" if result.static_fallback else "实时混合审核"
     )
-    fallback = result.static_fallback_reason or "None"
+    fallback = result.static_fallback_reason or "无"
     return (
         f"### {path_label}\n"
-        f"**Case:** `{result.case_id}`  \n"
-        f"**Invoice:** `{result.invoice_id}`  \n"
-        f"**Risk:** `{result.risk_level}`  \n"
-        f"**Action:** `{result.recommended_action}`  \n"
-        f"**Demo fallback:** `{fallback}`"
+        f"**案例：** `{result.case_id}`  \n"
+        f"**发票：** `{result.invoice_id}`  \n"
+        f"**风险等级：** `{result.risk_level}`  \n"
+        f"**建议动作：** `{result.recommended_action}`  \n"
+        f"**演示回退原因：** `{fallback}`"
     )
 
 
@@ -88,22 +88,31 @@ def build_app(service: DemoService | None = None) -> Any:
     ) as app:
         gr.Markdown(
             "# ProcureGuard AI\n"
-            "Unified local portfolio demo. Invoice Audit runs the stable offline "
-            "business flow; Model Lab and Architecture are read-only evidence tabs."
+            "采购发票智能审核 Agent 演示。发票审核页运行稳定的离线业务主链；"
+            "模型实验和系统架构页展示真实离线证据与工程决策。"
         )
         with gr.Tabs(elem_id="unified-portfolio-tabs"):
-            with gr.Tab("Invoice Audit", elem_id="invoice-audit-tab"):
+            with gr.Tab("发票审核", elem_id="invoice-audit-tab"):
+                gr.Markdown(
+                    "### 如何使用\n\n"
+                    "1. 保持默认案例 `normal_invoice` 和默认解释模式 `template`。\n"
+                    "2. 点击“运行审核”。\n"
+                    "3. 查看风险等级、建议动作、异常类型、证据和审核解释。\n"
+                    "4. 下方 JSON 是完整审核报告，方便技术面试官核查结构化输出。\n"
+                    "5. 这里运行的是稳定的离线业务主链，不需要 GPU、API Key 或在线模型。",
+                    elem_id="invoice-audit-help",
+                )
                 with gr.Row():
                     case_selector = gr.Dropdown(
                         choices=demo_service.case_ids,
                         value="normal_invoice",
-                        label="Demo Case",
+                        label="演示案例",
                         elem_id="demo-case-selector",
                     )
                     mode_selector = gr.Dropdown(
                         choices=demo_service.explanation_modes,
                         value="template",
-                        label="Explanation Mode",
+                        label="解释模式",
                         elem_id="explanation-mode-selector",
                     )
                 with gr.Row():
@@ -114,59 +123,59 @@ def build_app(service: DemoService | None = None) -> Any:
 
                 status_summary = gr.Markdown(elem_id="demo-status-summary")
                 with gr.Row():
-                    case_id = gr.Textbox(label="Case ID", interactive=False)
-                    invoice_id = gr.Textbox(label="Invoice ID", interactive=False)
-                    risk_level = gr.Textbox(label="Risk Level", interactive=False)
+                    case_id = gr.Textbox(label="案例编号", interactive=False)
+                    invoice_id = gr.Textbox(label="发票编号", interactive=False)
+                    risk_level = gr.Textbox(label="风险等级", interactive=False)
                     recommended_action = gr.Textbox(
-                        label="Recommended Action", interactive=False
+                        label="建议动作", interactive=False
                     )
                 with gr.Row():
-                    anomaly_types = gr.JSON(label="Anomaly Types")
-                    evidence = gr.JSON(label="Evidence")
-                    missing_fields = gr.JSON(label="Missing Fields")
+                    anomaly_types = gr.JSON(label="异常类型")
+                    evidence = gr.JSON(label="证据")
+                    missing_fields = gr.JSON(label="缺失字段")
                 explanation_text = gr.Textbox(
-                    label="Explanation Text", lines=8, interactive=False
+                    label="审核解释", lines=8, interactive=False
                 )
                 with gr.Row():
                     explanation_source = gr.Textbox(
-                        label="Explanation Source", interactive=False
+                        label="解释来源", interactive=False
                     )
                     used_rewrite = gr.Checkbox(
-                        label="Used Rewrite", interactive=False
+                        label="是否使用改写", interactive=False
                     )
                     guard_passed = gr.Checkbox(
-                        label="Guard Passed", interactive=False
+                        label="守卫是否通过", interactive=False
                     )
                     fallback_reason = gr.Textbox(
-                        label="Fallback Reason", interactive=False
+                        label="回退原因", interactive=False
                     )
                 with gr.Row():
-                    facts_hash = gr.Textbox(label="Facts Hash", interactive=False)
+                    facts_hash = gr.Textbox(label="事实哈希", interactive=False)
                     template_version = gr.Textbox(
-                        label="Template Version", interactive=False
+                        label="模板版本", interactive=False
                     )
                     prompt_version = gr.Textbox(
-                        label="Prompt Version", interactive=False
+                        label="提示词版本", interactive=False
                     )
                 with gr.Row():
                     model_version = gr.Textbox(
-                        label="Model Version", interactive=False
+                        label="模型版本", interactive=False
                     )
                     adapter_version = gr.Textbox(
-                        label="Adapter Version", interactive=False
+                        label="Adapter 版本", interactive=False
                     )
                 raw_rewrite_output = gr.Textbox(
-                    label="Raw Rewrite Output", lines=5, interactive=False
+                    label="原始改写输出", lines=5, interactive=False
                 )
                 safe_error_summary = gr.Textbox(
-                    label="Safe Fallback Detail", interactive=False
+                    label="安全回退详情", interactive=False
                 )
-                audit_report = gr.JSON(label="Complete AuditReport JSON")
+                audit_report = gr.JSON(label="完整审核报告 JSON（AuditReport）")
 
-            with gr.Tab("Model Lab", elem_id="model-lab-tab"):
+            with gr.Tab("模型实验", elem_id="model-lab-tab"):
                 build_model_lab_tab(gr)
 
-            with gr.Tab("Architecture", elem_id="architecture-tab"):
+            with gr.Tab("系统架构", elem_id="architecture-tab"):
                 build_architecture_tab(gr)
 
         outputs = [
