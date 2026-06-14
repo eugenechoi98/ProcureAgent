@@ -6,16 +6,17 @@
 - App: https://eugene-98-procureguard-ai-demo.hf.space
 - Visibility: Public
 - Runtime: `RUNNING` on `cpu-basic`
+- 中文化远端 commit：`49423f166a8a0b92063178c121d8130990c14757`
 
 Batch C.1 本地发布包、Batch C.2 网页端 Space 创建和 Batch C.3 受控上传均已完成。远端 commit 为 `d1d12ae4529b47c34b6b4bd50cd27d0303cfa6c2`。
 
 ## Public Scope
 
-公网 Demo 包含：
+公网 Demo 已完成中文化，包含：
 
-1. Invoice Audit
-2. Model Lab 离线 artifacts
-3. Architecture
+1. 发票审核：中文使用说明、中文业务字段与完整审核报告 JSON
+2. 模型实验：真实离线 artifacts、中文指标标题与实验边界说明
+3. 系统架构：中文系统链路、治理边界与运行边界
 
 公开页面不加载 LayoutLMv3、Qwen 或真实 LoRA，不包含模型权重、checkpoint、adapter、Notebook、本地数据库或训练脚本，不需要 GPU、API Key、secrets 或外部模型 API。
 
@@ -24,6 +25,7 @@ Batch C.1 本地发布包、Batch C.2 网页端 Space 创建和 Batch C.3 受控
 - Hub、App 和 `/config` 返回 HTTP 200，无需登录。
 - 三个页签、默认 `normal_invoice + template`、Model Lab 指标和 Architecture 链路已从公开 Gradio config 核验。
 - 公开 `run_audit` API 返回 risk level、recommended action、facts hash 和完整 AuditReport。
+- 公开 Gradio config 已确认三个中文页签、中文使用说明和中文架构链路。
 - 自动化视觉浏览器加载在当前环境超时，因此仍需人工打开 App 做一次视觉检查。
 
 当前准确状态：
