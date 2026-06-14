@@ -38,6 +38,7 @@ def test_catalog_contains_five_synthetic_public_demo_cases() -> None:
         assert case["source_type"] == "synthetic_imagegen"
         assert "不是" in case["scope_note"]
         assert "不证明" in case["scope_note"]
+        assert case["summary"]
 
 
 def test_case_images_exist_and_are_lightweight_png_files() -> None:
@@ -94,6 +95,8 @@ def test_guard_and_fallback_story_uses_controlled_demo_providers() -> None:
 def test_invoice_tab_has_exactly_six_case_showcase_sections() -> None:
     expected = {
         "invoice-case-image",
+        "invoice-case-brief",
+        "invoice-case-image-note",
         "invoice-case-extraction",
         "invoice-case-match",
         "invoice-case-evidence",
@@ -104,6 +107,18 @@ def test_invoice_tab_has_exactly_six_case_showcase_sections() -> None:
     for elem_id in expected:
         assert _component_props(elem_id)
     assert _component_props("invoice-audit-technical-output")["open"] is False
+
+
+def test_invoice_case_brief_and_metric_note_are_visible() -> None:
+    brief = _component_props("invoice-case-brief")["value"]
+    image_note = _component_props("invoice-case-image-note")["value"]
+    metric_note = _component_props("invoice-case-f1-note")["value"]
+
+    assert "正常标准发票" in brief
+    assert "低风险" in brief
+    assert "演示用合成示意图" in image_note
+    assert "不代表单图模型评测结论" in image_note
+    assert "整体 F1 指标请见“模型实验”页" in metric_note
 
 
 def test_invoice_case_smoke_is_ready() -> None:
