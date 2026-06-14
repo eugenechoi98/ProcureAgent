@@ -6,7 +6,7 @@
 - App: https://eugene-98-procureguard-ai-demo.hf.space
 - Visibility: Public
 - Runtime: `RUNNING` on `cpu-basic`
-- 当前远端 commit：`5f541c99a11c59eaaa2b7dee579be946de544573`
+- 当前远端 commit：`80a5e0310b2198ca784286a9fddc2fb853b13ca2`
 
 Batch C.1 本地发布包、Batch C.2 网页端 Space 创建和 Batch C.3 受控上传均已完成。远端 commit 为 `d1d12ae4529b47c34b6b4bd50cd27d0303cfa6c2`。
 
@@ -46,6 +46,8 @@ production_ready=false
 ```
 
 公网 Unified Portfolio Demo 已部署，不等于在线 LayoutLMv3、真实 LoRA 在线推理、生产可用、生产指标或 official test。
+
+模型实验页新增真实离线 `GRN-20260149` 案例，展示 LoRA 原始输出、Guard 拒绝原因和确定性模板回退。该展示不启用真实 LoRA 在线推理，也不改变审核结论。
 
 下一批建议：Batch G0 发票图片案例故事线增强。本轮不实施。
 

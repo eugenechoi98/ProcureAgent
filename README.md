@@ -1,6 +1,39 @@
 # ProcureGuard AI
 
-ProcureGuard AI 是一个企业采购发票智能审核 Agent。Phase 1、Phase 2、Phase 3H、Unified Gradio Demo、Model Lab 离线 artifacts、Hugging Face Spaces CPU-only 公网部署、LangChain 对比实验、Docker Compose 配置、GitHub Actions CI 和 Release Readiness 已完成。
+**ProcureGuard AI：受控采购发票审核 Agent**
+
+ProcureGuard AI 是一个面向企业采购发票审核的受控 Agent 系统，集成 LayoutLMv3 字段抽取、三单匹配、政策 RAG、确定性风险规则、LoRA 解释实验与 Guard / Fallback 审计机制。
+
+## Live Demo
+
+[Hugging Face Space](https://huggingface.co/spaces/eugene-98/procureguard-ai-demo)
+
+CPU-only 公网 Demo，不需要 API Key、GPU 或模型下载。
+
+## 关键成果
+
+| 方向 | 结果 |
+| --- | --- |
+| LayoutLMv3 字段抽取 | OCR + Regex baseline Macro F1 `0.4387`；修复后 LayoutLMv3 Macro F1 `0.8067`；Date F1 `0.1423 -> 0.8764` |
+| LoRA 异常解释 | 完成两轮 Qwen2.5-0.5B QLoRA 训练；第二轮未通过 hard gate；发现事实幻觉与动作一致性风险；当前回退到确定性模板 |
+| 受控生成 | Guard 拒绝未知单号、金额、政策或审批角色；Fallback 保证模型不能篡改风险等级、建议动作或异常类型 |
+| 工程交付 | Unified Gradio Demo、Hugging Face Space、Docker Compose、GitHub Actions CI、LangChain Policy RAG 对比、Release Readiness |
+
+LoRA 当前不是默认正式解释器，也没有被永久废弃。它保留为 `shadow / experimental / Phase 3I` 后续模型路线评估候选。
+
+## Demo 怎么看
+
+1. 打开 Live Demo，进入“发票审核”，点击“运行审核”，查看风险等级、建议动作、审核解释和完整审核报告。
+2. 进入“模型实验”，查看 LayoutLMv3 字段抽取指标、LoRA 两轮训练结果、hallucination 案例和 Guard / Fallback 证据。
+3. 进入“系统架构”，查看为什么风险判断由确定性规则完成，而不是交给生成模型自由决定。
+
+详细操作见 [Demo Walkthrough](docs/DEMO_WALKTHROUGH.md)。
+
+## 为什么不是完全自主 LLM Agent？
+
+采购和财务审核是高风险业务场景，金额匹配、三单校验、重复发票检测和审批阈值必须可复现、可审计。因此 ProcureGuard AI 不让 LLM 决定风险等级或建议动作。模型负责字段抽取和受控解释，工具链负责证据查询，最终风险等级和建议动作由确定性规则生成。
+
+**Why not a fully autonomous LLM agent?** Procurement and financial review require reproducible calculations, traceable evidence, and deterministic approval thresholds. ProcureGuard AI therefore keeps field extraction and controlled language generation in the model layer, evidence retrieval in the tool layer, and final risk levels and recommended actions in a deterministic rules engine. The LLM does not choose payment outcomes or invent freedom in a workflow whose tool dependencies are fixed by the business process.
 
 ## 当前功能
 

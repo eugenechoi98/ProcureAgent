@@ -4,12 +4,14 @@
 
 - Hub：https://huggingface.co/spaces/eugene-98/procureguard-ai-demo
 - App：https://eugene-98-procureguard-ai-demo.hf.space
-- 远端 commit：`5f541c99a11c59eaaa2b7dee579be946de544573`
+- 远端 commit：`80a5e0310b2198ca784286a9fddc2fb853b13ca2`
 - Runtime：`RUNNING`，硬件为 `cpu-basic`
 - 中文页签：发票审核、模型实验、系统架构
 - 远端文件：62 个，禁入文件：0 个
 
 模型实验页现在先展示三项核心指标，再展示 LayoutLMv3 和 LoRA 实验；原始 JSON 证据统一收进默认折叠区。公开页面不再单独展示“缺失 artifacts”区域或重复的实时推理免责声明，manifest 中的原始边界证据保持不变。
+
+Portfolio Final Polish 新增真实离线 `GRN-20260149` 案例，按“LoRA 原始输出 -> Guard REJECT -> 确定性模板回退”展示。公网 Gradio config 和 `run_audit` API smoke 已通过。
 
 公网 `run_audit` API 继续通过：`normal_invoice + template` 返回风险等级、建议动作、事实哈希和完整审核报告 JSON。
 

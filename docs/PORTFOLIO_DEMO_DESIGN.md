@@ -20,6 +20,10 @@ The public presentation is localized into three Chinese tabs: `发票审核`,
 guidance, and architecture descriptions are shown in Chinese while model and
 framework names such as LayoutLMv3, LoRA, RAG, Guard, and Fallback are retained.
 
+The final portfolio position is a controlled procurement invoice review agent,
+not an autonomous LLM decision maker. The five tools follow fixed business
+dependencies; deterministic rules own risk levels and recommended actions.
+
 ## 1. Current Problem
 
 The completed local Gradio Demo is a necessary foundation:
@@ -234,6 +238,11 @@ weights. User manual browser verification is complete, so
 Batch C.4 presentation polish is complete. Model Lab now leads with three core
 metrics, keeps LayoutLMv3 and LoRA evidence in a clear order, and places raw JSON
 inside a collapsed evidence section without changing the underlying artifacts.
+
+Portfolio Final Polish adds a concrete real offline LoRA case showing an
+unsupported `GRN-20260149`, Guard rejection, and deterministic template
+fallback. LoRA remains a shadow, experimental, and Phase 3I evaluation
+candidate rather than a default or permanently abandoned component.
 
 Recommended next batch: Batch G0 invoice image case storytelling enhancement.
 It is not implemented in this verification update.

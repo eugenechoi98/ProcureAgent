@@ -56,3 +56,4 @@
 - 2026-06-14：完成公网 Demo 中文化、中文使用说明、Space 重新上传和公开配置/API smoke。
 - 2026-06-14：完成公网模型实验页核心指标前置、原始 JSON 折叠、Space 重新上传和公开配置/API smoke。
 - 2026-06-14：完成 HF Spaces 公网页面、中文化页面及三个核心页签的用户人工浏览器验收落档。
+- 2026-06-14：完成作品集 README、Demo Walkthrough、双语简历描述和真实 LoRA Guard/Fallback 可视化收尾。
