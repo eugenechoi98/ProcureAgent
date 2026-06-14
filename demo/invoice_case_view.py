@@ -22,6 +22,14 @@ ACTION_LABELS = {
     "request_human_approval": "转人工审批",
     "reject": "拒绝",
 }
+EXPLANATION_MODE_LABELS = {
+    "template": "确定性模板",
+    "shadow": "Shadow 影子改写",
+    "experimental_guard_pass": "实验改写：Guard 通过",
+    "experimental_guard_fail": "实验改写：Guard 拦截回退",
+    "provider_runtime_error": "Provider 运行错误回退",
+    "invalid_output": "非法输出回退",
+}
 
 
 def load_invoice_case_catalog(path: Path = CATALOG_PATH) -> dict[str, dict[str, Any]]:
@@ -42,6 +50,12 @@ def case_choices(catalog: dict[str, dict[str, Any]]) -> list[tuple[str, str]]:
     """返回带中文标题的稳定下拉选项。"""
 
     return [(case["display_name"], case_id) for case_id, case in catalog.items()]
+
+
+def explanation_mode_choices(modes: list[str]) -> list[tuple[str, str]]:
+    """返回中文展示标签，并保留稳定的内部模式值。"""
+
+    return [(EXPLANATION_MODE_LABELS[mode], mode) for mode in modes]
 
 
 def preview_values(
@@ -66,12 +80,35 @@ def preview_values(
 def render_case_summary(case: dict[str, Any]) -> str:
     """渲染案例摘要卡片。"""
 
+    governance_note = _case_governance_note(case["recommended_mode"])
     return (
         "### 当前案例\n"
         f"**{case['display_name']}**  \n"
         f"{case['summary']}  \n"
         f"预期风险：**{RISK_LABELS.get(case['risk_level'], case['risk_level'])}**；"
-        f"建议动作：**{ACTION_LABELS.get(case['recommended_action'], case['recommended_action'])}**。"
+        f"建议动作：**{ACTION_LABELS.get(case['recommended_action'], case['recommended_action'])}**。  \n"
+        f"**解释路径：** {governance_note}"
+    )
+
+
+def render_pending_status(case: dict[str, Any]) -> str:
+    """案例切换后在操作区提示下一步。"""
+
+    return (
+        "### 审核状态：待运行\n"
+        f"当前案例：**{case['display_name']}**。点击“运行审核”查看正式结果。"
+    )
+
+
+def render_completed_status(case: dict[str, Any], result: DemoOutput) -> str:
+    """审核完成后在按钮附近显示最关键的结果。"""
+
+    return (
+        "### 审核状态：已完成\n"
+        f"**当前案例：** {case['display_name']}  \n"
+        f"**风险等级：** {RISK_LABELS.get(result.risk_level, result.risk_level)}  \n"
+        f"**建议动作：** {ACTION_LABELS.get(result.recommended_action, result.recommended_action)}  \n"
+        f"**解释来源：** {_explanation_source_label(result)}"
     )
 
 
@@ -136,3 +173,29 @@ def _governance_note(result: DemoOutput) -> str:
     if result.used_rewrite and result.guard_passed:
         return "受控 rewrite 已通过 Guard，但不会改变风险等级或建议动作。"
     return "模板解释为当前正式输出。"
+
+
+def _case_governance_note(mode: str) -> str:
+    """说明案例预设会展示的解释治理路径。"""
+
+    if mode == "experimental_guard_fail":
+        return "会展示 Guard 拦截并自动回退到确定性模板。"
+    if mode == "template":
+        return "使用确定性模板；高风险案例不会尝试自由改写。"
+    if mode == "shadow":
+        return "影子改写仅用于对比，正式输出仍使用确定性模板。"
+    return "会展示受控改写及必要的 fallback。"
+
+
+def _explanation_source_label(result: DemoOutput) -> str:
+    """把技术来源转换为面向演示的中文说明。"""
+
+    if result.fallback_reason == "guard_failed":
+        return "Guard 拦截后回退到确定性模板"
+    if result.fallback_reason == "high_risk_template_only":
+        return "高风险确定性模板"
+    if result.fallback_reason and result.fallback_reason != "mvp_template_default":
+        return "fallback 后确定性模板"
+    if result.used_rewrite and result.guard_passed:
+        return "Guard 通过的受控改写"
+    return "确定性模板"
