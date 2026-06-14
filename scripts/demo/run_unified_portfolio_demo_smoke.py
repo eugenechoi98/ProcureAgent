@@ -35,20 +35,36 @@ def run_smoke() -> dict[str, Any]:
             errors.append(f"missing_tab:{label}")
 
     artifacts = load_model_lab_artifacts()
-    model_lab_text = render_model_lab_summary(artifacts)
+    model_lab_text = "\n".join(
+        str(item.get("props", {}).get("value", ""))
+        for item in components
+        if item.get("type") == "markdown"
+    )
     required_model_lab_terms = [
-        "本页展示真实离线实验 artifacts",
+        "真实离线模型实验结果",
+        "OCR + Regex baseline Macro F1",
+        "修复后 LayoutLMv3 Macro F1",
+        "日期字段 F1",
         "offline_checkpoint_inference",
         "local_validation_split_seed_42",
         "official_test=false",
         "0.8067",
         "0.1423",
         "0.8764",
-        "public_receipt_images_for_selected_predictions",
+        "确定性模板 + 可选受控改写 + 输出守卫 + 模板回退",
     ]
     for term in required_model_lab_terms:
         if term not in model_lab_text:
             errors.append(f"model_lab_missing:{term}")
+
+    raw_evidence = _component_props(components, "model-lab-raw-evidence")
+    if raw_evidence.get("open") is not False:
+        errors.append("model_lab_raw_evidence_not_collapsed")
+    if any(
+        item.get("props", {}).get("label") == "缺失 artifacts"
+        for item in components
+    ):
+        errors.append("model_lab_missing_artifacts_visible")
 
     required_architecture_terms = [
         "发票",
@@ -113,6 +129,14 @@ def _component_value(components: list[dict[str, Any]], elem_id: str) -> Any:
         if props.get("elem_id") == elem_id:
             return props.get("value")
     return None
+
+
+def _component_props(components: list[dict[str, Any]], elem_id: str) -> dict[str, Any]:
+    for component in components:
+        props = component.get("props", {})
+        if props.get("elem_id") == elem_id:
+            return props
+    return {}
 
 
 def build_parser() -> argparse.ArgumentParser:
