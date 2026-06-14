@@ -112,10 +112,11 @@ def test_public_demo_contains_chinese_usage_guidance() -> None:
     ]
     rendered = "\n".join(str(value) for value in markdown_values)
 
-    assert "如何使用" in rendered
+    assert "如何看本页" in rendered
     assert "点击“运行审核”" in rendered
     assert "完整审核报告" in rendered
-    assert "不是 SROIE 评测样本" in rendered
+    assert "整体 F1 指标请见“模型实验”页" in rendered
+    assert "演示用合成示意图" in rendered
     assert "不需要 GPU、API Key 或在线模型" in rendered
     assert "真实离线模型实验结果" in rendered
     assert "为什么模型不能直接决定风险" in rendered
@@ -215,6 +216,20 @@ def test_model_lab_raw_json_evidence_is_collapsed_by_default() -> None:
     assert "缺失 artifacts" not in labels
 
 
+def test_model_lab_highlight_precedes_collapsed_detail_tables() -> None:
+    components = _components()
+    indexes = {
+        component.get("props", {}).get("elem_id"): index
+        for index, component in enumerate(components)
+    }
+
+    assert _component_props("layoutlmv3-detail-tables")["open"] is False
+    assert _component_props("lora-detail-tables")["open"] is False
+    assert indexes["model-lab-how-to-read"] < indexes["lora-guard-visual-intro"]
+    assert indexes["lora-guard-visual-intro"] < indexes["layoutlmv3-metrics-table"]
+    assert indexes["lora-guard-visual-intro"] < indexes["lora-metrics-table"]
+
+
 def test_unified_build_requires_no_model_network_gpu_or_api_key(monkeypatch) -> None:
     for name in (
         "HF_TOKEN",
@@ -245,17 +260,19 @@ def test_architecture_tab_contains_governance_explanations() -> None:
     text = ARCHITECTURE_MARKDOWN
 
     for node in (
-        "发票",
+        "受控采购审核 Agent",
+        "autonomous LLM",
+        "发票图片",
         "OCR + LayoutLMv3 字段抽取",
-        "Agent 工具链",
+        "Agent 工具",
         "三单匹配",
-        "政策 RAG",
+        "Policy RAG",
         "风险规则引擎",
-        "标准审核事实",
-        "确定性解释模板",
-        "可选受控改写",
-        "输出守卫",
-        "模板回退",
+        "规范化审核事实",
+        "确定性模板",
+        "受控 rewrite",
+        "Guard",
+        "fallback",
         "审计轨迹",
         "审核报告",
     ):
@@ -264,7 +281,8 @@ def test_architecture_tab_contains_governance_explanations() -> None:
     assert "LoRA 不能修改建议动作" in text
     assert "模板回退保证" in text
     assert "审计轨迹" in text
-    assert "第三次训练暂停" in text
+    assert "受控采购审核 Agent" in text
+    assert "不是让大模型直接决定风险" in text
 
 
 def test_smoke_cli_prints_json_without_writing(tmp_path: Path) -> None:

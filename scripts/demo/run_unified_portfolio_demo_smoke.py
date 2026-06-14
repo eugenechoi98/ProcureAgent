@@ -46,6 +46,8 @@ def run_smoke() -> dict[str, Any]:
         if "不证明" not in case["scope_note"]:
             errors.append(f"invoice_case_scope_missing:{case_id}")
     for elem_id in (
+        "invoice-case-brief",
+        "invoice-case-image-note",
         "invoice-case-image",
         "invoice-case-extraction",
         "invoice-case-match",
@@ -107,20 +109,21 @@ def run_smoke() -> dict[str, Any]:
             errors.append(f"model_lab_guard_visual_missing:{term}")
 
     required_architecture_terms = [
-        "发票",
+        "受控采购审核 Agent",
+        "autonomous LLM",
+        "发票图片",
         "OCR + LayoutLMv3 字段抽取",
-        "Agent 工具链",
+        "Agent 工具",
         "三单匹配",
-        "政策 RAG",
+        "Policy RAG",
         "风险规则引擎",
-        "标准审核事实",
-        "确定性解释模板",
-        "可选受控改写",
-        "输出守卫",
-        "模板回退",
+        "规范化审核事实",
+        "确定性模板",
+        "受控 rewrite",
+        "Guard",
+        "fallback",
         "审计轨迹",
         "审核报告",
-        "第三次训练暂停",
     ]
     for term in required_architecture_terms:
         if term not in ARCHITECTURE_MARKDOWN:

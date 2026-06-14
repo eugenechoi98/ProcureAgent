@@ -110,11 +110,12 @@ def build_app(service: DemoService | None = None) -> Any:
             with gr.Tab("发票审核", elem_id="invoice-audit-tab"):
                 gr.Markdown(
                     "## 案例演示主页面\n\n"
-                    "### 如何使用\n\n"
-                    "选择预置案例后查看发票示意图、字段对比、三单匹配和审核证据，"
-                    "再点击“运行审核”生成风险动作与审核解释。案例图片均为合成示意图，"
-                    "不是 SROIE 评测样本，也不用于证明 LayoutLMv3 数据集级 F1。"
-                    "完整审核报告收在下方技术输出中。页面不需要 GPU、API Key 或在线模型。",
+                    "### 如何看本页\n\n"
+                    "1. 先选择一个预置案例，建议从“正常标准发票”开始。  \n"
+                    "2. 点击“运行审核”，查看字段抽取、三单匹配、风险等级和建议动作。  \n"
+                    "3. 供应商不一致和高风险案例会展示 Guard / fallback 行为。  \n"
+                    "4. 完整审核报告和技术输出默认收起，需要核查时再展开。  \n"
+                    "5. 公网 Demo 不需要 GPU、API Key 或在线模型。",
                     elem_id="invoice-audit-help",
                 )
                 with gr.Row():
@@ -136,33 +137,45 @@ def build_app(service: DemoService | None = None) -> Any:
                     )
                     reset_button = gr.Button("重置", elem_id="reset-demo-button")
 
+                case_brief = gr.Markdown(
+                    value=initial_preview[0],
+                    elem_id="invoice-case-brief",
+                )
+                image_note = gr.Markdown(
+                    value=initial_preview[1],
+                    elem_id="invoice-case-image-note",
+                )
                 with gr.Row():
                     invoice_image = gr.Image(
-                        value=initial_preview[0],
-                        label="1. 发票示意图（合成）",
+                        value=initial_preview[2],
+                        label="演示用合成示意图",
                         type="filepath",
                         interactive=False,
                         height=520,
                         elem_id="invoice-case-image",
                     )
                     extraction_comparison = gr.Dataframe(
-                        value=initial_preview[1],
+                        value=initial_preview[3],
                         headers=[
                             "字段",
                             "合成示意真值",
-                            "OCR + Regex baseline",
-                            "LayoutLMv3 / 修复后",
+                            "OCR + Regex 基线",
+                            "修复后 LayoutLMv3",
                             "证据口径",
                         ],
                         datatype=["str", "str", "str", "str", "str"],
-                        label="2. 字段抽取对比（单图模型未运行）",
+                        label="2. 字段抽取对比（演示案例）",
                         interactive=False,
                         wrap=True,
                         elem_id="invoice-case-extraction",
                     )
+                gr.Markdown(
+                    "整体 F1 指标请见“模型实验”页；这里展示的是案例级演示对比。",
+                    elem_id="invoice-case-f1-note",
+                )
                 with gr.Row():
                     match_result = gr.Dataframe(
-                        value=initial_preview[2],
+                        value=initial_preview[4],
                         headers=["检查对象", "审核事实", "结果"],
                         datatype=["str", "str", "str"],
                         label="3. 三单匹配结果",
@@ -171,7 +184,7 @@ def build_app(service: DemoService | None = None) -> Any:
                         elem_id="invoice-case-match",
                     )
                     audit_evidence = gr.Dataframe(
-                        value=initial_preview[3],
+                        value=initial_preview[5],
                         headers=["证据类型", "命中内容", "来源"],
                         datatype=["str", "str", "str"],
                         label="4. 审核证据",
@@ -181,11 +194,11 @@ def build_app(service: DemoService | None = None) -> Any:
                     )
                 with gr.Row():
                     risk_action_story = gr.Markdown(
-                        value=initial_preview[4],
+                        value=initial_preview[6],
                         elem_id="invoice-case-risk-action",
                     )
                     explanation_story = gr.Markdown(
-                        value=initial_preview[5],
+                        value=initial_preview[7],
                         elem_id="invoice-case-explanation",
                     )
 
@@ -288,6 +301,8 @@ def build_app(service: DemoService | None = None) -> Any:
             ),
             inputs=[case_selector],
             outputs=[
+                case_brief,
+                image_note,
                 invoice_image,
                 extraction_comparison,
                 match_result,
@@ -320,6 +335,8 @@ def build_app(service: DemoService | None = None) -> Any:
             outputs=[
                 case_selector,
                 mode_selector,
+                case_brief,
+                image_note,
                 invoice_image,
                 extraction_comparison,
                 match_result,

@@ -2,6 +2,7 @@
   {
     "case_id": "normal_invoice",
     "display_name": "案例 1：正常标准发票",
+    "summary": "字段位置标准，PO、GRN 和发票信息完整，适合先看默认低风险路径。",
     "image": "assets/cases/normal_invoice.png",
     "source_type": "synthetic_imagegen",
     "source_note": "合成发票示意图，不含真实个人或企业数据",
@@ -23,12 +24,13 @@
     ],
     "evidence_rows": [
       ["政策 RAG", "未命中需升级人工审核的政策条款", "演示证据摘要"],
-      ["风险规则", "未命中异常规则", "现有 fixture"]
+      ["风险规则", "未命中异常规则", "现有测试案例"]
     ]
   },
   {
     "case_id": "missing_goods_receipt",
     "display_name": "案例 2：日期版式非标准 / 缺少 GRN",
+    "summary": "日期视觉版式更醒目，同时缺少收货记录编号，用来展示版式变化与信息缺失时的审核处理。",
     "image": "assets/cases/missing_goods_receipt.png",
     "source_type": "synthetic_imagegen",
     "source_note": "合成发票示意图，日期使用醒目的非标准版式，并对 GRN 值做空缺处理",
@@ -50,12 +52,13 @@
     ],
     "evidence_rows": [
       ["政策 RAG", "收货完成后应关联收货记录", "演示政策摘要"],
-      ["风险规则", "missing_goods_receipt", "现有 fixture"]
+      ["风险规则", "缺少收货记录", "现有测试案例"]
     ]
   },
   {
     "case_id": "missing_po_number",
     "display_name": "案例 3：缺少 PO",
+    "summary": "采购订单和收货记录缺失，展示关键信息不完整时为什么需要转人工审批。",
     "image": "assets/cases/missing_po_number.png",
     "source_type": "synthetic_imagegen",
     "source_note": "合成发票示意图，PO / GRN 区域为空",
@@ -77,12 +80,13 @@
     ],
     "evidence_rows": [
       ["政策 RAG", "采购发票应关联有效采购订单", "演示政策摘要"],
-      ["风险规则", "missing_po_number", "现有 fixture"]
+      ["风险规则", "缺少采购订单编号", "现有测试案例"]
     ]
   },
   {
     "case_id": "vendor_name_mismatch",
     "display_name": "案例 4：供应商 / 金额不一致",
+    "summary": "供应商与采购事实不一致，并演示 Guard 未通过后自动回退到确定性模板。",
     "image": "assets/cases/vendor_name_mismatch.png",
     "source_type": "synthetic_imagegen",
     "source_note": "合成发票示意图，突出金额与供应商核对场景",
@@ -104,12 +108,13 @@
     ],
     "evidence_rows": [
       ["政策 RAG", "供应商主数据不一致时需要人工复核", "演示政策摘要"],
-      ["风险规则", "vendor_name_mismatch", "现有 fixture"]
+      ["风险规则", "供应商名称不一致", "现有测试案例"]
     ]
   },
   {
     "case_id": "duplicate_invoice",
     "display_name": "案例 5：重复发票 / 高风险",
+    "summary": "重复检查命中历史记录，展示高风险场景下默认采用确定性模板解释。",
     "image": "assets/cases/duplicate_invoice.png",
     "source_type": "synthetic_imagegen",
     "source_note": "合成发票示意图，带重复 / 高风险视觉标记",
@@ -131,7 +136,7 @@
     ],
     "evidence_rows": [
       ["政策 RAG", "重复发票不得进入自动付款", "演示政策摘要"],
-      ["风险规则", "duplicate_invoice", "现有 fixture"]
+      ["风险规则", "重复发票", "现有测试案例"]
     ]
   }
 ]
