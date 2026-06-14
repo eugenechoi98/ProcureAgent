@@ -78,9 +78,10 @@ def test_invoice_audit_keeps_existing_inputs_outputs_and_defaults() -> None:
         for choice in _component_props("explanation-mode-selector")["choices"]
     }
     assert "normal_invoice" in case_values
+    assert len(case_values) == 5
     assert "template" in mode_values
     assert {
-        "演示案例",
+        "预置发票案例",
         "解释模式",
         "风险等级",
         "建议动作",
@@ -114,6 +115,7 @@ def test_public_demo_contains_chinese_usage_guidance() -> None:
     assert "如何使用" in rendered
     assert "点击“运行审核”" in rendered
     assert "完整审核报告" in rendered
+    assert "不是 SROIE 评测样本" in rendered
     assert "不需要 GPU、API Key 或在线模型" in rendered
     assert "真实离线模型实验结果" in rendered
     assert "为什么模型不能直接决定风险" in rendered

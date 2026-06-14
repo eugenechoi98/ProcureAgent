@@ -22,6 +22,7 @@ def run_smoke() -> dict[str, Any]:
     sys.path = [str(SPACE_ROOT), *[item for item in sys.path if item != str(PROJECT_ROOT)]]
     try:
         from demo.app import build_app
+        from demo.invoice_case_view import load_invoice_case_catalog
         from demo.model_lab_view import load_model_lab_artifacts
 
         app = build_app()
@@ -33,11 +34,13 @@ def run_smoke() -> dict[str, Any]:
             if item.get("type") == "tabitem"
         ]
         artifacts = load_model_lab_artifacts()
+        case_catalog = load_invoice_case_catalog()
         default_case = _component_value(components, "demo-case-selector")
         default_mode = _component_value(components, "explanation-mode-selector")
     except Exception as exc:  # pragma: no cover - returned in smoke JSON
         tabs = []
         artifacts = {}
+        case_catalog = {}
         default_case = None
         default_mode = None
         errors.append(f"{exc.__class__.__name__}: {exc}")
@@ -52,6 +55,13 @@ def run_smoke() -> dict[str, Any]:
         errors.append("default_case_not_normal_invoice")
     if default_mode != "template":
         errors.append("default_mode_not_template")
+    if len(case_catalog) != 5:
+        errors.append("invoice_case_count_not_five")
+    if not all(
+        (SPACE_ROOT / "demo" / case["image"]).is_file()
+        for case in case_catalog.values()
+    ):
+        errors.append("invoice_case_image_missing")
 
     return {
         "ready": not errors,
@@ -60,6 +70,13 @@ def run_smoke() -> dict[str, Any]:
         "tabs": tabs,
         "default_case": default_case,
         "default_mode": default_mode,
+        "invoice_cases": {
+            "count": len(case_catalog),
+            "case_ids": list(case_catalog),
+            "images_present": not any(
+                error == "invoice_case_image_missing" for error in errors
+            ),
+        },
         "model_lab": {
             "manifest_loaded": bool(artifacts.get("manifest")),
             "layoutlmv3_metrics_loaded": bool(artifacts.get("layout_metrics")),
