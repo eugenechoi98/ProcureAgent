@@ -1,0 +1,173 @@
+{
+  "bbox_visualization_generated": true,
+  "blockers": [],
+  "cases": [
+    {
+      "case_id": "case_a_standard_pass",
+      "case_title": "标准收据字段抽取与低风险审核",
+      "claims_allowed": [
+        "The image, OCR boxes, and LayoutLMv3 word predictions share the same SROIE sample_id.",
+        "LayoutLMv3 predictions were generated offline from the saved local checkpoint.",
+        "The existing Phase 2 engine produced the committed audit result from the packaged input.",
+        "PO and GRN are explicitly marked mock procurement context."
+      ],
+      "claims_forbidden": [
+        "This single case proves overall LayoutLMv3 F1.",
+        "PO number, GRN number, or invoice number were extracted from the SROIE image.",
+        "The Phase 2 audit uses a real enterprise PO/GRN system.",
+        "This is official SROIE test performance."
+      ],
+      "evidence_file_sha256": {
+        "extracted_fields.json": "afcb9e73fbfe10ad468771d5919b0bffd0ddd2c380059c29dceb00c177769854",
+        "final_audit_report.json": "5aef61f42b738adb0245e78c90e829f06491f908542cbafb7f365cd86d9464f2",
+        "layoutlmv3_predictions.png": "4d5a3b666388127df70b33214ebfad05835373ad873b053855809f703a45859b",
+        "ocr_boxes.png": "48b953c1d9933ec8ed81a08e8e1238a291726d4d1237cedf00795d70de14dfb9",
+        "ocr_output.json": "d73524dbbf90d7f18cd7ec064c6b50dbf388b0663ac7bcd09f1d14cac110600d",
+        "phase2_audit_input.json": "11f98ad2d8d087d8e3eec05b8aedc338d37e6c47e5f2df78665cc465646dc46f",
+        "phase2_audit_result.json": "5aef61f42b738adb0245e78c90e829f06491f908542cbafb7f365cd86d9464f2",
+        "source_invoice.png": "af5b31fb7c8ab5b00ee008d29d4d784c3055c1c84232a4a3603a1d07477af6ce"
+      },
+      "field_provenance": {
+        "currency": "mock_context_matching_source_dataset_locale",
+        "invoice_date": "offline_real_layoutlmv3_checkpoint_prediction",
+        "invoice_number": "mock_procurement_linkage_not_extracted_from_image",
+        "line_items": "not_available_from_sroie_four_field_task",
+        "po_number": "mock_procurement_linkage_not_extracted_from_image",
+        "total_amount": "offline_real_layoutlmv3_checkpoint_prediction",
+        "vendor_name": "offline_real_layoutlmv3_checkpoint_prediction"
+      },
+      "guard_result_type": "not_available",
+      "image_is_public_safe": true,
+      "layoutlmv3_prediction_type": "real_checkpoint_inference",
+      "lora_result_type": "not_available",
+      "ocr_result_type": "existing_artifact",
+      "phase2_context_type": "mock_po_grn_context",
+      "phase2_result_type": "real_runtime_engine",
+      "privacy_note": "Public dataset receipt with business address/phone or order data; review again before external publication.",
+      "result_summary": {
+        "recommended_action": "auto_approve",
+        "risk_level": "low"
+      },
+      "source_license_or_note": "Source: Voxel51/scanned_receipts, derived from ICDAR 2019 SROIE; dataset card license CC BY 4.0. The selected image contains business contact/order data but no identified natural-person customer name.",
+      "source_sample_id": "68f28c61d47a8203ad797fd1",
+      "source_type": "SROIE"
+    },
+    {
+      "case_id": "case_b_date_layout_challenge",
+      "case_title": "日期版式挑战与日期重建",
+      "claims_allowed": [
+        "The image, OCR boxes, and LayoutLMv3 word predictions share the same SROIE sample_id.",
+        "LayoutLMv3 predictions were generated offline from the saved local checkpoint.",
+        "The existing Phase 2 engine produced the committed audit result from the packaged input.",
+        "PO and GRN are explicitly marked mock procurement context."
+      ],
+      "claims_forbidden": [
+        "This single case proves overall LayoutLMv3 F1.",
+        "PO number, GRN number, or invoice number were extracted from the SROIE image.",
+        "The Phase 2 audit uses a real enterprise PO/GRN system.",
+        "This is official SROIE test performance."
+      ],
+      "evidence_file_sha256": {
+        "date_reconstruction.json": "3445fc9876f3a7249365cb68eeb9a91759588967488f28e2fd9332f5f8d2f643",
+        "extracted_fields.json": "9892ac2927b7c3197de4d64cf021ac6ec5c61384c0a110bb48efe51da198e596",
+        "final_audit_report.json": "6c0d63d32c238b686adae28ac1f49dad0875873761725436fe89c35ac3b783ef",
+        "layoutlmv3_predictions.png": "49ba5a9ad856a4ac6a28f039cf2e390efaf5a93f06bdd9407da8999f5f102267",
+        "ocr_boxes.png": "cc337eecdbcfe05361c4e3faa5cc907903f507ca28fff01dd9c343269fefd7b9",
+        "ocr_output.json": "7de9737d7883d44ba94f05a841ed89bf4db08bc9b94ab9ad6ed1fa1eaeea82fa",
+        "phase2_audit_input.json": "1f3b7da0231173fc66bce7c3962a1eaaf5a6c4940a08c51a84b1e3468807fc24",
+        "phase2_audit_result.json": "6c0d63d32c238b686adae28ac1f49dad0875873761725436fe89c35ac3b783ef",
+        "source_invoice.png": "89222f55fbc79d38966b9afa8c7691dad9595d95f4200f3c56532879eb62dec4"
+      },
+      "field_provenance": {
+        "currency": "mock_context_matching_source_dataset_locale",
+        "invoice_date": "offline_real_layoutlmv3_checkpoint_prediction",
+        "invoice_number": "mock_procurement_linkage_not_extracted_from_image",
+        "line_items": "not_available_from_sroie_four_field_task",
+        "po_number": "mock_procurement_linkage_not_extracted_from_image",
+        "total_amount": "offline_real_layoutlmv3_checkpoint_prediction",
+        "vendor_name": "offline_real_layoutlmv3_checkpoint_prediction"
+      },
+      "guard_result_type": "not_available",
+      "image_is_public_safe": true,
+      "layoutlmv3_prediction_type": "real_checkpoint_inference",
+      "lora_result_type": "not_available",
+      "ocr_result_type": "existing_artifact",
+      "phase2_context_type": "mock_po_grn_context",
+      "phase2_result_type": "real_runtime_engine",
+      "privacy_note": "Public dataset receipt with business address/phone or order data; review again before external publication.",
+      "result_summary": {
+        "recommended_action": "auto_approve",
+        "risk_level": "low"
+      },
+      "source_license_or_note": "Source: Voxel51/scanned_receipts, derived from ICDAR 2019 SROIE; dataset card license CC BY 4.0. The selected image contains business contact/order data but no identified natural-person customer name.",
+      "source_sample_id": "68f28c63d47a8203ad798055",
+      "source_type": "SROIE"
+    },
+    {
+      "case_id": "case_c_lora_guard_fallback",
+      "case_title": "真实离线 LoRA 幻觉、Guard 拦截与模板回退",
+      "claims_allowed": [
+        "The raw text is an existing first-run offline LoRA model output.",
+        "The current Guard rejects unsupported GRN-20260149.",
+        "The final explanation is the deterministic template fallback."
+      ],
+      "claims_forbidden": [
+        "The input facts represent a real enterprise invoice.",
+        "LoRA determines the risk level or recommended action.",
+        "The LoRA model ran online in the public Demo.",
+        "This case includes LayoutLMv3 image inference."
+      ],
+      "evidence_file_sha256": {
+        "audit_facts.json": "83198b4780873791897926e19d535a616d48afe58184f921eab64604f0f52cc7",
+        "fallback_explanation.md": "9c40dcc32eb3726929eed7ff42397e3a36fdd4d447b0564806a6cd2f12004a2a",
+        "final_audit_report.json": "73349f9c19a5d65c0510976c7af1f0ef4e71cb1c2cfc3ca9689754d34a706ce3",
+        "final_explanation.md": "f9a97a3b9c91f5129d604e80c8ae90b98be74741bc9d68e2ce51a07e2dc8c8f0",
+        "guard_result.json": "bc302dbda65aaf8f55671472c0c7785a0d7b5460beb4082558281c86d3539867",
+        "lora_raw_output.txt": "28991f48c8db8b51a8ec15c6e17d8b91256863361b803932f959ac6936333dc1"
+      },
+      "guard_result_type": "real_guard_check",
+      "image_is_public_safe": false,
+      "layoutlmv3_prediction_type": "not_available",
+      "lora_result_type": "real_offline_model_output",
+      "phase2_result_type": "fixture_only",
+      "source_license_or_note": "Input facts are a generated Phase 3 evaluation fixture; raw LoRA output is copied from the first real offline ModelScope evaluation review.",
+      "source_type": "existing_fixture"
+    }
+  ],
+  "claims_allowed": [
+    "A/B use offline real LayoutLMv3 checkpoint inference on traceable SROIE samples.",
+    "A/B Phase 2 audit results come from the existing runtime engine with mock PO/GRN context.",
+    "C uses a real offline LoRA review output and a real current-code Guard check."
+  ],
+  "claims_forbidden": [
+    "Single examples prove dataset-level F1.",
+    "Mock PO/GRN identifiers were extracted from receipt images.",
+    "The public Demo performs live LayoutLMv3 or LoRA inference.",
+    "The evidence is official test-set performance."
+  ],
+  "dataset": {
+    "license": "CC BY 4.0 per dataset card",
+    "name": "Voxel51/scanned_receipts",
+    "origin": "ICDAR 2019 SROIE",
+    "privacy_note": "Selected images contain business contact/order data; no identified natural-person customer name was observed."
+  },
+  "generated_case_count": 3,
+  "hf_demo_candidates": [
+    "case_a_standard_pass",
+    "case_b_date_layout_challenge",
+    "case_c_lora_guard_fallback"
+  ],
+  "image_prediction_one_to_one": true,
+  "local_assets": {
+    "checkpoint": "D:/ProcureAgent_LocalArtifacts/Phase1/layoutlmv3_best",
+    "checkpoint_included": false,
+    "generated_evidence_images_included": true,
+    "lora_weights_included": false,
+    "sroie_images_in_git": false
+  },
+  "phase2_runtime_audit_generated": true,
+  "ready": true,
+  "real_lora_guard_case_generated": true,
+  "real_public_images_found": true,
+  "scope": "batch_h0_e2e_case_evidence"
+}
