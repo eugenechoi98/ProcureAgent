@@ -14,6 +14,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from demo.app import build_app
 from demo.architecture_view import ARCHITECTURE_MARKDOWN
+from demo.invoice_case_view import load_invoice_case_catalog
 from demo.model_lab_view import load_model_lab_artifacts, render_model_lab_summary
 
 
@@ -33,6 +34,27 @@ def run_smoke() -> dict[str, Any]:
     for label in expected_tabs:
         if label not in tab_labels:
             errors.append(f"missing_tab:{label}")
+    if tab_labels != expected_tabs:
+        errors.append("unexpected_tab_structure")
+
+    case_catalog = load_invoice_case_catalog()
+    if len(case_catalog) != 5:
+        errors.append("invoice_case_count_not_five")
+    for case_id, case in case_catalog.items():
+        if case["source_type"] != "synthetic_imagegen":
+            errors.append(f"invoice_case_source_not_synthetic:{case_id}")
+        if "不证明" not in case["scope_note"]:
+            errors.append(f"invoice_case_scope_missing:{case_id}")
+    for elem_id in (
+        "invoice-case-image",
+        "invoice-case-extraction",
+        "invoice-case-match",
+        "invoice-case-evidence",
+        "invoice-case-risk-action",
+        "invoice-case-explanation",
+    ):
+        if not _component_props(components, elem_id):
+            errors.append(f"invoice_case_component_missing:{elem_id}")
 
     artifacts = load_model_lab_artifacts()
     model_lab_text = "\n".join(
@@ -110,6 +132,15 @@ def run_smoke() -> dict[str, Any]:
         "tabs": tab_labels,
         "default_case": _component_value(components, "demo-case-selector"),
         "default_mode": _component_value(components, "explanation-mode-selector"),
+        "invoice_cases": {
+            "count": len(case_catalog),
+            "case_ids": list(case_catalog),
+            "synthetic_images": all(
+                case["source_type"] == "synthetic_imagegen"
+                for case in case_catalog.values()
+            ),
+            "single_case_f1_claim": False,
+        },
         "model_lab": {
             "manifest_loaded": bool(artifacts["manifest"]),
             "layoutlmv3_metrics_loaded": bool(artifacts["layout_metrics"]),

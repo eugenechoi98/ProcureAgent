@@ -6,7 +6,7 @@
 - App: https://eugene-98-procureguard-ai-demo.hf.space
 - Visibility: Public
 - Runtime: `RUNNING` on `cpu-basic`
-- 当前远端 commit：`80a5e0310b2198ca784286a9fddc2fb853b13ca2`
+- 当前远端 commit：`9691cf21d563ca92006d594f03608d4aade215f7`
 
 Batch C.1 本地发布包、Batch C.2 网页端 Space 创建和 Batch C.3 受控上传均已完成。远端 commit 为 `d1d12ae4529b47c34b6b4bd50cd27d0303cfa6c2`。
 
@@ -14,7 +14,7 @@ Batch C.1 本地发布包、Batch C.2 网页端 Space 创建和 Batch C.3 受控
 
 公网 Demo 已完成中文化，包含：
 
-1. 发票审核：中文使用说明、中文业务字段与完整审核报告 JSON
+1. 发票审核：5 个合成图片案例、字段抽取对比、三单匹配、审核证据、风险动作和模板/Guard/fallback 解释
 2. 模型实验：三项核心指标前置、LayoutLMv3/LoRA 分区展示、原始 JSON 默认折叠
 3. 系统架构：中文系统链路、治理边界与运行边界
 
@@ -25,6 +25,8 @@ Batch C.1 本地发布包、Batch C.2 网页端 Space 创建和 Batch C.3 受控
 - Hub、App 和 `/config` 返回 HTTP 200，无需登录。
 - 三个页签、默认 `normal_invoice + template`、Model Lab 指标和 Architecture 链路已从公开 Gradio config 核验。
 - 公开 `run_audit` API 返回 risk level、recommended action、facts hash 和完整 AuditReport。
+- 案例增强版本的公开 `/config` 已确认六个案例区块，默认 `run_audit` API 返回低风险和自动通过。
+- 本地桌面与 390px 窄屏视觉检查通过，未发现布局重叠或前端错误。
 - 公开 Gradio config 已确认三个中文页签、中文使用说明和中文架构链路。
 - 用户已完成人工浏览器验收：公网页面、中文化页面、发票审核、模型实验和系统架构均为 PASS，未发现前端错误。
 - 未单独记录桌面与移动设备专项视觉结果。
@@ -47,9 +49,7 @@ production_ready=false
 
 公网 Unified Portfolio Demo 已部署，不等于在线 LayoutLMv3、真实 LoRA 在线推理、生产可用、生产指标或 official test。
 
-模型实验页新增真实离线 `GRN-20260149` 案例，展示 LoRA 原始输出、Guard 拒绝原因和确定性模板回退。该展示不启用真实 LoRA 在线推理，也不改变审核结论。
-
-下一批建议：Batch G0 发票图片案例故事线增强。本轮不实施。
+模型实验页新增真实离线 `GRN-20260149` 案例，展示 LoRA 原始输出、Guard 拒绝原因和确定性模板回退。发票审核页图片全部是合成示意图，不是 SROIE 样本或单图 checkpoint 输出，不启用真实 LoRA 在线推理，也不改变审核结论。
 
 ## Local Package Checks
 

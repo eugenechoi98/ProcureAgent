@@ -1,0 +1,137 @@
+[
+  {
+    "case_id": "normal_invoice",
+    "display_name": "案例 1：正常标准发票",
+    "image": "assets/cases/normal_invoice.png",
+    "source_type": "synthetic_imagegen",
+    "source_note": "合成发票示意图，不含真实个人或企业数据",
+    "scope_note": "网页演示案例，不是 SROIE 评测样本，不证明数据集级 F1",
+    "recommended_mode": "template",
+    "risk_level": "low",
+    "recommended_action": "auto_approve",
+    "extraction_rows": [
+      ["发票编号", "INV-DEMO-001", "未运行", "未运行", "合成示意真值"],
+      ["PO 编号", "PO-1001", "未运行", "未运行", "合成示意真值"],
+      ["GRN 编号", "GRN-1001", "未运行", "未运行", "合成示意真值"],
+      ["总金额", "USD 1,200.00", "未运行", "未运行", "合成示意真值"]
+    ],
+    "match_rows": [
+      ["PO", "已提供", "匹配"],
+      ["GRN", "已提供", "匹配"],
+      ["发票", "字段完整", "通过"],
+      ["重复检查", "未发现历史重复记录", "通过"]
+    ],
+    "evidence_rows": [
+      ["政策 RAG", "未命中需升级人工审核的政策条款", "演示证据摘要"],
+      ["风险规则", "未命中异常规则", "现有 fixture"]
+    ]
+  },
+  {
+    "case_id": "missing_goods_receipt",
+    "display_name": "案例 2：日期版式非标准 / 缺少 GRN",
+    "image": "assets/cases/missing_goods_receipt.png",
+    "source_type": "synthetic_imagegen",
+    "source_note": "合成发票示意图，日期使用醒目的非标准版式，并对 GRN 值做空缺处理",
+    "scope_note": "网页演示案例，不是 SROIE 评测样本，不证明日期字段 F1",
+    "recommended_mode": "template",
+    "risk_level": "medium",
+    "recommended_action": "request_human_approval",
+    "extraction_rows": [
+      ["发票日期", "31 MAY 2025", "未运行", "未运行", "合成示意真值"],
+      ["PO 编号", "PO-3003", "未运行", "未运行", "合成示意真值"],
+      ["GRN 编号", "缺失", "未运行", "未运行", "现有 fixture"],
+      ["总金额", "USD 3,600.00", "未运行", "未运行", "现有 fixture"]
+    ],
+    "match_rows": [
+      ["PO", "PO-3003", "匹配"],
+      ["GRN", "未提供", "缺失"],
+      ["发票", "已提供", "待人工核验"],
+      ["重复检查", "未发现历史重复记录", "通过"]
+    ],
+    "evidence_rows": [
+      ["政策 RAG", "收货完成后应关联收货记录", "演示政策摘要"],
+      ["风险规则", "missing_goods_receipt", "现有 fixture"]
+    ]
+  },
+  {
+    "case_id": "missing_po_number",
+    "display_name": "案例 3：缺少 PO",
+    "image": "assets/cases/missing_po_number.png",
+    "source_type": "synthetic_imagegen",
+    "source_note": "合成发票示意图，PO / GRN 区域为空",
+    "scope_note": "网页演示案例，不是模型评测样本，不证明数据集级 F1",
+    "recommended_mode": "template",
+    "risk_level": "medium",
+    "recommended_action": "request_human_approval",
+    "extraction_rows": [
+      ["发票编号", "INV-DEMO-002", "未运行", "未运行", "现有 fixture"],
+      ["PO 编号", "缺失", "未运行", "未运行", "现有 fixture"],
+      ["GRN 编号", "缺失", "未运行", "未运行", "现有 fixture"],
+      ["总金额", "USD 2,400.00", "未运行", "未运行", "现有 fixture"]
+    ],
+    "match_rows": [
+      ["PO", "未提供", "缺失"],
+      ["GRN", "未提供", "缺失"],
+      ["发票", "已提供", "待人工核验"],
+      ["重复检查", "未发现历史重复记录", "通过"]
+    ],
+    "evidence_rows": [
+      ["政策 RAG", "采购发票应关联有效采购订单", "演示政策摘要"],
+      ["风险规则", "missing_po_number", "现有 fixture"]
+    ]
+  },
+  {
+    "case_id": "vendor_name_mismatch",
+    "display_name": "案例 4：供应商 / 金额不一致",
+    "image": "assets/cases/vendor_name_mismatch.png",
+    "source_type": "synthetic_imagegen",
+    "source_note": "合成发票示意图，突出金额与供应商核对场景",
+    "scope_note": "网页演示案例，不是模型评测样本，不证明数据集级 F1",
+    "recommended_mode": "experimental_guard_fail",
+    "risk_level": "medium",
+    "recommended_action": "request_human_approval",
+    "extraction_rows": [
+      ["供应商", "Adventure Works Services", "未运行", "未运行", "现有 fixture"],
+      ["PO 供应商", "Alpine Technology Group", "不适用", "不适用", "三单匹配事实"],
+      ["发票金额", "USD 4,100.00", "未运行", "未运行", "现有 fixture"],
+      ["PO 编号", "PO-4004", "未运行", "未运行", "现有 fixture"]
+    ],
+    "match_rows": [
+      ["PO", "供应商为 Alpine Technology Group", "不一致"],
+      ["GRN", "GRN-4004", "已关联"],
+      ["发票", "供应商为 Adventure Works Services", "待人工核验"],
+      ["重复检查", "未发现历史重复记录", "通过"]
+    ],
+    "evidence_rows": [
+      ["政策 RAG", "供应商主数据不一致时需要人工复核", "演示政策摘要"],
+      ["风险规则", "vendor_name_mismatch", "现有 fixture"]
+    ]
+  },
+  {
+    "case_id": "duplicate_invoice",
+    "display_name": "案例 5：重复发票 / 高风险",
+    "image": "assets/cases/duplicate_invoice.png",
+    "source_type": "synthetic_imagegen",
+    "source_note": "合成发票示意图，带重复 / 高风险视觉标记",
+    "scope_note": "网页演示案例，不是模型评测样本，不证明数据集级 F1",
+    "recommended_mode": "experimental_guard_pass",
+    "risk_level": "high",
+    "recommended_action": "reject",
+    "extraction_rows": [
+      ["发票编号", "INV-DUP-001", "未运行", "未运行", "现有 fixture"],
+      ["PO 编号", "PO-1001", "未运行", "未运行", "现有 fixture"],
+      ["GRN 编号", "GRN-1001", "未运行", "未运行", "现有 fixture"],
+      ["总金额", "USD 1,200.00", "未运行", "未运行", "现有 fixture"]
+    ],
+    "match_rows": [
+      ["PO", "PO-1001", "匹配"],
+      ["GRN", "GRN-1001", "匹配"],
+      ["发票", "INV-DUP-001", "已存在"],
+      ["重复检查", "命中历史记录", "高风险"]
+    ],
+    "evidence_rows": [
+      ["政策 RAG", "重复发票不得进入自动付款", "演示政策摘要"],
+      ["风险规则", "duplicate_invoice", "现有 fixture"]
+    ]
+  }
+]

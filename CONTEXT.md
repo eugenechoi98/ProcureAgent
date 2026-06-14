@@ -1,26 +1,23 @@
 # CONTEXT.md
 
 ## 当前目标
-完成 Portfolio Final Polish：README 第一屏、Demo Walkthrough、LoRA Guard 可视化证据和双语简历描述。
+完成发票审核页图片案例故事线增强，并将已验证 Space 包合并到 main。
 
 ## 当前进度
 - Public Space：https://huggingface.co/spaces/eugene-98/procureguard-ai-demo
 - Public App：https://eugene-98-procureguard-ai-demo.hf.space
-- Space 运行于 `cpu-basic`，Portfolio Final Polish 远端 commit 为 `80a5e03`。
-- 发票审核、模型实验、系统架构三个中文页签已公开，使用说明和业务标签已中文化。
-- 模型实验页已突出三项核心指标，移除独立缺失区域，并将原始 JSON 收进默认折叠区。
-- HTTP、Gradio config 和 `run_audit` API 已通过；公网页面、中文化页面及三个核心页签均已通过用户人工验收。
-- 当前状态为 `manual_browser_check_required=false`、`online_deployment_verified=true`。
-- Model Lab 已增加真实离线 `GRN-20260149` 的 LoRA 输出、Guard 拒绝与模板回退展示。
-- README、Demo Walkthrough 和双语简历描述已按“受控采购发票审核 Agent”定位收口。
+- Space 运行于 `cpu-basic`，案例增强远端 commit 为 `9691cf2`。
+- 三页签结构不变；发票审核页新增 5 个合成图片案例和六区块故事线。
+- 本地桌面与 390px 页面检查通过；公开 HTTP、config 和 `run_audit` API 通过。
+- 案例图片不是 SROIE 样本，不运行单图 LayoutLMv3，也不用于证明数据集级 F1。
 
 ## 下一步
-完成全量验证和 Git 合并；截图/GIF 因当前浏览器进程无法持久化二进制到工作区而不纳入本轮提交。
+完成全量测试、合并 main 并 push origin/main，随后等待总控验收。
 
 ## 注意事项
 - 不加载 LayoutLMv3、Qwen 或真实 LoRA，不使用 GPU、API Key、secrets 或外部模型 API。
-- 公网 Unified Portfolio Demo 不等于在线模型推理，也不代表生产可用或 official test。
-- Docker runtime 仍未在当前本机环境验证。
+- Guard / fallback 仅使用现有本地 fake provider 展示治理路径，模板仍是正式输出。
+- 不新增第 4 页签，不修改 Phase 1、Phase 2 风险规则或 Phase 3H 语义。
 
 ## 最后更新时间
 2026-06-14
