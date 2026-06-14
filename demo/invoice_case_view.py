@@ -69,11 +69,46 @@ def preview_values(
         render_image_note(case),
         str((DEMO_ROOT / case["image"]).resolve()),
         case["extraction_rows"],
-        case["match_rows"],
-        case["evidence_rows"],
-        render_risk_action(case),
-        render_explanation(case),
+        pending_match_rows(),
+        pending_evidence_rows(),
+        render_pending_risk_action(case),
+        render_pending_explanation(case),
         case["recommended_mode"],
+    )
+
+
+def pending_match_rows() -> list[list[str]]:
+    """运行前不预填三单匹配结论。"""
+
+    return [["审核状态", "尚未运行", "点击“运行审核”后生成"]]
+
+
+def pending_evidence_rows() -> list[list[str]]:
+    """运行前不预填政策和规则证据。"""
+
+    return [["审核状态", "尚未运行", "点击“运行审核”后生成"]]
+
+
+def render_pending_risk_action(case: dict[str, Any]) -> str:
+    """区分案例预期与尚未生成的正式审核结果。"""
+
+    return (
+        "### 5. 建议动作 + 风险等级\n"
+        "**审核结果：** 尚未运行  \n"
+        f"**案例预期：** {RISK_LABELS.get(case['risk_level'], case['risk_level'])} / "
+        f"{ACTION_LABELS.get(case['recommended_action'], case['recommended_action'])}  \n"
+        "点击“运行审核”后生成本次审核的风险等级和建议动作。"
+    )
+
+
+def render_pending_explanation(case: dict[str, Any]) -> str:
+    """运行前仅说明解释路径，不展示正式解释。"""
+
+    return (
+        "### 6. 审核解释\n"
+        "**正式解释：** 尚未运行  \n"
+        f"**本案例将展示：** {_case_governance_note(case['recommended_mode'])}  \n"
+        "点击“运行审核”后生成正式解释；技术版本和原始输出仍收在折叠区。"
     )
 
 

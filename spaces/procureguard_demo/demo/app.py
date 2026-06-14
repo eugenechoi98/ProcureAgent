@@ -8,9 +8,12 @@ from demo.architecture_view import build_architecture_tab
 from demo.demo_service import DemoOutput, DemoService
 from demo.invoice_case_view import (
     case_choices,
+    explanation_mode_choices,
     load_invoice_case_catalog,
     preview_values,
+    render_completed_status,
     render_explanation,
+    render_pending_status,
     render_risk_action,
 )
 from demo.model_lab_view import build_model_lab_tab
@@ -64,6 +67,9 @@ def _run_for_ui(
     result = service.run_case(case_id, explanation_mode)
     case = catalog[case_id]
     return (
+        case["match_rows"],
+        case["evidence_rows"],
+        render_completed_status(case, result),
         render_risk_action(case, result),
         render_explanation(case, result),
         _summary_markdown(result),
@@ -88,6 +94,15 @@ def _run_for_ui(
         result.safe_error_summary or "",
         result.audit_report,
     )
+
+
+def _preview_for_ui(
+    catalog: dict[str, dict[str, Any]], case_id: str
+) -> tuple[Any, ...]:
+    """补充操作区状态，同时保持案例预览和内部模式值同步。"""
+
+    preview = preview_values(catalog, case_id)
+    return (*preview[:-1], render_pending_status(catalog[case_id]), preview[-1])
 
 
 def build_app(service: DemoService | None = None) -> Any:
@@ -126,16 +141,27 @@ def build_app(service: DemoService | None = None) -> Any:
                         elem_id="demo-case-selector",
                     )
                     mode_selector = gr.Dropdown(
-                        choices=demo_service.explanation_modes,
+                        choices=explanation_mode_choices(
+                            demo_service.explanation_modes
+                        ),
                         value=initial_preview[-1],
                         label="解释模式",
                         elem_id="explanation-mode-selector",
                     )
+                gr.Markdown(
+                    "解释模式用于演示确定性模板、Guard 和 fallback 行为；"
+                    "默认模式由当前案例自动推荐，内部审核规则不会随展示模式改变。",
+                    elem_id="explanation-mode-help",
+                )
                 with gr.Row():
                     run_button = gr.Button(
                         "运行审核", variant="primary", elem_id="run-audit-button"
                     )
                     reset_button = gr.Button("重置", elem_id="reset-demo-button")
+                run_status = gr.Markdown(
+                    value=render_pending_status(case_catalog["normal_invoice"]),
+                    elem_id="invoice-run-status",
+                )
 
                 case_brief = gr.Markdown(
                     value=initial_preview[0],
@@ -296,7 +322,7 @@ def build_app(service: DemoService | None = None) -> Any:
             audit_report,
         ]
         case_selector.change(
-            fn=lambda selected_case: preview_values(
+            fn=lambda selected_case: _preview_for_ui(
                 case_catalog, selected_case
             ),
             inputs=[case_selector],
@@ -309,6 +335,7 @@ def build_app(service: DemoService | None = None) -> Any:
                 audit_evidence,
                 risk_action_story,
                 explanation_story,
+                run_status,
                 mode_selector,
             ],
         )
@@ -318,6 +345,9 @@ def build_app(service: DemoService | None = None) -> Any:
             ),
             inputs=[case_selector, mode_selector],
             outputs=[
+                match_result,
+                audit_evidence,
+                run_status,
                 risk_action_story,
                 explanation_story,
                 *technical_outputs,
@@ -329,6 +359,7 @@ def build_app(service: DemoService | None = None) -> Any:
                 "normal_invoice",
                 initial_preview[-1],
                 *initial_preview[:-1],
+                render_pending_status(case_catalog["normal_invoice"]),
                 *([None] * len(technical_outputs)),
             ),
             inputs=[],
@@ -343,6 +374,7 @@ def build_app(service: DemoService | None = None) -> Any:
                 audit_evidence,
                 risk_action_story,
                 explanation_story,
+                run_status,
                 *technical_outputs,
             ],
         )

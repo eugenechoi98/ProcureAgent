@@ -67,6 +67,8 @@ def _run_for_ui(
     result = service.run_case(case_id, explanation_mode)
     case = catalog[case_id]
     return (
+        case["match_rows"],
+        case["evidence_rows"],
         render_completed_status(case, result),
         render_risk_action(case, result),
         render_explanation(case, result),
@@ -343,6 +345,8 @@ def build_app(service: DemoService | None = None) -> Any:
             ),
             inputs=[case_selector, mode_selector],
             outputs=[
+                match_result,
+                audit_evidence,
                 run_status,
                 risk_action_story,
                 explanation_story,
