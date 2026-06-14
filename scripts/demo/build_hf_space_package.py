@@ -72,12 +72,15 @@ ALLOWLIST_FILES = [
     "demo/__init__.py",
     "demo/app.py",
     "demo/demo_service.py",
+    "demo/invoice_case_view.py",
+    "demo/invoice_cases.json",
     "demo/model_lab_view.py",
     "demo/architecture_view.py",
     "tests/fixtures/phase3h_demo_cases.json",
 ]
 
 ALLOWLIST_DIRS = [
+    "demo/assets/cases",
     "demo/model_lab",
     "procureguard/db",
     "procureguard/models",
