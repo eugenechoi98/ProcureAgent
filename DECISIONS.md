@@ -131,3 +131,7 @@ ContextPack 属于 ContextGraph Studio 的 AI Coding Agent 输出格式。Procur
 # Batch H0 端到端证据必须逐字段标注来源
 
 SROIE Task 3 只提供 `company/address/date/total` 四字段，不能把为了进入采购审核链而补充的 invoice number、PO、GRN 写成图片抽取结果。Batch H0 因此把模型预测字段和 mock 采购上下文分开记录，并要求 manifest 同时保存允许与禁止的 claim。这样既能复用真实 Phase 2 引擎，又不会制造一条看似完整但来源混乱的证据链。
+
+## Batch H1 公网页面优先读取已验收证据包
+
+公网 CPU Space 不上传模型权重，也不把选择案例包装成实时模型推理。案例 A/B 直接展示 H0 已提交的图片、OCR、离线 checkpoint 预测和 Phase 2 结果；案例 C 展示真实离线 LoRA artifact 与 Guard 执行结果。这样能把真实工程链路讲完整，同时保持运行轻量和证据可复核。

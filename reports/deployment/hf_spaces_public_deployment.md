@@ -4,14 +4,14 @@
 
 - Hub：https://huggingface.co/spaces/eugene-98/procureguard-ai-demo
 - App：https://eugene-98-procureguard-ai-demo.hf.space
-- 远端 commit：`c1a6bccec34f2fca53a5890372854dc0ee9d2179`
+- 远端 commit：`1235f47642277cb9c03c45f2ea44f8632d990710`
 - Runtime：`RUNNING`，硬件为 `cpu-basic`
 - 中文页签：发票审核、模型实验、系统架构
-- 远端文件：70 个，禁入文件：0 个
+- 远端文件：144 个，禁入文件：0 个
 
-发票审核页增加“如何看本页”和 5 个中文案例摘要；模型实验页将 LoRA Guard 拦截亮点前移，并把完整指标、长表和 JSON 默认折叠；系统架构页强化受控 Agent 定位。三页签结构保持不变。
+发票审核页以 3 个 H0 端到端证据链案例为主视图，原 5 个合成流程案例保留在默认收起的补充区；模型实验页增加返回案例 A/B 查看完整链路的提示；系统架构页明确离线证据包与 CPU 运行边界。三页签结构保持不变。
 
-案例图片不含真实个人或企业数据，不是 SROIE 样本或 LayoutLMv3 单图推理结果，也不用于证明数据集级 F1。公网 HTTP、Gradio config 和 `run_audit` API smoke 已通过。
+案例 A/B 使用 SROIE validation 图片并保留 CC BY 4.0 归属。人工复核仅发现企业地址、电话和订单信息，未发现可识别自然人客户姓名，本次不做遮罩。单图证据不用于证明数据集级 F1。公网 HTTP 和 Gradio config 已通过。
 
 公网 `run_audit` API 继续通过：`vendor_name_mismatch + experimental_guard_fail` 返回中风险、转人工审批，并显示 Guard 未通过后回退确定性模板。
 
