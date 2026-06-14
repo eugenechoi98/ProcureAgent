@@ -54,9 +54,28 @@ def run_smoke() -> dict[str, Any]:
         "invoice-case-evidence",
         "invoice-case-risk-action",
         "invoice-case-explanation",
+        "invoice-run-status",
+        "explanation-mode-help",
     ):
         if not _component_props(components, elem_id):
             errors.append(f"invoice_case_component_missing:{elem_id}")
+
+    mode_selector = _component_props(
+        components, "explanation-mode-selector"
+    )
+    expected_mode_choices = [
+        ("确定性模板", "template"),
+        ("Shadow 影子改写", "shadow"),
+        ("实验改写：Guard 通过", "experimental_guard_pass"),
+        ("实验改写：Guard 拦截回退", "experimental_guard_fail"),
+        ("Provider 运行错误回退", "provider_runtime_error"),
+        ("非法输出回退", "invalid_output"),
+    ]
+    if mode_selector.get("choices") != expected_mode_choices:
+        errors.append("explanation_mode_labels_not_chinese")
+    run_status = _component_value(components, "invoice-run-status") or ""
+    if "审核状态：待运行" not in run_status:
+        errors.append("invoice_run_status_missing")
 
     artifacts = load_model_lab_artifacts()
     model_lab_text = "\n".join(
