@@ -247,6 +247,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     args = build_parser().parse_args(argv)
     result = verify_release_readiness(include_online_check=args.include_online_check)
     rendered = json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True)

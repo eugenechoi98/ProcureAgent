@@ -57,7 +57,7 @@ def test_app_builds_with_three_tabs() -> None:
 
     assert config["title"] == "ProcureGuard AI"
     assert config["analytics_enabled"] is False
-    assert ["Invoice Audit", "Model Lab", "Architecture"] == tab_labels
+    assert ["发票审核", "模型实验", "系统架构"] == tab_labels
 
 
 def test_invoice_audit_keeps_existing_inputs_outputs_and_defaults() -> None:
@@ -76,27 +76,60 @@ def test_invoice_audit_keeps_existing_inputs_outputs_and_defaults() -> None:
     assert "normal_invoice" in case_values
     assert "template" in mode_values
     assert {
-        "Demo Case",
-        "Explanation Mode",
-        "Risk Level",
-        "Recommended Action",
-        "Anomaly Types",
-        "Evidence",
-        "Missing Fields",
-        "Explanation Text",
-        "Explanation Source",
-        "Used Rewrite",
-        "Guard Passed",
-        "Fallback Reason",
-        "Facts Hash",
-        "Template Version",
-        "Prompt Version",
-        "Model Version",
-        "Adapter Version",
-        "Raw Rewrite Output",
-        "Safe Fallback Detail",
-        "Complete AuditReport JSON",
+        "演示案例",
+        "解释模式",
+        "风险等级",
+        "建议动作",
+        "异常类型",
+        "证据",
+        "缺失字段",
+        "审核解释",
+        "解释来源",
+        "是否使用改写",
+        "守卫是否通过",
+        "回退原因",
+        "事实哈希",
+        "模板版本",
+        "提示词版本",
+        "模型版本",
+        "Adapter 版本",
+        "原始改写输出",
+        "安全回退详情",
+        "完整审核报告 JSON（AuditReport）",
     } <= labels
+
+
+def test_public_demo_contains_chinese_usage_guidance() -> None:
+    markdown_values = [
+        component.get("props", {}).get("value", "")
+        for component in _components()
+        if component.get("type") == "markdown"
+    ]
+    rendered = "\n".join(str(value) for value in markdown_values)
+
+    assert "如何使用" in rendered
+    assert "点击“运行审核”" in rendered
+    assert "完整审核报告" in rendered
+    assert "不需要 GPU、API Key 或在线模型" in rendered
+    assert "本页展示真实离线实验 artifacts" in rendered
+    assert "为什么模型不能直接决定风险" in rendered
+
+
+def test_public_demo_avoids_bare_english_business_labels() -> None:
+    config_text = json.dumps(_config(), ensure_ascii=False)
+
+    for forbidden in (
+        '"Invoice Audit"',
+        '"Model Lab"',
+        '"Architecture"',
+        '"Audit Trail"',
+        '"Canonical Facts"',
+        '"Deterministic Template"',
+        '"Optional Controlled Rewrite"',
+        '"Risk Engine"',
+        '"Three-Way Match"',
+    ):
+        assert forbidden not in config_text
 
 
 def test_model_lab_loads_artifacts_and_displays_required_scope() -> None:
@@ -112,7 +145,7 @@ def test_model_lab_loads_artifacts_and_displays_required_scope() -> None:
     assert "0.8067" in summary
     assert "0.1423" in summary
     assert "0.8764" in summary
-    assert "field-level JSON only" in summary
+    assert "字段级 JSON" in summary
 
 
 def test_model_lab_lora_scope_and_missing_artifacts_are_visible() -> None:
@@ -123,7 +156,7 @@ def test_model_lab_lora_scope_and_missing_artifacts_are_visible() -> None:
         item["artifact"] for item in artifacts["manifest"]["missing_artifacts"]
     }
 
-    assert "Second adapter hard gate passed: `false`" in summary
+    assert "第二轮 Adapter 是否通过 hard gate：`false`" in summary
     assert "第二轮 adapter 未通过 hard gate" in summary
     assert "第三次训练暂停" in summary
     assert "LoRA 不作为默认审核解释器" in summary
@@ -165,25 +198,25 @@ def test_architecture_tab_contains_governance_explanations() -> None:
     text = ARCHITECTURE_MARKDOWN
 
     for node in (
-        "Invoice",
-        "OCR + LayoutLMv3",
-        "Agent Tools",
-        "Three-Way Match",
-        "Policy RAG",
-        "Risk Engine",
-        "Canonical Facts",
-        "Deterministic Template",
-        "Optional Controlled Rewrite",
-        "Guard",
-        "Fallback",
-        "Audit Trail",
-        "AuditReport",
+        "发票",
+        "OCR + LayoutLMv3 字段抽取",
+        "Agent 工具链",
+        "三单匹配",
+        "政策 RAG",
+        "风险规则引擎",
+        "标准审核事实",
+        "确定性解释模板",
+        "可选受控改写",
+        "输出守卫",
+        "模板回退",
+        "审计轨迹",
+        "审核报告",
     ):
         assert node in text
-    assert "模型不能直接决定 risk" in text
-    assert "LoRA 不能改变 `recommended_action`" in text
-    assert "Fallback 保证" in text
-    assert "Audit Trail" in text
+    assert "模型不能直接决定风险等级" in text
+    assert "LoRA 不能修改建议动作" in text
+    assert "模板回退保证" in text
+    assert "审计轨迹" in text
     assert "第三次训练暂停" in text
 
 
@@ -202,7 +235,7 @@ def test_smoke_cli_prints_json_without_writing(tmp_path: Path) -> None:
 
     assert completed.returncode == 0
     assert payload["ready"] is True
-    assert payload["tabs"] == ["Invoice Audit", "Model Lab", "Architecture"]
+    assert payload["tabs"] == ["发票审核", "模型实验", "系统架构"]
     assert payload["default_case"] == "normal_invoice"
     assert payload["default_mode"] == "template"
     assert set(tmp_path.iterdir()) == before

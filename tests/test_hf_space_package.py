@@ -37,7 +37,7 @@ def test_readme_contains_hf_spaces_yaml() -> None:
     assert "sdk_version: 5.50.0" in readme
     assert "app_file: app.py" in readme
     assert "不加载 LayoutLMv3" in readme
-    assert "Model Lab 展示真实离线 artifacts，不是网页实时推理" in readme
+    assert "模型实验页展示真实离线 artifacts，不是网页实时推理" in readme
 
 
 def test_requirements_are_minimal_and_pinned() -> None:
@@ -73,7 +73,7 @@ def test_package_can_import_and_build_gradio_app() -> None:
     result = run_smoke()
 
     assert result["ready"] is True
-    assert result["tabs"] == ["Invoice Audit", "Model Lab", "Architecture"]
+    assert result["tabs"] == ["发票审核", "模型实验", "系统架构"]
     assert result["default_case"] == "normal_invoice"
     assert result["default_mode"] == "template"
     assert result["model_lab"]["manifest_loaded"] is True
