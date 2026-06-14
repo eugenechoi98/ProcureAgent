@@ -45,6 +45,9 @@ MVP 官方解释输出改为确定性模板，由 Phase 2 Canonical Audit Facts 
 ## 2026-06-12：Phase 3G 第二轮训练输出必须独立成 run 目录
 首轮真实 LoRA artifacts 已用于 Phase 3E 复盘，不能被第二轮覆盖。Phase 3F.1 增加 `PHASE3_ARTIFACT_DIR`，Notebook、bootstrap、base smoke、训练、评测和 manifest 统一使用当前 run 目录；第二轮推荐 `artifacts/phase3_runs/phase3g_second_lora_run/`。
 
+## 2026-06-15：Phase 3I 优先结构化解释，不继续自由文本试参
+Phase 3I 推荐保持确定性模板为正式默认，并把 Structured Output First 作为唯一优先实验，后续再加入 evidence citation；两轮自由文本 LoRA 已证明低训练 loss 不能保证事实、动作、异常覆盖和格式稳定，且第二轮缺少本地逐样本 artifacts，因此暂不启动第三轮训练或更换大模型，LoRA 仍不作为默认正式解释器。
+
 ## 2026-06-12：Phase 3F 用固定章节训练事实边界
 首轮 LoRA 的主要失败是模型会补未知金额、GRN 和供应商关系。Phase 3F 不改训练超参，只把 system prompt 与 gold answer 统一成 `异常类型 / 事实边界 / 关键事实 / 缺失字段 / 禁止补全 / 审核结论` 六段，并在答案中显式示范缺失字段写未提供或缺失，让模型优先学习事实边界。
 

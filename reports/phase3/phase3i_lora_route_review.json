@@ -1,0 +1,199 @@
+{
+  "phase": "Phase 3I",
+  "review_date": "2026-06-15",
+  "scope": "LoRA route evaluation only; no training, model download, API, Demo, Phase 1 or Phase 2 rule changes",
+  "executive_decision": {
+    "official_default": "route_d_deterministic_template",
+    "next_research_experiment": "route_b_structured_output_first",
+    "follow_up_constraint": "route_c_evidence_citations",
+    "paused": [
+      "route_a_third_free_text_lora",
+      "route_e_larger_model"
+    ],
+    "lora_default_explainer": false,
+    "lora_may_change_risk_level": false,
+    "lora_may_change_recommended_action": false,
+    "lora_may_add_anomaly_types": false
+  },
+  "run_comparison": {
+    "phase3e_fine_tuned": {
+      "format_compliance": 0.15,
+      "factual_consistency": 0.8,
+      "action_consistency": 0.85,
+      "anomaly_coverage": 0.7333333333333333,
+      "hallucination_rate": 0.2
+    },
+    "phase3g_fine_tuned": {
+      "format_compliance": 0.0,
+      "factual_consistency": 0.9,
+      "action_consistency": 0.45,
+      "anomaly_coverage": 0.425,
+      "hallucination_rate": 0.15
+    },
+    "hard_gates": {
+      "format_compliance_min": 0.9,
+      "factual_consistency_min": 0.95,
+      "action_consistency_min": 0.9,
+      "anomaly_coverage_min": 0.9,
+      "hallucination_rate_max": 0.05
+    }
+  },
+  "failure_taxonomy": {
+    "data": [
+      "Only 200 synthetic samples and 160 training samples",
+      "All splits share one generator, vocabulary and template family",
+      "175 samples are single-anomaly; only 25 contain two or three anomalies",
+      "Negative constraints exist in 66 answers but paired hard-negative corrections are absent",
+      "Action distribution is 168 request_human_approval and 32 reject, with no auto_approve"
+    ],
+    "prompt_and_gold": [
+      "Phase 3F improved the written contract but free text still couples copying, coverage, formatting and generation",
+      "Low token loss does not enforce exact schema or set equality",
+      "Evaluator checks three required sections while Phase 3F gold defines six sections",
+      "English enum exact-match requirements are better represented as structured fields"
+    ],
+    "model": [
+      "Qwen2.5-0.5B is not demonstrated to be stable for strict multi-field factual constraints",
+      "4-bit QLoRA may contribute to instability but no controlled precision ablation exists",
+      "A larger model may improve compliance but does not solve task definition or evidence binding"
+    ],
+    "evaluation": [
+      "Phase 3G local per-sample predictions, evaluation and manifest are absent",
+      "format_compliance is an all-components gate and cannot alone diagnose the zero score",
+      "Regex checks miss implicit claims, paraphrases and unmodeled entity formats",
+      "Hallucination rate should be supplemented with violation counts and type distribution"
+    ],
+    "task_definition": [
+      "Free-text generation is unnecessarily broad when canonical facts and deterministic decisions already exist",
+      "The safer task is a schema-constrained explanation plan followed by deterministic rendering"
+    ]
+  },
+  "dataset_observations": {
+    "sample_count": 200,
+    "train": 160,
+    "validation": 20,
+    "test": 20,
+    "synthetic_only": true,
+    "vendor_count": 6,
+    "currency_count": 4,
+    "single_anomaly_samples": 175,
+    "two_anomaly_samples": 13,
+    "three_anomaly_samples": 12,
+    "missing_po_samples": 38,
+    "missing_grn_samples": 34,
+    "answers_with_identifier_non_completion_rule": 66,
+    "answers_with_explicit_missing_literal": 66,
+    "action_distribution": {
+      "request_human_approval": 168,
+      "reject": 32,
+      "auto_approve": 0
+    }
+  },
+  "artifact_status": {
+    "phase3e_first_run": {
+      "status": "present_outside_git_workspace",
+      "contains": [
+        "artifacts_manifest.json",
+        "adapter",
+        "base_predictions",
+        "fine_tuned_predictions",
+        "evaluation"
+      ]
+    },
+    "phase3g_second_run": {
+      "status": "not_present_in_current_workspace",
+      "available_evidence": [
+        "user-confirmed runtime and training configuration",
+        "training and validation loss",
+        "aggregate test metrics",
+        "three hallucination examples"
+      ],
+      "missing": [
+        "artifacts_manifest.json",
+        "base_predictions",
+        "fine_tuned_predictions",
+        "per-sample evaluation",
+        "adapter copy"
+      ]
+    }
+  },
+  "route_matrix": [
+    {
+      "route": "A",
+      "name": "Third free-text LoRA",
+      "benefit": "Tests hard-negative data changes on the same model",
+      "risk": "Retains the unsafe free-text task and lacks second-run sample diagnostics",
+      "effort": "medium",
+      "recommended": false
+    },
+    {
+      "route": "B",
+      "name": "Structured Output First",
+      "benefit": "Makes format, copy fields and anomaly coverage directly machine-verifiable",
+      "risk": "JSON values can still be fabricated without deterministic validation",
+      "effort": "medium",
+      "recommended": true
+    },
+    {
+      "route": "C",
+      "name": "Retrieval-Grounded Explanation",
+      "benefit": "Makes every explanation bullet traceable to evidence ids",
+      "risk": "A citation alone does not prove the sentence is entailed",
+      "effort": "medium_high",
+      "recommended": true,
+      "sequence": "after_route_b"
+    },
+    {
+      "route": "D",
+      "name": "Deterministic Template Default",
+      "benefit": "Reproducible, model-independent and already demonstrated",
+      "risk": "Less linguistic flexibility",
+      "effort": "low",
+      "recommended": true,
+      "role": "official_default"
+    },
+    {
+      "route": "E",
+      "name": "Larger Model Or Stronger Decoding",
+      "benefit": "May improve instruction and format compliance",
+      "risk": "Higher cost and still requires schema validation, Guard and fallback",
+      "effort": "high",
+      "recommended": false
+    }
+  ],
+  "structured_schema_fields": [
+    "anomaly_types",
+    "missing_fields",
+    "cited_evidence_ids",
+    "risk_level_copy",
+    "recommended_action_copy",
+    "explanation_bullets"
+  ],
+  "required_experiments": [
+    "Define StructuredExplanation schema and deterministic invariants",
+    "Create an independent 20-50 sample challenge set",
+    "Run a no-training base-model structured decoding baseline",
+    "Add per-field and per-sample evaluator debug output",
+    "Consider one structured-output LoRA only if the baseline isolates a trainable failure"
+  ],
+  "phase3h_impact": {
+    "keep_template_default": true,
+    "keep_shadow_mode": true,
+    "keep_experimental_opt_in": true,
+    "keep_high_risk_template_only": true,
+    "keep_guard_as_defense_in_depth": true,
+    "new_validator_position": "between controlled rewrite and existing output guard",
+    "known_guard_limits": [
+      "implicit claims",
+      "paraphrased policy or approver claims",
+      "unmodeled identifier and entity formats",
+      "semantic contradiction outside fixed patterns",
+      "evidence-to-sentence entailment"
+    ]
+  },
+  "next_step_gate": {
+    "hard_gates_must_not_be_lowered": true,
+    "preferred_next_action": "no-training structured-output baseline",
+    "alternative": "pause LoRA at the current portfolio stage"
+  }
+}
