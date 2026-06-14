@@ -19,6 +19,7 @@ from demo.invoice_case_view import (
     load_invoice_case_catalog,
     render_case_summary,
     render_completed_status,
+    preview_values,
 )
 
 
@@ -49,6 +50,11 @@ def run_smoke() -> dict[str, Any]:
             errors.append(f"missing_metric_scope:{case_id}")
         if "解释路径" not in render_case_summary(case):
             errors.append(f"missing_governance_summary:{case_id}")
+        preview = preview_values(catalog, case_id)
+        if preview[4][0][1] != "尚未运行":
+            errors.append(f"match_result_prepopulated:{case_id}")
+        if preview[5][0][1] != "尚未运行":
+            errors.append(f"audit_evidence_prepopulated:{case_id}")
         if any(
             row[2] != "未运行" or row[3] != "未运行"
             for row in case["extraction_rows"]
@@ -85,6 +91,7 @@ def run_smoke() -> dict[str, Any]:
         "real_lora_live_inference": False,
         "chinese_explanation_mode_labels": True,
         "near_button_completion_status": True,
+        "results_hidden_until_run": True,
         "results": results,
         "errors": errors,
     }
