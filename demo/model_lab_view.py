@@ -39,7 +39,8 @@ def build_model_lab_tab(gr: Any, artifacts: dict[str, Any] | None = None) -> Non
         "- **LayoutLMv3**：展示真实离线字段抽取实验，回答“模型有没有提升抽取质量”。\n"
         "- **LoRA**：展示真实解释层实验，回答“生成式解释为什么不能直接上线”。\n"
         "- **Guard / fallback**：展示当模型补出未知事实时，系统如何拒绝并回到确定性模板。\n"
-        "- 本页是离线实验展示；当前网页运行时不做实时模型推理。",
+        "- 本页是离线实验展示；当前网页运行时不做实时模型推理。\n"
+        "- 想看图片到审核报告的完整链路，请回到“发票审核”页选择案例 A 或 B。",
         elem_id="model-lab-how-to-read",
     )
     guard_visual = lora_guard_visual_case(data)

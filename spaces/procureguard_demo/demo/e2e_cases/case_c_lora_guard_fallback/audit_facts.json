@@ -1,0 +1,26 @@
+{
+  "anomaly_types": [
+    "missing_goods_receipt"
+  ],
+  "currency": "EUR",
+  "evidence": [
+    {
+      "expected_value": "required",
+      "field": "grn_number",
+      "invoice_value": null
+    }
+  ],
+  "grn_number": null,
+  "invoice_id": "phase3-missing_goods_receipt-024",
+  "invoice_number": "INV-20260149",
+  "missing_fields": [
+    "grn_number"
+  ],
+  "po_number": "PO-710149",
+  "policy_flags": [],
+  "recommended_action": "request_human_approval",
+  "risk_level": "medium",
+  "source": "phase2_canonical_audit_facts",
+  "total_amount": 1234.91,
+  "vendor_name": "Adventure Works Services"
+}

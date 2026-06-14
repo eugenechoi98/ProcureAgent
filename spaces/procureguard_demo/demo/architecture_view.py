@@ -42,7 +42,10 @@ ARCHITECTURE_MARKDOWN = """
 
 ### 运行边界
 
-- 发票审核是当前可运行路径。
+- 公网 Demo 中，LayoutLMv3 图片推理以离线 checkpoint 证据包形式展示；
+  Phase 2 审核链和 Guard / fallback 为轻量 CPU 可运行逻辑。
+- 当前 Space 不上传模型权重，不执行任意图片实时推理。
+- 发票审核页以已验收证据包展示图片到审核报告的完整链路。
 - 模型实验展示真实离线 artifacts。
 - 系统架构只解释工程与治理边界。
 - 当前网页不加载 LayoutLMv3、Qwen 或真实 LoRA。

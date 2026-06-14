@@ -1,0 +1,16 @@
+{
+  "check_type": "real_guard_check",
+  "decision": "REJECT",
+  "expected_key_violation": "unknown_identifier:GRN-20260149",
+  "passed": false,
+  "violations": [
+    "missing_section:审核摘要：",
+    "missing_section:关键证据：",
+    "missing_section:缺失字段：",
+    "missing_section:风险等级：",
+    "missing_section:建议动作：",
+    "unknown_identifier:GRN-20260149",
+    "changed_risk_level:missing",
+    "changed_recommended_action:missing"
+  ]
+}

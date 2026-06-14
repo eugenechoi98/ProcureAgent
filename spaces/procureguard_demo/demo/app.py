@@ -6,6 +6,7 @@ from typing import Any
 
 from demo.architecture_view import build_architecture_tab
 from demo.demo_service import DemoOutput, DemoService
+from demo.e2e_case_view import build_e2e_case_showcase
 from demo.invoice_case_view import (
     case_choices,
     explanation_mode_choices,
@@ -123,24 +124,31 @@ def build_app(service: DemoService | None = None) -> Any:
         )
         with gr.Tabs(elem_id="unified-portfolio-tabs"):
             with gr.Tab("发票审核", elem_id="invoice-audit-tab"):
-                gr.Markdown(
-                    "## 案例演示主页面\n\n"
-                    "### 如何看本页\n\n"
-                    "1. 先选择一个预置案例，建议从“正常标准发票”开始。  \n"
-                    "2. 点击“运行审核”，查看字段抽取、三单匹配、风险等级和建议动作。  \n"
-                    "3. 供应商不一致和高风险案例会展示 Guard / fallback 行为。  \n"
-                    "4. 完整审核报告和技术输出默认收起，需要核查时再展开。  \n"
-                    "5. 公网 Demo 不需要 GPU、API Key 或在线模型。",
-                    elem_id="invoice-audit-help",
-                )
-                with gr.Row():
-                    case_selector = gr.Dropdown(
+                build_e2e_case_showcase(gr)
+                with gr.Accordion(
+                    "流程示意案例（合成数据，仅用于补充）",
+                    open=False,
+                    elem_id="synthetic-case-showcase",
+                ):
+                    gr.Markdown(
+                        "以下五个案例使用合成图片和预生成字段，用于补充演示"
+                        "交互式审核流程；它们不是真实 LayoutLMv3 推理证据。"
+                    )
+                    gr.Markdown(
+                        "### 如何看本区\n\n"
+                        "1. 选择一个合成案例。  \n"
+                        "2. 点击“运行审核”，查看确定性审核链生成的结果。  \n"
+                        "3. 完整审核报告和技术输出默认收起，需要核查时再展开。",
+                        elem_id="invoice-audit-help",
+                    )
+                    with gr.Row():
+                        case_selector = gr.Dropdown(
                         choices=case_choices(case_catalog),
                         value="normal_invoice",
                         label="预置发票案例",
                         elem_id="demo-case-selector",
                     )
-                    mode_selector = gr.Dropdown(
+                        mode_selector = gr.Dropdown(
                         choices=explanation_mode_choices(
                             demo_service.explanation_modes
                         ),
@@ -148,31 +156,31 @@ def build_app(service: DemoService | None = None) -> Any:
                         label="解释模式",
                         elem_id="explanation-mode-selector",
                     )
-                gr.Markdown(
+                    gr.Markdown(
                     "解释模式用于演示确定性模板、Guard 和 fallback 行为；"
                     "默认模式由当前案例自动推荐，内部审核规则不会随展示模式改变。",
                     elem_id="explanation-mode-help",
                 )
-                with gr.Row():
-                    run_button = gr.Button(
+                    with gr.Row():
+                        run_button = gr.Button(
                         "运行审核", variant="primary", elem_id="run-audit-button"
                     )
-                    reset_button = gr.Button("重置", elem_id="reset-demo-button")
-                run_status = gr.Markdown(
+                        reset_button = gr.Button("重置", elem_id="reset-demo-button")
+                    run_status = gr.Markdown(
                     value=render_pending_status(case_catalog["normal_invoice"]),
                     elem_id="invoice-run-status",
                 )
 
-                case_brief = gr.Markdown(
+                    case_brief = gr.Markdown(
                     value=initial_preview[0],
                     elem_id="invoice-case-brief",
                 )
-                image_note = gr.Markdown(
+                    image_note = gr.Markdown(
                     value=initial_preview[1],
                     elem_id="invoice-case-image-note",
                 )
-                with gr.Row():
-                    invoice_image = gr.Image(
+                    with gr.Row():
+                        invoice_image = gr.Image(
                         value=initial_preview[2],
                         label="演示用合成示意图",
                         type="filepath",
@@ -180,7 +188,7 @@ def build_app(service: DemoService | None = None) -> Any:
                         height=520,
                         elem_id="invoice-case-image",
                     )
-                    extraction_comparison = gr.Dataframe(
+                        extraction_comparison = gr.Dataframe(
                         value=initial_preview[3],
                         headers=[
                             "字段",
@@ -195,12 +203,12 @@ def build_app(service: DemoService | None = None) -> Any:
                         wrap=True,
                         elem_id="invoice-case-extraction",
                     )
-                gr.Markdown(
+                    gr.Markdown(
                     "整体 F1 指标请见“模型实验”页；这里展示的是案例级演示对比。",
                     elem_id="invoice-case-f1-note",
                 )
-                with gr.Row():
-                    match_result = gr.Dataframe(
+                    with gr.Row():
+                        match_result = gr.Dataframe(
                         value=initial_preview[4],
                         headers=["检查对象", "审核事实", "结果"],
                         datatype=["str", "str", "str"],
@@ -209,7 +217,7 @@ def build_app(service: DemoService | None = None) -> Any:
                         wrap=True,
                         elem_id="invoice-case-match",
                     )
-                    audit_evidence = gr.Dataframe(
+                        audit_evidence = gr.Dataframe(
                         value=initial_preview[5],
                         headers=["证据类型", "命中内容", "来源"],
                         datatype=["str", "str", "str"],
@@ -218,77 +226,77 @@ def build_app(service: DemoService | None = None) -> Any:
                         wrap=True,
                         elem_id="invoice-case-evidence",
                     )
-                with gr.Row():
-                    risk_action_story = gr.Markdown(
+                    with gr.Row():
+                        risk_action_story = gr.Markdown(
                         value=initial_preview[6],
                         elem_id="invoice-case-risk-action",
                     )
-                    explanation_story = gr.Markdown(
+                        explanation_story = gr.Markdown(
                         value=initial_preview[7],
                         elem_id="invoice-case-explanation",
                     )
 
-                with gr.Accordion(
+                    with gr.Accordion(
                     "查看完整技术输出",
                     open=False,
                     elem_id="invoice-audit-technical-output",
                 ):
-                    status_summary = gr.Markdown(elem_id="demo-status-summary")
-                    with gr.Row():
-                        case_id = gr.Textbox(label="案例编号", interactive=False)
-                        invoice_id = gr.Textbox(
+                        status_summary = gr.Markdown(elem_id="demo-status-summary")
+                        with gr.Row():
+                            case_id = gr.Textbox(label="案例编号", interactive=False)
+                            invoice_id = gr.Textbox(
                             label="发票编号", interactive=False
                         )
-                        risk_level = gr.Textbox(
+                            risk_level = gr.Textbox(
                             label="风险等级", interactive=False
                         )
-                        recommended_action = gr.Textbox(
+                            recommended_action = gr.Textbox(
                             label="建议动作", interactive=False
                         )
-                    with gr.Row():
-                        anomaly_types = gr.JSON(label="异常类型")
-                        evidence = gr.JSON(label="证据")
-                        missing_fields = gr.JSON(label="缺失字段")
-                    explanation_text = gr.Textbox(
+                        with gr.Row():
+                            anomaly_types = gr.JSON(label="异常类型")
+                            evidence = gr.JSON(label="证据")
+                            missing_fields = gr.JSON(label="缺失字段")
+                        explanation_text = gr.Textbox(
                         label="审核解释", lines=8, interactive=False
                     )
-                    with gr.Row():
-                        explanation_source = gr.Textbox(
+                        with gr.Row():
+                            explanation_source = gr.Textbox(
                             label="解释来源", interactive=False
                         )
-                        used_rewrite = gr.Checkbox(
+                            used_rewrite = gr.Checkbox(
                             label="是否使用改写", interactive=False
                         )
-                        guard_passed = gr.Checkbox(
+                            guard_passed = gr.Checkbox(
                             label="守卫是否通过", interactive=False
                         )
-                        fallback_reason = gr.Textbox(
+                            fallback_reason = gr.Textbox(
                             label="回退原因", interactive=False
                         )
-                    with gr.Row():
-                        facts_hash = gr.Textbox(
+                        with gr.Row():
+                            facts_hash = gr.Textbox(
                             label="事实哈希", interactive=False
                         )
-                        template_version = gr.Textbox(
+                            template_version = gr.Textbox(
                             label="模板版本", interactive=False
                         )
-                        prompt_version = gr.Textbox(
+                            prompt_version = gr.Textbox(
                             label="提示词版本", interactive=False
                         )
-                    with gr.Row():
-                        model_version = gr.Textbox(
+                        with gr.Row():
+                            model_version = gr.Textbox(
                             label="模型版本", interactive=False
                         )
-                        adapter_version = gr.Textbox(
+                            adapter_version = gr.Textbox(
                             label="Adapter 版本", interactive=False
                         )
-                    raw_rewrite_output = gr.Textbox(
+                        raw_rewrite_output = gr.Textbox(
                         label="原始改写输出", lines=5, interactive=False
                     )
-                    safe_error_summary = gr.Textbox(
+                        safe_error_summary = gr.Textbox(
                         label="安全回退详情", interactive=False
                     )
-                    audit_report = gr.JSON(
+                        audit_report = gr.JSON(
                         label="完整审核报告 JSON（AuditReport）"
                     )
 

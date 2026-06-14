@@ -1,0 +1,437 @@
+{
+  "checkpoint_source": "local_external_artifact_layoutlmv3_best",
+  "ground_truth": {
+    "address": "M4-A-8, JALAN PANDAH INDAH 4/1A, PANDAH INDAH, 55100 KUALA LUMPUR.",
+    "company": "PANDAH INDAH PULAU KETAM RESTAURANT",
+    "date": "30-04-2018",
+    "total": "93.00"
+  },
+  "inference_type": "offline_real_checkpoint_inference",
+  "prediction": {
+    "address": "M4-A-8, JALAN PANDAH INDAH 4/1A, PANDAH INDAH, 55100 KUALA LUMPUR,",
+    "company": "PANDAH INDAH PULAU KETAM RESTAURANT",
+    "date": "2018-04-30",
+    "total": "93.00"
+  },
+  "sample_id": "68f28c63d47a8203ad798055",
+  "word_predictions": [
+    {
+      "bbox": [
+        72,
+        148,
+        739,
+        169
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "B-COMPANY",
+      "text": "PANDAH INDAH PULAU KETAM RESTAURANT"
+    },
+    {
+      "bbox": [
+        111,
+        173,
+        715,
+        194
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "B-ADDRESS",
+      "text": "M4-A-8, JALAN PANDAH INDAH 4/1A,"
+    },
+    {
+      "bbox": [
+        111,
+        197,
+        734,
+        218
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "I-ADDRESS",
+      "text": "PANDAH INDAH, 55100 KUALA LUMPUR,"
+    },
+    {
+      "bbox": [
+        150,
+        221,
+        701,
+        242
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "TEL:012-2673122 / 010-2022293"
+    },
+    {
+      "bbox": [
+        148,
+        270,
+        719,
+        307
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "* GUEST CHECK *"
+    },
+    {
+      "bbox": [
+        38,
+        333,
+        301,
+        371
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "TABLE 6"
+    },
+    {
+      "bbox": [
+        35,
+        397,
+        183,
+        417
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "CHECK #:"
+    },
+    {
+      "bbox": [
+        231,
+        396,
+        341,
+        415
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "113355"
+    },
+    {
+      "bbox": [
+        527,
+        396,
+        702,
+        418
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "PAX(S): 0"
+    },
+    {
+      "bbox": [
+        35,
+        421,
+        112,
+        440
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "DATE"
+    },
+    {
+      "bbox": [
+        173,
+        421,
+        571,
+        439
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "B-DATE",
+      "text": ": 30-04-2018 19:50:14"
+    },
+    {
+      "bbox": [
+        35,
+        445,
+        151,
+        464
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "SERVER"
+    },
+    {
+      "bbox": [
+        174,
+        445,
+        342,
+        464
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": ": CASHIER"
+    },
+    {
+      "bbox": [
+        40,
+        492,
+        53,
+        512
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "1"
+    },
+    {
+      "bbox": [
+        128,
+        492,
+        489,
+        514
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "KUO POH (C) (2 PAX)"
+    },
+    {
+      "bbox": [
+        716,
+        493,
+        798,
+        512
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "6.00"
+    },
+    {
+      "bbox": [
+        35,
+        540,
+        59,
+        559
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "2"
+    },
+    {
+      "bbox": [
+        131,
+        539,
+        584,
+        561
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "TEA EXTRA PERSON (1 PAX)"
+    },
+    {
+      "bbox": [
+        718,
+        541,
+        795,
+        559
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "2.00"
+    },
+    {
+      "bbox": [
+        40,
+        587,
+        53,
+        606
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "1"
+    },
+    {
+      "bbox": [
+        130,
+        587,
+        283,
+        607
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "TONG HOU"
+    },
+    {
+      "bbox": [
+        704,
+        589,
+        796,
+        608
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "10.00"
+    },
+    {
+      "bbox": [
+        38,
+        635,
+        54,
+        654
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "1"
+    },
+    {
+      "bbox": [
+        128,
+        634,
+        359,
+        654
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "MUTTAN SLICE"
+    },
+    {
+      "bbox": [
+        703,
+        636,
+        797,
+        656
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "15.00"
+    },
+    {
+      "bbox": [
+        41,
+        683,
+        56,
+        702
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "1"
+    },
+    {
+      "bbox": [
+        130,
+        683,
+        208,
+        703
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "SOUP"
+    },
+    {
+      "bbox": [
+        717,
+        684,
+        796,
+        702
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "0.00"
+    },
+    {
+      "bbox": [
+        41,
+        731,
+        53,
+        749
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "1"
+    },
+    {
+      "bbox": [
+        128,
+        729,
+        267,
+        750
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "TOM YUM"
+    },
+    {
+      "bbox": [
+        716,
+        731,
+        798,
+        750
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "0.00"
+    },
+    {
+      "bbox": [
+        35,
+        777,
+        55,
+        795
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "3"
+    },
+    {
+      "bbox": [
+        130,
+        777,
+        603,
+        798
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "NO. OF HEAD (2 SET ABOVE)"
+    },
+    {
+      "bbox": [
+        698,
+        779,
+        797,
+        798
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "60.00"
+    },
+    {
+      "bbox": [
+        35,
+        848,
+        223,
+        868
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "SUBTOTAL :"
+    },
+    {
+      "bbox": [
+        699,
+        850,
+        793,
+        869
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "B-TOTAL",
+      "text": "93.00"
+    },
+    {
+      "bbox": [
+        37,
+        897,
+        255,
+        935
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "TOTAL :"
+    },
+    {
+      "bbox": [
+        603,
+        899,
+        792,
+        935
+      ],
+      "ocr_confidence": 1.0,
+      "predicted_label": "O",
+      "text": "93.00"
+    }
+  ]
+}
