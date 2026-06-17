@@ -243,7 +243,38 @@ def test_all_scenarios_have_complete_non_null_ocr_fields() -> None:
         assert set(fields) == required, case_id
         assert all(value not in ("", None) for value in fields.values())
         assert not any(str(value).startswith("NO_") for value in fields.values())
+        if case_id in {"normal_invoice", "missing_goods_receipt", "missing_po_number"}:
+            assert scenario.scenario_type == "single_document"
+            assert scenario.cross_document is None
+        else:
+            assert scenario.scenario_type == "cross_document"
+            assert scenario.cross_document is not None
     assert len(scenario_ids) == len(SCENARIO_REGISTRY)
+
+
+def test_cross_document_scenarios_keep_po_grn_comparison_data() -> None:
+    amount_case = get_scenario("vendor_name_mismatch")
+    amount_context = amount_case.cross_document
+    assert amount_context is not None
+    assert amount_context.invoice_total == 4100
+    assert amount_context.po_total == 3900
+    assert amount_context.grn_total == 4000
+    assert (
+        amount_context.vendor_invoice
+        == amount_context.vendor_po
+        == amount_context.vendor_grn
+    )
+
+    vendor_case = get_scenario("duplicate_invoice")
+    vendor_context = vendor_case.cross_document
+    assert vendor_context is not None
+    assert (
+        vendor_context.invoice_total
+        == vendor_context.po_total
+        == vendor_context.grn_total
+    )
+    assert vendor_context.vendor_invoice != vendor_context.vendor_po
+    assert vendor_context.vendor_po != vendor_context.vendor_grn
 
 
 def test_all_scenario_runs_use_complete_bound_fields_and_case_outcomes() -> None:
@@ -261,6 +292,32 @@ def test_all_scenario_runs_use_complete_bound_fields_and_case_outcomes() -> None
             assert output[1] == "高风险"
             assert output[2] == "拒绝"
             assert output[6]["audit_result"] == "not_pass"
+            if case_id == "vendor_name_mismatch":
+                assert rule_rows == [
+                    [
+                        "金额跨文档一致",
+                        "Invoice USD 4,100.00 / PO USD 3,900.00 / GRN USD 4,000.00",
+                        "FALSE",
+                    ],
+                    [
+                        "供应商跨文档一致",
+                        "Invoice Adventure Works Services / PO Adventure Works Services / GRN Adventure Works Services",
+                        "TRUE",
+                    ],
+                ]
+            if case_id == "duplicate_invoice":
+                assert rule_rows == [
+                    [
+                        "金额跨文档一致",
+                        "Invoice USD 2,614.22 / PO USD 2,614.22 / GRN USD 2,614.22",
+                        "TRUE",
+                    ],
+                    [
+                        "供应商跨文档一致",
+                        "Invoice Northbridge Supplies Ltd / PO ProcureGuard Office Supply Co / GRN Summit Receiving Services",
+                        "FALSE",
+                    ],
+                ]
         else:
             assert all(row[2] == "TRUE" for row in rule_rows)
             assert output[6]["audit_result"] == "pass"

@@ -42,11 +42,24 @@ PRE_AUDIT_FORBIDDEN_FLAGS = {
 
 
 @dataclass(frozen=True)
+class CrossDocumentContext:
+    """跨文档对比场景的数据源。"""
+
+    invoice_total: float
+    po_total: float
+    grn_total: float
+    vendor_invoice: str
+    vendor_po: str
+    vendor_grn: str
+
+
+@dataclass(frozen=True)
 class Scenario:
     """单个发票图片绑定的完整演示数据。"""
 
     case_id: str
     scenario_id: str
+    scenario_type: str
     image_path: str
     display_name: str
     summary: str
@@ -54,14 +67,15 @@ class Scenario:
     recommended_action: str
     audit_result: str
     audit_reason: str
-    rule_rows: tuple[tuple[str, str, str], ...]
     fields: dict[str, str]
+    cross_document: CrossDocumentContext | None = None
 
 
 SCENARIO_REGISTRY: dict[str, Scenario] = {
     "normal_invoice": Scenario(
         case_id="normal_invoice",
         scenario_id="scenario_001",
+        scenario_type="single_document",
         image_path="assets/cases/scenario_001.png",
         display_name="案例 1：正常标准发票",
         summary="字段、PO、GRN 和金额均来自 scenario_001，用于展示标准场景流程。",
@@ -69,11 +83,6 @@ SCENARIO_REGISTRY: dict[str, Scenario] = {
         recommended_action="auto_approve",
         audit_result="pass",
         audit_reason="PO、GRN 与金额均一致，系统判定可通过。",
-        rule_rows=(
-            ("PO 是否存在", "PO-2505-7789", "TRUE"),
-            ("GRN 是否存在", "GRN-2505-3344", "TRUE"),
-            ("金额是否匹配", "USD 2,614.22", "TRUE"),
-        ),
         fields={
             "invoice_number": "INV-2505-1001",
             "po_number": "PO-2505-7789",
@@ -87,6 +96,7 @@ SCENARIO_REGISTRY: dict[str, Scenario] = {
     "missing_goods_receipt": Scenario(
         case_id="missing_goods_receipt",
         scenario_id="scenario_002",
+        scenario_type="single_document",
         image_path="assets/cases/scenario_002.png",
         display_name="案例 2：日期版式非标准",
         summary="图片、字段、PO、GRN 和金额均绑定 scenario_002，用于展示版式变化下的一致流程。",
@@ -94,11 +104,6 @@ SCENARIO_REGISTRY: dict[str, Scenario] = {
         recommended_action="auto_approve",
         audit_result="pass",
         audit_reason="PO、GRN 与金额均一致，系统判定可通过。",
-        rule_rows=(
-            ("PO 是否存在", "PO-2505-8890", "TRUE"),
-            ("GRN 是否存在", "GRN-2505-8890", "TRUE"),
-            ("金额是否匹配", "USD 3,600.00", "TRUE"),
-        ),
         fields={
             "invoice_number": "INV-2505-2002",
             "po_number": "PO-2505-8890",
@@ -112,6 +117,7 @@ SCENARIO_REGISTRY: dict[str, Scenario] = {
     "missing_po_number": Scenario(
         case_id="missing_po_number",
         scenario_id="scenario_003",
+        scenario_type="single_document",
         image_path="assets/cases/scenario_003.png",
         display_name="案例 3：PO/GRN 版式变化",
         summary="图片、字段、PO、GRN 和金额均绑定 scenario_003，用于展示字段位置变化但数据同源。",
@@ -119,11 +125,6 @@ SCENARIO_REGISTRY: dict[str, Scenario] = {
         recommended_action="auto_approve",
         audit_result="pass",
         audit_reason="PO、GRN 与金额均一致，系统判定可通过。",
-        rule_rows=(
-            ("PO 是否存在", "PO-2505-3303", "TRUE"),
-            ("GRN 是否存在", "GRN-2505-3303", "TRUE"),
-            ("金额是否匹配", "USD 2,400.00", "TRUE"),
-        ),
         fields={
             "invoice_number": "INV-2505-3003",
             "po_number": "PO-2505-3303",
@@ -137,18 +138,14 @@ SCENARIO_REGISTRY: dict[str, Scenario] = {
     "vendor_name_mismatch": Scenario(
         case_id="vendor_name_mismatch",
         scenario_id="scenario_004",
+        scenario_type="cross_document",
         image_path="assets/cases/scenario_004.png",
         display_name="案例 4：供应商字段展示",
         summary="图片、供应商、PO、GRN 和金额均绑定 scenario_004，用于展示跨字段同源。",
         risk_level="high",
         recommended_action="reject",
         audit_result="not_pass",
-        audit_reason="发票金额与采购上下文金额不一致，系统拒绝通过。",
-        rule_rows=(
-            ("PO 是否存在", "PO-2505-4404", "TRUE"),
-            ("GRN 是否存在", "GRN-2505-4404", "TRUE"),
-            ("金额是否匹配", "Invoice USD 4,100.00 / PO USD 3,600.00", "FALSE"),
-        ),
+        audit_reason="发票金额、采购单金额与收货金额不一致，系统拒绝通过。",
         fields={
             "invoice_number": "INV-2505-4004",
             "po_number": "PO-2505-4404",
@@ -158,22 +155,26 @@ SCENARIO_REGISTRY: dict[str, Scenario] = {
             "date": "2025-05-22",
             "item_list": "IT service package",
         },
+        cross_document=CrossDocumentContext(
+            invoice_total=4100.00,
+            po_total=3900.00,
+            grn_total=4000.00,
+            vendor_invoice="Adventure Works Services",
+            vendor_po="Adventure Works Services",
+            vendor_grn="Adventure Works Services",
+        ),
     ),
     "duplicate_invoice": Scenario(
         case_id="duplicate_invoice",
         scenario_id="scenario_005",
+        scenario_type="cross_document",
         image_path="assets/cases/scenario_005.png",
         display_name="案例 5：流程结构展示",
         summary="图片、字段、PO、GRN 和金额均绑定 scenario_005，用于展示同源流程结构。",
         risk_level="high",
         recommended_action="reject",
         audit_result="not_pass",
-        audit_reason="发票号命中已存在记录，系统拒绝通过。",
-        rule_rows=(
-            ("PO 是否存在", "PO-2505-7789", "TRUE"),
-            ("GRN 是否存在", "GRN-2505-3344", "TRUE"),
-            ("重复发票检查", "历史记录已存在同一发票号", "FALSE"),
-        ),
+        audit_reason="发票供应商、采购单供应商与收货供应商存在冲突，系统拒绝通过。",
         fields={
             "invoice_number": "INV-2505-5005",
             "po_number": "PO-2505-7789",
@@ -183,6 +184,14 @@ SCENARIO_REGISTRY: dict[str, Scenario] = {
             "date": "2025-05-15",
             "item_list": "Office supplies bundle",
         },
+        cross_document=CrossDocumentContext(
+            invoice_total=2614.22,
+            po_total=2614.22,
+            grn_total=2614.22,
+            vendor_invoice="Northbridge Supplies Ltd",
+            vendor_po="ProcureGuard Office Supply Co",
+            vendor_grn="Summit Receiving Services",
+        ),
     ),
 }
 
@@ -214,9 +223,43 @@ def scenario_field_rows(scenario: Scenario) -> list[list[Any]]:
 
 
 def scenario_rule_rows(scenario: Scenario) -> list[list[str]]:
-    """把 scenario 字段映射为固定规则审计结果。"""
+    """Run Audit 后从 scenario 数据生成规则审计结果。"""
 
-    return [list(row) for row in scenario.rule_rows]
+    if scenario.scenario_type == "single_document":
+        return [
+            ["发票字段完整", scenario.fields["invoice_number"], "TRUE"],
+            ["发票金额可读", scenario.fields["total_amount"], "TRUE"],
+            ["单文档场景", "不执行 PO/GRN mismatch 判断", "TRUE"],
+        ]
+    context = scenario.cross_document
+    if context is None:
+        raise ValueError(f"Cross-document scenario missing context: {scenario.scenario_id}")
+    amount_match = (
+        context.invoice_total == context.po_total == context.grn_total
+    )
+    vendor_match = (
+        context.vendor_invoice == context.vendor_po == context.vendor_grn
+    )
+    return [
+        [
+            "金额跨文档一致",
+            (
+                f"Invoice USD {context.invoice_total:,.2f} / "
+                f"PO USD {context.po_total:,.2f} / "
+                f"GRN USD {context.grn_total:,.2f}"
+            ),
+            "TRUE" if amount_match else "FALSE",
+        ],
+        [
+            "供应商跨文档一致",
+            (
+                f"Invoice {context.vendor_invoice} / "
+                f"PO {context.vendor_po} / "
+                f"GRN {context.vendor_grn}"
+            ),
+            "TRUE" if vendor_match else "FALSE",
+        ],
+    ]
 
 
 def scenario_evidence_rows(scenario: Scenario) -> list[list[str]]:
@@ -245,6 +288,19 @@ def scenario_mapping_payload(execution_id: str, scenario: Scenario) -> dict[str,
         "state": "已展示OCR",
         "source": "scenario_registry",
         "realtime_ocr": False,
+        "scenario_type": scenario.scenario_type,
+        "cross_document": (
+            {
+                "invoice_total": scenario.cross_document.invoice_total,
+                "po_total": scenario.cross_document.po_total,
+                "grn_total": scenario.cross_document.grn_total,
+                "vendor_invoice": scenario.cross_document.vendor_invoice,
+                "vendor_po": scenario.cross_document.vendor_po,
+                "vendor_grn": scenario.cross_document.vendor_grn,
+            }
+            if scenario.cross_document
+            else None
+        ),
         "fields": [
             {
                 "field": field,
@@ -292,6 +348,12 @@ def validate_scenario(scenario: Scenario) -> None:
         raise ValueError(f"Scenario fields mismatch: {scenario.scenario_id}")
     if not scenario.scenario_id or not scenario.image_path:
         raise ValueError("Scenario missing id or image path.")
+    if scenario.scenario_type not in {"single_document", "cross_document"}:
+        raise ValueError(f"Invalid scenario type: {scenario.scenario_type}")
+    if scenario.scenario_type == "single_document" and scenario.cross_document:
+        raise ValueError(f"Single-document scenario has cross context: {scenario.scenario_id}")
+    if scenario.scenario_type == "cross_document" and scenario.cross_document is None:
+        raise ValueError(f"Cross-document scenario missing context: {scenario.scenario_id}")
     if not (DEMO_ROOT / scenario.image_path).is_file():
         raise FileNotFoundError(f"Scenario image missing: {scenario.image_path}")
     for key, value in scenario.fields.items():
