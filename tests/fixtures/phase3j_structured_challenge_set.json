@@ -1,0 +1,165 @@
+{
+  "challenge_set_id": "phase3j-structured-challenge-v1",
+  "purpose": "Synthetic test fixtures for fail-closed structured explanation validation",
+  "training_data": false,
+  "cases": [
+    {
+      "case_id": "p3j-001-rule-missing-po-pass",
+      "risk_category": "rule_only_pass",
+      "input_facts": {"invoice_id":"fixture-001","vendor_name":"Northwind Office Supplies","invoice_number":"INV-FIX-001","po_number":null,"grn_number":"GRN-FIX-001","total_amount":1200.0,"currency":"USD","anomaly_types":["missing_po_number"],"evidence":[],"missing_fields":["po_number"],"risk_level":"medium","recommended_action":"request_human_approval","policy_flags":[],"source":"phase3j_synthetic_fixture"},
+      "expected_status": "accepted"
+    },
+    {
+      "case_id": "p3j-002-rule-missing-grn-pass",
+      "risk_category": "rule_only_pass",
+      "input_facts": {"invoice_id":"fixture-002","vendor_name":"Contoso Industrial Parts","invoice_number":"INV-FIX-002","po_number":"PO-FIX-002","grn_number":null,"total_amount":850.0,"currency":"EUR","anomaly_types":["missing_goods_receipt"],"evidence":[],"missing_fields":["grn_number"],"risk_level":"medium","recommended_action":"request_human_approval","policy_flags":[],"source":"phase3j_synthetic_fixture"},
+      "expected_status": "accepted"
+    },
+    {
+      "case_id": "p3j-003-rule-amount-pass",
+      "risk_category": "rule_only_pass",
+      "input_facts": {"invoice_id":"fixture-003","vendor_name":"Fabrikam Logistics","invoice_number":"INV-FIX-003","po_number":"PO-FIX-003","grn_number":"GRN-FIX-003","total_amount":1500.0,"currency":"USD","anomaly_types":["amount_discrepancy"],"evidence":[{"field":"total_amount","invoice_value":1500.0,"expected_value":1300.0,"diff":200.0}],"missing_fields":[],"risk_level":"medium","recommended_action":"request_human_approval","policy_flags":[],"source":"phase3j_synthetic_fixture"},
+      "expected_status": "accepted"
+    },
+    {
+      "case_id": "p3j-004-rule-multi-pass",
+      "risk_category": "rule_only_pass",
+      "input_facts": {"invoice_id":"fixture-004","vendor_name":"Adventure Works Services","invoice_number":"INV-FIX-004","po_number":null,"grn_number":"GRN-FIX-004","total_amount":2200.0,"currency":"GBP","anomaly_types":["missing_po_number","amount_discrepancy"],"evidence":[{"field":"total_amount","invoice_value":2200.0,"expected_value":2000.0,"diff":200.0}],"missing_fields":["po_number"],"risk_level":"medium","recommended_action":"request_human_approval","policy_flags":[],"source":"phase3j_synthetic_fixture"},
+      "expected_status": "accepted"
+    },
+    {
+      "case_id": "p3j-005-rule-duplicate-pass",
+      "risk_category": "rule_only_pass",
+      "input_facts": {"invoice_id":"fixture-005","vendor_name":"Blue Yonder Components","invoice_number":"INV-FIX-005","po_number":"PO-FIX-005","grn_number":"GRN-FIX-005","total_amount":999.0,"currency":"CNY","anomaly_types":["duplicate_invoice"],"evidence":[{"field":"duplicate_invoice","invoice_value":"INV-FIX-005","received_value":"existing_record"}],"missing_fields":[],"risk_level":"high","recommended_action":"reject","policy_flags":[],"source":"phase3j_synthetic_fixture"},
+      "expected_status": "accepted"
+    },
+    {
+      "case_id": "p3j-006-unknown-po",
+      "risk_category": "unknown_po_number",
+      "input_facts": {"invoice_id":"fixture-006","vendor_name":"Northwind Office Supplies","invoice_number":"INV-FIX-006","po_number":null,"grn_number":"GRN-FIX-006","total_amount":1200.0,"currency":"USD","anomaly_types":["missing_po_number"],"evidence":[],"missing_fields":["po_number"],"risk_level":"medium","recommended_action":"request_human_approval","policy_flags":[],"source":"phase3j_synthetic_fixture"},
+      "mutation": "unknown_po",
+      "expected_status": "rejected",
+      "expected_reject_reasons": ["unsupported_claims"]
+    },
+    {
+      "case_id": "p3j-007-unknown-grn",
+      "risk_category": "unknown_grn_number",
+      "input_facts": {"invoice_id":"fixture-007","vendor_name":"Contoso Industrial Parts","invoice_number":"INV-FIX-007","po_number":"PO-FIX-007","grn_number":null,"total_amount":850.0,"currency":"EUR","anomaly_types":["missing_goods_receipt"],"evidence":[],"missing_fields":["grn_number"],"risk_level":"medium","recommended_action":"request_human_approval","policy_flags":[],"source":"phase3j_synthetic_fixture"},
+      "mutation": "unknown_grn",
+      "expected_status": "rejected",
+      "expected_reject_reasons": ["unsupported_claims"]
+    },
+    {
+      "case_id": "p3j-008-unknown-amount",
+      "risk_category": "unknown_amount",
+      "input_facts": {"invoice_id":"fixture-008","vendor_name":"Fabrikam Logistics","invoice_number":"INV-FIX-008","po_number":"PO-FIX-008","grn_number":"GRN-FIX-008","total_amount":1500.0,"currency":"USD","anomaly_types":["amount_discrepancy"],"evidence":[{"field":"total_amount","invoice_value":1500.0,"expected_value":1300.0,"diff":200.0}],"missing_fields":[],"risk_level":"medium","recommended_action":"request_human_approval","policy_flags":[],"source":"phase3j_synthetic_fixture"},
+      "mutation": "unknown_amount",
+      "expected_status": "rejected",
+      "expected_reject_reasons": ["unsupported_claims"]
+    },
+    {
+      "case_id": "p3j-009-unsupported-approver",
+      "risk_category": "unsupported_approver",
+      "input_facts": {"invoice_id":"fixture-009","vendor_name":"Fabrikam Logistics","invoice_number":"INV-FIX-009","po_number":"PO-FIX-009","grn_number":"GRN-FIX-009","total_amount":1500.0,"currency":"USD","anomaly_types":["amount_discrepancy"],"evidence":[],"missing_fields":[],"risk_level":"medium","recommended_action":"request_human_approval","policy_flags":[],"source":"phase3j_synthetic_fixture"},
+      "mutation": "unsupported_approver",
+      "expected_status": "rejected",
+      "expected_reject_reasons": ["unsupported_claims"]
+    },
+    {
+      "case_id": "p3j-010-multi-anomaly-missing",
+      "risk_category": "multi_anomaly_omission",
+      "input_facts": {"invoice_id":"fixture-010","vendor_name":"Adventure Works Services","invoice_number":"INV-FIX-010","po_number":null,"grn_number":"GRN-FIX-010","total_amount":2200.0,"currency":"GBP","anomaly_types":["missing_po_number","amount_discrepancy"],"evidence":[],"missing_fields":["po_number"],"risk_level":"medium","recommended_action":"request_human_approval","policy_flags":[],"source":"phase3j_synthetic_fixture"},
+      "mutation": "anomaly_missing",
+      "expected_status": "rejected",
+      "expected_reject_reasons": ["anomaly_types_missing"]
+    },
+    {
+      "case_id": "p3j-011-action-conflict",
+      "risk_category": "recommended_action_conflict",
+      "input_facts": {"invoice_id":"fixture-011","vendor_name":"Fabrikam Logistics","invoice_number":"INV-FIX-011","po_number":"PO-FIX-011","grn_number":"GRN-FIX-011","total_amount":1500.0,"currency":"USD","anomaly_types":["amount_discrepancy"],"evidence":[],"missing_fields":[],"risk_level":"medium","recommended_action":"request_human_approval","policy_flags":[],"source":"phase3j_synthetic_fixture"},
+      "mutation": "action_mismatch",
+      "expected_status": "rejected",
+      "expected_reject_reasons": ["recommended_action_copy_mismatch"]
+    },
+    {
+      "case_id": "p3j-012-synonym-incomplete",
+      "risk_category": "synonym_but_incomplete",
+      "input_facts": {"invoice_id":"fixture-012","vendor_name":"Adventure Works Services","invoice_number":"INV-FIX-012","po_number":null,"grn_number":"GRN-FIX-012","total_amount":2200.0,"currency":"GBP","anomaly_types":["missing_po_number","amount_discrepancy"],"evidence":[],"missing_fields":["po_number"],"risk_level":"medium","recommended_action":"request_human_approval","policy_flags":[],"source":"phase3j_synthetic_fixture"},
+      "mutation": "synonym_incomplete",
+      "expected_status": "rejected",
+      "expected_reject_reasons": ["anomaly_types_missing","unsupported_claims"]
+    },
+    {
+      "case_id": "p3j-013-invalid-evidence-id",
+      "risk_category": "evidence_id_not_allowed",
+      "input_facts": {"invoice_id":"fixture-013","vendor_name":"Fabrikam Logistics","invoice_number":"INV-FIX-013","po_number":"PO-FIX-013","grn_number":"GRN-FIX-013","total_amount":1500.0,"currency":"USD","anomaly_types":["amount_discrepancy"],"evidence":[],"missing_fields":[],"risk_level":"medium","recommended_action":"request_human_approval","policy_flags":[],"source":"phase3j_synthetic_fixture"},
+      "mutation": "invalid_evidence_id",
+      "expected_status": "rejected",
+      "expected_reject_reasons": ["invalid_evidence_ids"]
+    },
+    {
+      "case_id": "p3j-014-evidence-claim-mismatch",
+      "risk_category": "evidence_claim_mismatch",
+      "input_facts": {"invoice_id":"fixture-014","vendor_name":"Contoso Industrial Parts","invoice_number":"INV-FIX-014","po_number":"PO-FIX-014","grn_number":null,"total_amount":850.0,"currency":"EUR","anomaly_types":["missing_goods_receipt"],"evidence":[],"missing_fields":["grn_number"],"risk_level":"medium","recommended_action":"request_human_approval","policy_flags":[],"source":"phase3j_synthetic_fixture"},
+      "mutation": "evidence_claim_mismatch",
+      "expected_status": "rejected",
+      "expected_reject_reasons": ["unsupported_claims"]
+    },
+    {
+      "case_id": "p3j-015-extra-anomaly",
+      "risk_category": "unknown_anomaly_type",
+      "input_facts": {"invoice_id":"fixture-015","vendor_name":"Fabrikam Logistics","invoice_number":"INV-FIX-015","po_number":"PO-FIX-015","grn_number":"GRN-FIX-015","total_amount":1500.0,"currency":"USD","anomaly_types":["amount_discrepancy"],"evidence":[],"missing_fields":[],"risk_level":"medium","recommended_action":"request_human_approval","policy_flags":[],"source":"phase3j_synthetic_fixture"},
+      "mutation": "anomaly_extra",
+      "expected_status": "rejected",
+      "expected_reject_reasons": ["anomaly_types_extra"]
+    },
+    {
+      "case_id": "p3j-016-risk-conflict",
+      "risk_category": "risk_level_conflict",
+      "input_facts": {"invoice_id":"fixture-016","vendor_name":"Blue Yonder Components","invoice_number":"INV-FIX-016","po_number":"PO-FIX-016","grn_number":"GRN-FIX-016","total_amount":999.0,"currency":"CNY","anomaly_types":["duplicate_invoice"],"evidence":[],"missing_fields":[],"risk_level":"high","recommended_action":"reject","policy_flags":[],"source":"phase3j_synthetic_fixture"},
+      "mutation": "risk_mismatch",
+      "expected_status": "rejected",
+      "expected_reject_reasons": ["risk_level_copy_mismatch"]
+    },
+    {
+      "case_id": "p3j-017-missing-field-omitted",
+      "risk_category": "missing_field_omission",
+      "input_facts": {"invoice_id":"fixture-017","vendor_name":"Northwind Office Supplies","invoice_number":"INV-FIX-017","po_number":null,"grn_number":"GRN-FIX-017","total_amount":1200.0,"currency":"USD","anomaly_types":["missing_po_number"],"evidence":[],"missing_fields":["po_number"],"risk_level":"medium","recommended_action":"request_human_approval","policy_flags":[],"source":"phase3j_synthetic_fixture"},
+      "mutation": "missing_field_omitted",
+      "expected_status": "rejected",
+      "expected_reject_reasons": ["missing_fields_omitted"]
+    },
+    {
+      "case_id": "p3j-018-missing-field-extra",
+      "risk_category": "missing_field_invention",
+      "input_facts": {"invoice_id":"fixture-018","vendor_name":"Fabrikam Logistics","invoice_number":"INV-FIX-018","po_number":"PO-FIX-018","grn_number":"GRN-FIX-018","total_amount":1500.0,"currency":"USD","anomaly_types":["amount_discrepancy"],"evidence":[],"missing_fields":[],"risk_level":"medium","recommended_action":"request_human_approval","policy_flags":[],"source":"phase3j_synthetic_fixture"},
+      "mutation": "missing_field_extra",
+      "expected_status": "rejected",
+      "expected_reject_reasons": ["missing_fields_extra"]
+    },
+    {
+      "case_id": "p3j-019-citation-union-mismatch",
+      "risk_category": "citation_list_inconsistent",
+      "input_facts": {"invoice_id":"fixture-019","vendor_name":"Fabrikam Logistics","invoice_number":"INV-FIX-019","po_number":"PO-FIX-019","grn_number":"GRN-FIX-019","total_amount":1500.0,"currency":"USD","anomaly_types":["amount_discrepancy"],"evidence":[],"missing_fields":[],"risk_level":"medium","recommended_action":"request_human_approval","policy_flags":[],"source":"phase3j_synthetic_fixture"},
+      "mutation": "citation_union_mismatch",
+      "expected_status": "rejected",
+      "expected_reject_reasons": ["cited_evidence_ids_mismatch"]
+    },
+    {
+      "case_id": "p3j-020-schema-invalid",
+      "risk_category": "schema_missing_required_field",
+      "input_facts": {"invoice_id":"fixture-020","vendor_name":"Fabrikam Logistics","invoice_number":"INV-FIX-020","po_number":"PO-FIX-020","grn_number":"GRN-FIX-020","total_amount":1500.0,"currency":"USD","anomaly_types":["amount_discrepancy"],"evidence":[],"missing_fields":[],"risk_level":"medium","recommended_action":"request_human_approval","policy_flags":[],"source":"phase3j_synthetic_fixture"},
+      "mutation": "schema_invalid",
+      "expected_status": "rejected",
+      "expected_reject_reasons": ["schema_invalid:ValidationError"]
+    },
+    {
+      "case_id": "p3j-021-unknown-vendor",
+      "risk_category": "unknown_vendor",
+      "input_facts": {"invoice_id":"fixture-021","vendor_name":"Fabrikam Logistics","invoice_number":"INV-FIX-021","po_number":"PO-FIX-021","grn_number":"GRN-FIX-021","total_amount":1500.0,"currency":"USD","anomaly_types":["amount_discrepancy"],"evidence":[],"missing_fields":[],"risk_level":"medium","recommended_action":"request_human_approval","policy_flags":[],"source":"phase3j_synthetic_fixture"},
+      "mutation": "unknown_vendor",
+      "expected_status": "rejected",
+      "expected_reject_reasons": ["unsupported_claims"]
+    }
+  ]
+}

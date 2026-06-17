@@ -1,0 +1,30 @@
+{
+  "phase": "4G",
+  "title": "Field Confirmation + Deterministic Audit Integration",
+  "status": "completed",
+  "field_confirmation_layer_implemented": true,
+  "api": "POST /api/fields/confirm",
+  "layoutlmv3_role": "candidate_generator_only",
+  "confirmed_fields_only_audit_input": true,
+  "phase2_invoked_by_confirmation_api": false,
+  "risk_level_generated_by_confirmation_api": false,
+  "recommended_action_generated_by_confirmation_api": false,
+  "lora_used_for_field_decisions": false,
+  "critical_fields": [
+    "invoice_number",
+    "total_amount",
+    "vendor_name",
+    "invoice_date"
+  ],
+  "governance_statuses": [
+    "auto_accepted",
+    "needs_review",
+    "must_confirm",
+    "rejected"
+  ],
+  "bypass_risk": "controlled_by_required_decisions_and_confirmed_audit_input_contract",
+  "tests": {
+    "phase4g_field_confirmation": "10 passed"
+  },
+  "next_recommendation": "Phase 4H or Phase 4G.1 confirmed-fields-to-AuditReport integration"
+}

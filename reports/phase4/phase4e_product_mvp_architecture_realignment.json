@@ -1,0 +1,49 @@
+{
+  "phase": "4E-R",
+  "status": "completed",
+  "title": "Product MVP Architecture Realignment",
+  "target": "open_source_runnable_real_user_experience_controlled_procurement_audit_mvp",
+  "core_flow": [
+    "invoice_image",
+    "ocr_tokens_and_bbox",
+    "layoutlmv3_field_extraction",
+    "extracted_fields_candidates",
+    "human_field_confirmation",
+    "phase2_deterministic_audit",
+    "audit_report",
+    "deterministic_template",
+    "optional_lora_controlled_rewrite",
+    "guard",
+    "enhanced_explanation_or_template_fallback"
+  ],
+  "decision_authority": {
+    "risk_level": "deterministic_rules_only",
+    "recommended_action": "deterministic_rules_only",
+    "anomaly_types": "deterministic_rules_only",
+    "layoutlmv3": "field_candidates_only",
+    "lora": "guarded_controlled_rewrite_candidate_only"
+  },
+  "ocr_role": "token_bbox_and_confidence_source_for_layoutlmv3",
+  "field_confirmation_required": true,
+  "default_explanation": "deterministic_template",
+  "guard_failure_behavior": "fallback_to_deterministic_template",
+  "formal_policy_rag": "sqlite_fts5_bm25",
+  "langchain_position": "phase4i_optional_comparison",
+  "deferred": {
+    "sqlite_persistence": "evaluate_after_phase4g_or_during_phase4j_if_cross_restart_state_is_required",
+    "docker_hardening": "phase4j",
+    "hf_live_inference": "after_local_phase4f_and_phase4g_resource_quality_gates",
+    "auth_multi_tenant": "after_open_source_mvp_adoption",
+    "erp_payment_execution": "outside_current_phase4_scope"
+  },
+  "roadmap": [
+    {"phase": "4E", "name": "Product MVP Architecture Realignment", "status": "completed"},
+    {"phase": "4F", "name": "Local Live OCR / LayoutLMv3 Extraction Spike", "status": "next"},
+    {"phase": "4G", "name": "Field Confirmation + Phase 2 Audit Integration", "status": "planned"},
+    {"phase": "4H", "name": "Guarded Explanation Runtime Integration", "status": "planned"},
+    {"phase": "4I", "name": "LangChain Policy RAG Comparison", "status": "planned"},
+    {"phase": "4J", "name": "Open-source Release Readiness", "status": "planned"}
+  ],
+  "full_test_required": false,
+  "reason_full_test_not_required": "Documentation and architecture route realignment only; no new business behavior was implemented."
+}

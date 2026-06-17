@@ -149,8 +149,8 @@ model weights. `.gitignore` excludes checkpoints, artifacts, and safetensors.
 | Asset | Location | File | Size |
 | --- | --- | --- | ---: |
 | Public LayoutLMv3 base cache | repository-local ignored cache | `model.safetensors` | 501,338,056 bytes |
-| Qwen2.5-0.5B-Instruct base | `D:\ProcureAgent_LocalArtifacts\Phase3\Qwen2.5-0.5B-Instruct` | `model.safetensors` | 988,097,824 bytes |
-| First-run LoRA adapter | `D:\ProcureAgent_LocalArtifacts\Phase3\phase3_first_lora_run\phase3\adapters\qwen2.5-0.5b-anomaly-explainer` | `adapter_model.safetensors` | 35,237,104 bytes |
+| Qwen2.5-0.5B-Instruct base | 仓库外本地模型目录，不提交 Git | `model.safetensors` | 988,097,824 bytes |
+| First-run LoRA adapter | 仓库外本地 artifacts 目录，不提交 Git | `adapter_model.safetensors` | 35,237,104 bytes |
 
 Important limits:
 

@@ -29,11 +29,11 @@
   },
   {
     "case_id": "missing_goods_receipt",
-    "display_name": "案例 2：日期版式非标准 / 缺少 GRN",
-    "summary": "日期视觉版式更醒目，同时缺少收货记录编号，用来展示版式变化与信息缺失时的审核处理。",
+    "display_name": "案例 2：日期版式非标准",
+    "summary": "日期视觉版式更醒目，PO、GRN 和金额均由 scenario 固定映射，用来展示版式变化下的流程演示。",
     "image": "assets/cases/missing_goods_receipt.png",
     "source_type": "synthetic_imagegen",
-    "source_note": "合成发票示意图，日期使用醒目的非标准版式，并对 GRN 值做空缺处理",
+    "source_note": "合成发票示意图，日期使用醒目的非标准版式，字段来自固定 scenario 映射",
     "scope_note": "网页演示案例，不是 SROIE 评测样本，不证明日期字段 F1",
     "recommended_mode": "template",
     "risk_level": "medium",
@@ -41,52 +41,52 @@
     "extraction_rows": [
       ["发票日期", "31 MAY 2025", "未运行", "未运行", "合成示意真值"],
       ["PO 编号", "PO-3003", "未运行", "未运行", "合成示意真值"],
-      ["GRN 编号", "缺失", "未运行", "未运行", "现有 fixture"],
+      ["GRN 编号", "GRN-2505-8890", "未运行", "未运行", "scenario 固定字段"],
       ["总金额", "USD 3,600.00", "未运行", "未运行", "现有 fixture"]
     ],
     "match_rows": [
       ["PO", "PO-3003", "匹配"],
-      ["GRN", "未提供", "缺失"],
-      ["发票", "已提供", "待人工核验"],
+      ["GRN", "GRN-2505-8890", "匹配"],
+      ["发票", "已提供", "通过"],
       ["重复检查", "未发现历史重复记录", "通过"]
     ],
     "evidence_rows": [
-      ["政策 RAG", "收货完成后应关联收货记录", "演示政策摘要"],
-      ["风险规则", "缺少收货记录", "现有测试案例"]
+      ["政策 RAG", "预置场景用于展示流程，不执行实时检索", "演示政策摘要"],
+      ["风险规则", "PO、GRN 和金额均来自同一 scenario", "scenario 固定规则"]
     ]
   },
   {
     "case_id": "missing_po_number",
-    "display_name": "案例 3：缺少 PO",
-    "summary": "采购订单和收货记录缺失，展示关键信息不完整时为什么需要转人工审批。",
+    "display_name": "案例 3：PO/GRN 版式变化",
+    "summary": "PO 和 GRN 在图片版式中位置不同，但 scenario 映射保持完整，用来展示字段绑定一致性。",
     "image": "assets/cases/missing_po_number.png",
     "source_type": "synthetic_imagegen",
-    "source_note": "合成发票示意图，PO / GRN 区域为空",
+    "source_note": "合成发票示意图，PO / GRN 使用不同版式位置，字段来自固定 scenario 映射",
     "scope_note": "网页演示案例，不是模型评测样本，不证明数据集级 F1",
     "recommended_mode": "template",
     "risk_level": "medium",
     "recommended_action": "request_human_approval",
     "extraction_rows": [
       ["发票编号", "INV-DEMO-002", "未运行", "未运行", "现有 fixture"],
-      ["PO 编号", "缺失", "未运行", "未运行", "现有 fixture"],
-      ["GRN 编号", "缺失", "未运行", "未运行", "现有 fixture"],
+      ["PO 编号", "PO-2505-3303", "未运行", "未运行", "scenario 固定字段"],
+      ["GRN 编号", "GRN-2505-3303", "未运行", "未运行", "scenario 固定字段"],
       ["总金额", "USD 2,400.00", "未运行", "未运行", "现有 fixture"]
     ],
     "match_rows": [
-      ["PO", "未提供", "缺失"],
-      ["GRN", "未提供", "缺失"],
-      ["发票", "已提供", "待人工核验"],
+      ["PO", "PO-2505-3303", "匹配"],
+      ["GRN", "GRN-2505-3303", "匹配"],
+      ["发票", "已提供", "通过"],
       ["重复检查", "未发现历史重复记录", "通过"]
     ],
     "evidence_rows": [
-      ["政策 RAG", "采购发票应关联有效采购订单", "演示政策摘要"],
-      ["风险规则", "缺少采购订单编号", "现有测试案例"]
+      ["政策 RAG", "预置场景用于展示流程，不执行实时检索", "演示政策摘要"],
+      ["风险规则", "PO、GRN 和金额均来自同一 scenario", "scenario 固定规则"]
     ]
   },
   {
     "case_id": "vendor_name_mismatch",
     "display_name": "案例 4：供应商 / 金额不一致",
-    "summary": "供应商与采购事实不一致，并演示 Guard 未通过后自动回退到确定性模板。",
+    "summary": "供应商字段来自该图片绑定 scenario，规则结果和解释文本保持同源，用来展示跨字段一致性。",
     "image": "assets/cases/vendor_name_mismatch.png",
     "source_type": "synthetic_imagegen",
     "source_note": "合成发票示意图，突出金额与供应商核对场景",
@@ -101,20 +101,20 @@
       ["PO 编号", "PO-4004", "未运行", "未运行", "现有 fixture"]
     ],
     "match_rows": [
-      ["PO", "供应商为 Alpine Technology Group", "不一致"],
+      ["PO", "PO-2505-4404", "匹配"],
       ["GRN", "GRN-4004", "已关联"],
-      ["发票", "供应商为 Adventure Works Services", "待人工核验"],
+      ["发票", "供应商为 Adventure Works Services", "通过"],
       ["重复检查", "未发现历史重复记录", "通过"]
     ],
     "evidence_rows": [
-      ["政策 RAG", "供应商主数据不一致时需要人工复核", "演示政策摘要"],
-      ["风险规则", "供应商名称不一致", "现有测试案例"]
+      ["政策 RAG", "预置场景用于展示流程，不执行实时检索", "演示政策摘要"],
+      ["风险规则", "字段来自同一 scenario，不混用其他案例", "scenario 固定规则"]
     ]
   },
   {
     "case_id": "duplicate_invoice",
     "display_name": "案例 5：重复发票 / 高风险",
-    "summary": "重复检查命中历史记录，展示高风险场景下默认采用确定性模板解释。",
+    "summary": "重复发票视觉标记来自该图片绑定 scenario，字段和规则结果保持同源。",
     "image": "assets/cases/duplicate_invoice.png",
     "source_type": "synthetic_imagegen",
     "source_note": "合成发票示意图，带重复 / 高风险视觉标记",
@@ -132,11 +132,11 @@
       ["PO", "PO-1001", "匹配"],
       ["GRN", "GRN-1001", "匹配"],
       ["发票", "INV-DUP-001", "已存在"],
-      ["重复检查", "命中历史记录", "高风险"]
+      ["重复检查", "scenario 标记为重复案例", "高风险"]
     ],
     "evidence_rows": [
       ["政策 RAG", "重复发票不得进入自动付款", "演示政策摘要"],
-      ["风险规则", "重复发票", "现有测试案例"]
+      ["风险规则", "重复发票来自当前 scenario 固定标记", "scenario 固定规则"]
     ]
   }
 ]

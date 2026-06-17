@@ -1,0 +1,59 @@
+{
+  "phase": "4F",
+  "title": "Local Live OCR / LayoutLMv3 Extraction Spike",
+  "engineering_status": "completed",
+  "real_live_extraction_succeeded": false,
+  "blockers": [
+    "missing_fine_tuned_checkpoint",
+    "missing_saved_processor",
+    "missing_checkpoint_bio_label_map"
+  ],
+  "asset_check": {
+    "checkpoint_path": "checkpoints/phase1/layoutlmv3_best",
+    "checkpoint_present": false,
+    "processor_present": false,
+    "label_map_present": false,
+    "paddleocr_importable": true,
+    "paddlepaddle_importable": true,
+    "torch_importable": true,
+    "transformers_importable": true,
+    "pillow_importable": true,
+    "cuda_available": false,
+    "cpu_allowed": true,
+    "runtime_notice": "no_cuda_but_cpu_allowed"
+  },
+  "checkpoint_used": null,
+  "processor_used": null,
+  "sample_image_used_for_real_inference": null,
+  "device_used_for_real_inference": null,
+  "real_inference_latency_seconds": null,
+  "real_field_candidates_generated": false,
+  "candidate_schema_fields": [
+    "field_name",
+    "predicted_value",
+    "confidence",
+    "confidence_type",
+    "token_spans",
+    "bbox_list",
+    "source",
+    "requires_human_confirmation",
+    "warning",
+    "failure_reason"
+  ],
+  "failure_contract_tested": true,
+  "fake_fixture_contract_tested": true,
+  "fake_fixture_is_live_success_evidence": false,
+  "phase2_invoked": false,
+  "risk_level_generated": false,
+  "recommended_action_generated": false,
+  "hf_demo_modified": false,
+  "model_download_attempted": false,
+  "model_weights_committed": false,
+  "official_test": false,
+  "enterprise_generalization_claimed": false,
+  "next_phase": {
+    "phase": "4G",
+    "recommended_now": false,
+    "entry_gate": "Complete at least one real local OCR plus fine-tuned LayoutLMv3 run on a public or synthetic image."
+  }
+}

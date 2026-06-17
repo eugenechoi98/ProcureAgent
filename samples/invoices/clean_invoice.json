@@ -1,0 +1,20 @@
+{
+  "vendor_name": "Acme Office Supplies",
+  "invoice_number": "INV-SAMPLE-001",
+  "invoice_date": "2026-06-15",
+  "po_number": "PO-1001",
+  "total_amount": 1200.0,
+  "currency": "USD",
+  "line_items": [
+    {
+      "item": "Printer Paper",
+      "qty": 100
+    },
+    {
+      "item": "Toner Cartridge",
+      "qty": 4
+    }
+  ],
+  "extraction_confidence": 1.0,
+  "extraction_model": "synthetic-manual-input-v1"
+}

@@ -79,6 +79,7 @@ def build_canonical_audit_facts(
         invoice_id=invoice_id,
         vendor_name=invoice.vendor_name,
         invoice_number=invoice.invoice_number,
+        invoice_date=invoice.invoice_date,
         po_number=invoice.po_number,
         grn_number=grn_number,
         total_amount=invoice.total_amount,
@@ -111,14 +112,30 @@ def build_explanation_metadata(
         missing_fields=list(facts.missing_fields),
         facts_hash=trail.facts_hash,
         template_version=trail.template_version,
+        template_hash=trail.template_hash,
         prompt_version=trail.prompt_version,
+        guard_version=trail.guard_version,
+        provider_name=trail.provider_name,
         model_version=trail.model_version,
         adapter_version=trail.adapter_version,
+        latency_ms=trail.latency_ms,
+        lora_candidate_hash=trail.lora_candidate_hash,
+        final_source=trail.final_source,
+        explanation_mode_requested=trail.explanation_mode_requested,
+        explanation_mode_used=trail.explanation_mode_used,
         raw_llm_output=trail.raw_llm_output,
+        raw_lora_output_saved=trail.raw_lora_output_saved,
+        raw_lora_output_saved_reason=trail.raw_lora_output_saved_reason,
         used_rewrite=result.used_rewrite,
         fallback_reason=trail.fallback_reason,
         guard_passed=trail.verifier_result.passed,
         guard_violations=trail.verifier_result.violations,
+        guard_violation_details=[
+            item.model_dump(mode="json") for item in trail.verifier_result.violation_details
+        ],
+        checked_entities=trail.verifier_result.checked_entities,
+        checked_numbers=trail.verifier_result.checked_numbers,
+        checked_decision_fields=trail.verifier_result.checked_decision_fields,
     )
 
 

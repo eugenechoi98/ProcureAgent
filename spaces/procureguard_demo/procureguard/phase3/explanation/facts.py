@@ -88,6 +88,7 @@ class CanonicalAuditFacts(BaseModel):
     invoice_id: str | None = None
     vendor_name: str | None = None
     invoice_number: str | None = None
+    invoice_date: str | None = None
     po_number: str | None = None
     grn_number: str | None = None
     total_amount: float | None = None
@@ -153,6 +154,7 @@ class CanonicalAuditFacts(BaseModel):
             invoice_id=invoice_id,
             vendor_name=facts.vendor_name,
             invoice_number=facts.invoice_number,
+            invoice_date=None,
             po_number=facts.po_number,
             grn_number=facts.grn_number,
             total_amount=facts.total_amount,
@@ -218,3 +220,26 @@ class CanonicalAuditFacts(BaseModel):
                     if value
                 )
         return vendors
+
+    def known_dates(self) -> set[str]:
+        """列出允许出现在解释里的日期。"""
+
+        dates = {self.invoice_date} if self.invoice_date else set()
+        for item in self.evidence:
+            for value in item.values():
+                if isinstance(value, str) and resemblances_iso_date(value):
+                    dates.add(value)
+        return dates
+
+
+def resemblances_iso_date(value: str) -> bool:
+    """判断字符串是否像 ISO 日期，避免解释层引入未知日期。"""
+
+    parts = value.split("-")
+    return (
+        len(parts) == 3
+        and len(parts[0]) == 4
+        and len(parts[1]) == 2
+        and len(parts[2]) == 2
+        and all(part.isdigit() for part in parts)
+    )

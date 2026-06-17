@@ -56,6 +56,7 @@ class DeterministicTemplateRenderer:
         parts = [
             f"供应商 {self._display(facts.vendor_name)}",
             f"发票号 {self._display(facts.invoice_number)}",
+            f"发票日期 {self._display(facts.invoice_date)}",
             f"采购订单号 {self._display(facts.po_number)}",
             f"收货单号 {self._display(facts.grn_number)}",
         ]

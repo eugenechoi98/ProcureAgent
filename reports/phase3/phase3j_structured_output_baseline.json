@@ -1,0 +1,538 @@
+{
+  "phase": "Phase 3J",
+  "baseline": "rule_only_structured_output",
+  "challenge_set_id": "phase3j-structured-challenge-v1",
+  "sample_count": 21,
+  "training_performed": false,
+  "api_integration": false,
+  "live_inference": false,
+  "official_default_changed": false,
+  "official_default": "deterministic_template",
+  "metric_scope": "Field precision and recall include intentionally corrupted challenge candidates; pass/fail is based on expected status, expected reject reasons, fallback correctness, and zero unsupported accepted claims.",
+  "metrics": {
+    "json_validity": 1.0,
+    "schema_validity": 0.9523809523809523,
+    "risk_level_exact_match": 0.95,
+    "recommended_action_exact_match": 0.95,
+    "anomaly_type_precision": 0.9545454545454546,
+    "anomaly_type_recall": 0.9130434782608695,
+    "missing_field_precision": 0.8888888888888888,
+    "missing_field_recall": 0.8888888888888888,
+    "evidence_id_precision": 0.967741935483871,
+    "evidence_id_recall": 0.9375,
+    "unsupported_claim_rate": 0.0,
+    "expected_status_accuracy": 1.0,
+    "fallback_accuracy": 1.0
+  },
+  "reject_reason_distribution": {
+    "anomaly_types_extra": 1,
+    "anomaly_types_missing": 2,
+    "cited_evidence_ids_mismatch": 1,
+    "invalid_evidence_ids": 1,
+    "missing_fields_extra": 1,
+    "missing_fields_omitted": 1,
+    "recommended_action_copy_mismatch": 1,
+    "risk_level_copy_mismatch": 1,
+    "schema_invalid:ValidationError": 1,
+    "unsupported_claims": 7
+  },
+  "per_case_debug_rows": [
+    {
+      "case_id": "p3j-001-rule-missing-po-pass",
+      "risk_category": "rule_only_pass",
+      "expected_status": "accepted",
+      "actual_status": "accepted",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "json_validity": true,
+      "schema_validity": true,
+      "failed_components": [],
+      "unsupported_claims": [],
+      "invalid_evidence_ids": [],
+      "action_mismatch": false,
+      "risk_level_mismatch": false,
+      "anomaly_missing_or_extra": {
+        "missing": [],
+        "extra": []
+      },
+      "rendered_text_preview": "结构化审核说明：\n异常类型：缺少采购订单号\n缺失字段：采购订单号\n风险等级：medium\n建议动作：request_human_approval\n说明：\n- 检测到缺少采购订单号。 [证据: anomaly.missing_po_number]\n- 采购订单号未提供（缺失）。 [证据: missing.po_number]",
+      "fallback_used": false
+    },
+    {
+      "case_id": "p3j-002-rule-missing-grn-pass",
+      "risk_category": "rule_only_pass",
+      "expected_status": "accepted",
+      "actual_status": "accepted",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "json_validity": true,
+      "schema_validity": true,
+      "failed_components": [],
+      "unsupported_claims": [],
+      "invalid_evidence_ids": [],
+      "action_mismatch": false,
+      "risk_level_mismatch": false,
+      "anomaly_missing_or_extra": {
+        "missing": [],
+        "extra": []
+      },
+      "rendered_text_preview": "结构化审核说明：\n异常类型：缺少收货记录\n缺失字段：收货单号\n风险等级：medium\n建议动作：request_human_approval\n说明：\n- 检测到缺少收货记录。 [证据: anomaly.missing_goods_receipt]\n- 收货单号未提供（缺失）。 [证据: missing.grn_number]",
+      "fallback_used": false
+    },
+    {
+      "case_id": "p3j-003-rule-amount-pass",
+      "risk_category": "rule_only_pass",
+      "expected_status": "accepted",
+      "actual_status": "accepted",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "json_validity": true,
+      "schema_validity": true,
+      "failed_components": [],
+      "unsupported_claims": [],
+      "invalid_evidence_ids": [],
+      "action_mismatch": false,
+      "risk_level_mismatch": false,
+      "anomaly_missing_or_extra": {
+        "missing": [],
+        "extra": []
+      },
+      "rendered_text_preview": "结构化审核说明：\n异常类型：发票金额不一致\n缺失字段：无\n风险等级：medium\n建议动作：request_human_approval\n说明：\n- 检测到发票金额不一致。 [证据: anomaly.amount_discrepancy]",
+      "fallback_used": false
+    },
+    {
+      "case_id": "p3j-004-rule-multi-pass",
+      "risk_category": "rule_only_pass",
+      "expected_status": "accepted",
+      "actual_status": "accepted",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "json_validity": true,
+      "schema_validity": true,
+      "failed_components": [],
+      "unsupported_claims": [],
+      "invalid_evidence_ids": [],
+      "action_mismatch": false,
+      "risk_level_mismatch": false,
+      "anomaly_missing_or_extra": {
+        "missing": [],
+        "extra": []
+      },
+      "rendered_text_preview": "结构化审核说明：\n异常类型：缺少采购订单号、发票金额不一致\n缺失字段：采购订单号\n风险等级：medium\n建议动作：request_human_approval\n说明：\n- 检测到缺少采购订单号。 [证据: anomaly.missing_po_number]\n- 检测到发票金额不一致。 [证据: anomaly.amount_discrepancy]\n- ",
+      "fallback_used": false
+    },
+    {
+      "case_id": "p3j-005-rule-duplicate-pass",
+      "risk_category": "rule_only_pass",
+      "expected_status": "accepted",
+      "actual_status": "accepted",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "json_validity": true,
+      "schema_validity": true,
+      "failed_components": [],
+      "unsupported_claims": [],
+      "invalid_evidence_ids": [],
+      "action_mismatch": false,
+      "risk_level_mismatch": false,
+      "anomaly_missing_or_extra": {
+        "missing": [],
+        "extra": []
+      },
+      "rendered_text_preview": "结构化审核说明：\n异常类型：重复发票\n缺失字段：无\n风险等级：high\n建议动作：reject\n说明：\n- 检测到重复发票。 [证据: anomaly.duplicate_invoice]",
+      "fallback_used": false
+    },
+    {
+      "case_id": "p3j-006-unknown-po",
+      "risk_category": "unknown_po_number",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "json_validity": true,
+      "schema_validity": true,
+      "failed_components": [
+        "unsupported_claims"
+      ],
+      "unsupported_claims": [
+        "unknown_identifier:PO-999999"
+      ],
+      "invalid_evidence_ids": [],
+      "action_mismatch": false,
+      "risk_level_mismatch": false,
+      "anomaly_missing_or_extra": {
+        "missing": [],
+        "extra": []
+      },
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：缺少采购订单号\n关键证据：供应商 Northwind Office Supplies；发票号 INV-FIX-006；采购订单号 未提供（缺失）；收货单号 GRN-FIX-006；发票金额 USD 1200.00\n缺失字段：po_numb",
+      "fallback_used": true
+    },
+    {
+      "case_id": "p3j-007-unknown-grn",
+      "risk_category": "unknown_grn_number",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "json_validity": true,
+      "schema_validity": true,
+      "failed_components": [
+        "unsupported_claims"
+      ],
+      "unsupported_claims": [
+        "unknown_identifier:GRN-999999"
+      ],
+      "invalid_evidence_ids": [],
+      "action_mismatch": false,
+      "risk_level_mismatch": false,
+      "anomaly_missing_or_extra": {
+        "missing": [],
+        "extra": []
+      },
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：缺少收货记录\n关键证据：供应商 Contoso Industrial Parts；发票号 INV-FIX-007；采购订单号 PO-FIX-007；收货单号 未提供（缺失）；发票金额 EUR 850.00\n缺失字段：grn_number：",
+      "fallback_used": true
+    },
+    {
+      "case_id": "p3j-008-unknown-amount",
+      "risk_category": "unknown_amount",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "json_validity": true,
+      "schema_validity": true,
+      "failed_components": [
+        "unsupported_claims"
+      ],
+      "unsupported_claims": [
+        "unknown_amount:999999.00"
+      ],
+      "invalid_evidence_ids": [],
+      "action_mismatch": false,
+      "risk_level_mismatch": false,
+      "anomaly_missing_or_extra": {
+        "missing": [],
+        "extra": []
+      },
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：发票金额不一致\n关键证据：供应商 Fabrikam Logistics；发票号 INV-FIX-008；采购订单号 PO-FIX-008；收货单号 GRN-FIX-008；发票金额 USD 1500.00；金额对比 发票 1500.0、订",
+      "fallback_used": true
+    },
+    {
+      "case_id": "p3j-009-unsupported-approver",
+      "risk_category": "unsupported_approver",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "json_validity": true,
+      "schema_validity": true,
+      "failed_components": [
+        "unsupported_claims"
+      ],
+      "unsupported_claims": [
+        "unsupported_policy_or_approver:审批人"
+      ],
+      "invalid_evidence_ids": [],
+      "action_mismatch": false,
+      "risk_level_mismatch": false,
+      "anomaly_missing_or_extra": {
+        "missing": [],
+        "extra": []
+      },
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：发票金额不一致\n关键证据：供应商 Fabrikam Logistics；发票号 INV-FIX-009；采购订单号 PO-FIX-009；收货单号 GRN-FIX-009；发票金额 USD 1500.00\n缺失字段：无\n风险等级：medi",
+      "fallback_used": true
+    },
+    {
+      "case_id": "p3j-010-multi-anomaly-missing",
+      "risk_category": "multi_anomaly_omission",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "json_validity": true,
+      "schema_validity": true,
+      "failed_components": [
+        "anomaly_types_missing"
+      ],
+      "unsupported_claims": [],
+      "invalid_evidence_ids": [],
+      "action_mismatch": false,
+      "risk_level_mismatch": false,
+      "anomaly_missing_or_extra": {
+        "missing": [
+          "amount_discrepancy"
+        ],
+        "extra": []
+      },
+      "rendered_text_preview": "审核摘要：发现 2 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：缺少采购订单号、发票金额不一致\n关键证据：供应商 Adventure Works Services；发票号 INV-FIX-010；采购订单号 未提供（缺失）；收货单号 GRN-FIX-010；发票金额 GBP 2200.00\n缺失字段：",
+      "fallback_used": true
+    },
+    {
+      "case_id": "p3j-011-action-conflict",
+      "risk_category": "recommended_action_conflict",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "json_validity": true,
+      "schema_validity": true,
+      "failed_components": [
+        "recommended_action_copy_mismatch"
+      ],
+      "unsupported_claims": [],
+      "invalid_evidence_ids": [],
+      "action_mismatch": true,
+      "risk_level_mismatch": false,
+      "anomaly_missing_or_extra": {
+        "missing": [],
+        "extra": []
+      },
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：发票金额不一致\n关键证据：供应商 Fabrikam Logistics；发票号 INV-FIX-011；采购订单号 PO-FIX-011；收货单号 GRN-FIX-011；发票金额 USD 1500.00\n缺失字段：无\n风险等级：medi",
+      "fallback_used": true
+    },
+    {
+      "case_id": "p3j-012-synonym-incomplete",
+      "risk_category": "synonym_but_incomplete",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "json_validity": true,
+      "schema_validity": true,
+      "failed_components": [
+        "anomaly_types_missing",
+        "unsupported_claims"
+      ],
+      "unsupported_claims": [
+        "evidence_claim_mismatch:bullet_3"
+      ],
+      "invalid_evidence_ids": [],
+      "action_mismatch": false,
+      "risk_level_mismatch": false,
+      "anomaly_missing_or_extra": {
+        "missing": [
+          "amount_discrepancy"
+        ],
+        "extra": []
+      },
+      "rendered_text_preview": "审核摘要：发现 2 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：缺少采购订单号、发票金额不一致\n关键证据：供应商 Adventure Works Services；发票号 INV-FIX-012；采购订单号 未提供（缺失）；收货单号 GRN-FIX-012；发票金额 GBP 2200.00\n缺失字段：",
+      "fallback_used": true
+    },
+    {
+      "case_id": "p3j-013-invalid-evidence-id",
+      "risk_category": "evidence_id_not_allowed",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "json_validity": true,
+      "schema_validity": true,
+      "failed_components": [
+        "invalid_evidence_ids"
+      ],
+      "unsupported_claims": [],
+      "invalid_evidence_ids": [
+        "evidence.999"
+      ],
+      "action_mismatch": false,
+      "risk_level_mismatch": false,
+      "anomaly_missing_or_extra": {
+        "missing": [],
+        "extra": []
+      },
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：发票金额不一致\n关键证据：供应商 Fabrikam Logistics；发票号 INV-FIX-013；采购订单号 PO-FIX-013；收货单号 GRN-FIX-013；发票金额 USD 1500.00\n缺失字段：无\n风险等级：medi",
+      "fallback_used": true
+    },
+    {
+      "case_id": "p3j-014-evidence-claim-mismatch",
+      "risk_category": "evidence_claim_mismatch",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "json_validity": true,
+      "schema_validity": true,
+      "failed_components": [
+        "unsupported_claims"
+      ],
+      "unsupported_claims": [
+        "evidence_claim_mismatch:bullet_1"
+      ],
+      "invalid_evidence_ids": [],
+      "action_mismatch": false,
+      "risk_level_mismatch": false,
+      "anomaly_missing_or_extra": {
+        "missing": [],
+        "extra": []
+      },
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：缺少收货记录\n关键证据：供应商 Contoso Industrial Parts；发票号 INV-FIX-014；采购订单号 PO-FIX-014；收货单号 未提供（缺失）；发票金额 EUR 850.00\n缺失字段：grn_number：",
+      "fallback_used": true
+    },
+    {
+      "case_id": "p3j-015-extra-anomaly",
+      "risk_category": "unknown_anomaly_type",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "json_validity": true,
+      "schema_validity": true,
+      "failed_components": [
+        "anomaly_types_extra"
+      ],
+      "unsupported_claims": [],
+      "invalid_evidence_ids": [],
+      "action_mismatch": false,
+      "risk_level_mismatch": false,
+      "anomaly_missing_or_extra": {
+        "missing": [],
+        "extra": [
+          "duplicate_invoice"
+        ]
+      },
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：发票金额不一致\n关键证据：供应商 Fabrikam Logistics；发票号 INV-FIX-015；采购订单号 PO-FIX-015；收货单号 GRN-FIX-015；发票金额 USD 1500.00\n缺失字段：无\n风险等级：medi",
+      "fallback_used": true
+    },
+    {
+      "case_id": "p3j-016-risk-conflict",
+      "risk_category": "risk_level_conflict",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "json_validity": true,
+      "schema_validity": true,
+      "failed_components": [
+        "risk_level_copy_mismatch"
+      ],
+      "unsupported_claims": [],
+      "invalid_evidence_ids": [],
+      "action_mismatch": false,
+      "risk_level_mismatch": true,
+      "anomaly_missing_or_extra": {
+        "missing": [],
+        "extra": []
+      },
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 high，建议动作 reject。\n异常类型：重复发票\n关键证据：供应商 Blue Yonder Components；发票号 INV-FIX-016；采购订单号 PO-FIX-016；收货单号 GRN-FIX-016；发票金额 CNY 999.00\n缺失字段：无\n风险等级：high\n建议动作：reject",
+      "fallback_used": true
+    },
+    {
+      "case_id": "p3j-017-missing-field-omitted",
+      "risk_category": "missing_field_omission",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "json_validity": true,
+      "schema_validity": true,
+      "failed_components": [
+        "missing_fields_omitted"
+      ],
+      "unsupported_claims": [],
+      "invalid_evidence_ids": [],
+      "action_mismatch": false,
+      "risk_level_mismatch": false,
+      "anomaly_missing_or_extra": {
+        "missing": [],
+        "extra": []
+      },
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：缺少采购订单号\n关键证据：供应商 Northwind Office Supplies；发票号 INV-FIX-017；采购订单号 未提供（缺失）；收货单号 GRN-FIX-017；发票金额 USD 1200.00\n缺失字段：po_numb",
+      "fallback_used": true
+    },
+    {
+      "case_id": "p3j-018-missing-field-extra",
+      "risk_category": "missing_field_invention",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "json_validity": true,
+      "schema_validity": true,
+      "failed_components": [
+        "missing_fields_extra"
+      ],
+      "unsupported_claims": [],
+      "invalid_evidence_ids": [],
+      "action_mismatch": false,
+      "risk_level_mismatch": false,
+      "anomaly_missing_or_extra": {
+        "missing": [],
+        "extra": []
+      },
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：发票金额不一致\n关键证据：供应商 Fabrikam Logistics；发票号 INV-FIX-018；采购订单号 PO-FIX-018；收货单号 GRN-FIX-018；发票金额 USD 1500.00\n缺失字段：无\n风险等级：medi",
+      "fallback_used": true
+    },
+    {
+      "case_id": "p3j-019-citation-union-mismatch",
+      "risk_category": "citation_list_inconsistent",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "json_validity": true,
+      "schema_validity": true,
+      "failed_components": [
+        "cited_evidence_ids_mismatch"
+      ],
+      "unsupported_claims": [],
+      "invalid_evidence_ids": [],
+      "action_mismatch": false,
+      "risk_level_mismatch": false,
+      "anomaly_missing_or_extra": {
+        "missing": [],
+        "extra": []
+      },
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：发票金额不一致\n关键证据：供应商 Fabrikam Logistics；发票号 INV-FIX-019；采购订单号 PO-FIX-019；收货单号 GRN-FIX-019；发票金额 USD 1500.00\n缺失字段：无\n风险等级：medi",
+      "fallback_used": true
+    },
+    {
+      "case_id": "p3j-020-schema-invalid",
+      "risk_category": "schema_missing_required_field",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "json_validity": true,
+      "schema_validity": false,
+      "failed_components": [
+        "schema_invalid:ValidationError"
+      ],
+      "unsupported_claims": [],
+      "invalid_evidence_ids": [],
+      "action_mismatch": false,
+      "risk_level_mismatch": false,
+      "anomaly_missing_or_extra": {
+        "missing": [],
+        "extra": []
+      },
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：发票金额不一致\n关键证据：供应商 Fabrikam Logistics；发票号 INV-FIX-020；采购订单号 PO-FIX-020；收货单号 GRN-FIX-020；发票金额 USD 1500.00\n缺失字段：无\n风险等级：medi",
+      "fallback_used": true
+    },
+    {
+      "case_id": "p3j-021-unknown-vendor",
+      "risk_category": "unknown_vendor",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "json_validity": true,
+      "schema_validity": true,
+      "failed_components": [
+        "unsupported_claims"
+      ],
+      "unsupported_claims": [
+        "unknown_vendor:Unknown Vendor LLC"
+      ],
+      "invalid_evidence_ids": [],
+      "action_mismatch": false,
+      "risk_level_mismatch": false,
+      "anomaly_missing_or_extra": {
+        "missing": [],
+        "extra": []
+      },
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：发票金额不一致\n关键证据：供应商 Fabrikam Logistics；发票号 INV-FIX-021；采购订单号 PO-FIX-021；收货单号 GRN-FIX-021；发票金额 USD 1500.00\n缺失字段：无\n风险等级：medi",
+      "fallback_used": true
+    }
+  ],
+  "baseline_passed": true
+}

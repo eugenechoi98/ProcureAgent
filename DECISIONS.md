@@ -1,5 +1,125 @@
 # DECISIONS.md
 
+## 2026-06-17：Phase 4H 将 LoRA 收口为 Guarded Rewrite Runtime
+
+两轮真实 LoRA 评测均未通过 hard gate，因此不能把 LoRA 提升为默认解释器或事实来源。Phase 4H 只允许 LoRA 在 Phase 2 已确定的 Canonical Audit Facts 和 deterministic template 之后生成语言改写候选；`guarded_lora` 只有 Guard PASS 才能成为最终解释，FAIL、provider 不可用、空输出、解析失败或高风险场景都回退 template。无论 PASS/FAIL，`risk_level`、`recommended_action`、`anomaly_types` 和 evidence 都不允许被解释层改写。
+
+## 2026-06-17：Phase 4G-EXT 用单一 API 收口端到端 MVP
+
+模块已经具备 image extraction、field confirmation 和 deterministic audit，但产品体验缺统一入口。新增 `/api/mvp/audit/execute` 作为编排层：image 和 candidates 必须先确认，Phase 2 只读取 confirmed fields，输出 AuditReport JSON、Markdown 和 trace。这样形成可运行 MVP 闭环，同时不把模型候选提升为审计事实。
+
+## 2026-06-17：LoRA / Guard 在端到端链路中只影响解释，不影响审核结果
+
+端到端 API 可以保留 explanation mode，但风险等级和建议动作在 LoRA 之前已经由 Phase 2 rules 生成。Guard failure 只改变解释来源和 fallback trace，不会回写 `risk_level`、`recommended_action` 或 validation evidence。
+
+## 2026-06-17：Phase 4G 将 LayoutLMv3 隔离为字段候选生成器
+
+LayoutLMv3 live extraction 已能输出字段候选，但模型候选不是审计事实。Phase 4G 要求所有字段先经过 human 或 simulated_human confirmation，只有 `ConfirmedAuditInput.confirmed_fields` 能作为 Phase 2 后续输入，避免 raw model output 直接触发采购风险判断。
+
+## 2026-06-17：关键发票字段永远不能因模型高置信自动通过
+
+`invoice_number`、`total_amount`、`vendor_name` 和 `invoice_date` 都会影响三单匹配、重复检测和金额风险，因此统一标记为 critical fields。它们必须人工确认或修正；confidence 只能用于 review UX，不得影响 `risk_level` 或 `recommended_action`。
+
+## 2026-06-17：Phase 4F.2 从本地外部 artifacts 恢复微调 LayoutLMv3 bundle
+
+`D:\ProcureAgent_LocalArtifacts\Phase1\layoutlmv3_best.zip` 是 Phase 1 训练时导出的真实 artifact，恢复后 checkpoint、processor、label map 和 manifest 通过检查，并完成 CPU live extraction。该 bundle 仍放在 ignored `artifacts/`，不提交权重；单样例成功只解锁 Phase 4G 字段确认设计，不代表 official test 或企业泛化。
+
+## 2026-06-17：重训 fallback 只保留计划，不自动执行
+
+虽然 Phase 4F.2 已找回 artifact，仍保留 rebuild plan 作为丢失时的最后手段。任何重训必须等用户明确说“允许重训”，并记录为 `retrained_layoutlmv3_v2`，不能覆盖原始 Phase 1 checkpoint 证据。
+
+## 2026-06-15：Runtime bundle 只在 checkpoint label order 可证明时重建 label map
+
+Phase 1 代码中的 BIO 标签可以生成 `label_map.json`，但只有 checkpoint `config.json` 的 `id2label` 与九标签顺序完全一致时才能组合使用。当前 checkpoint 缺失，因此 blocked bundle 不生成 label map，避免把旧权重和新标签定义无证据混配。
+
+## 2026-06-15：公开 LayoutLMv3 base cache 不用于恢复微调 checkpoint
+
+本地 base snapshot 包含权重和 processor，但没有 Phase 1 微调结果。它未来只能在确认 checkpoint processor 缺失时作为同一 base revision 的 processor 来源，不能替代 fine-tuned `model.safetensors`，也不能让 Phase 4F.1 从 blocked 变成 ready。
+
+## 2026-06-15：Phase 4F 在缺微调 checkpoint 时保持 fail closed
+
+当前本机只有公开 LayoutLMv3 base cache，没有与 Phase 1 指标对应的微调 checkpoint、saved processor 和 BIO label map。Base model 或 fake fixture 不能冒充真实产品抽取，因此 asset check 返回明确缺失状态，spike 不下载模型、不生成伪预测，Phase 4G 暂不启动。
+
+## 2026-06-15：Live extraction confidence 使用真实 word-label softmax 并强制人工确认
+
+字段存在预测 span 时，confidence 记录该字段 word-level 预测标签 softmax 的均值；没有 span 时保持 `null`，不编造分数。所有候选无论分数高低都必须标记人工确认，因为当前 confidence 未校准，且 OCR/抽取错误不能直接进入采购风险判断。
+
+## 2026-06-15：产品目标纠正为开源可运行、真实用户可体验的受控审核 MVP
+
+只展示离线模型证据不能验证用户输入到 AuditReport 的完整体验，直接建设认证、多租户、ERP 和 SLA 又会在核心链路未验证前扩大范围。因此后续先打通本地图片抽取、字段确认和确定性审核闭环，企业级能力不进入当前 Phase 4。
+
+## 2026-06-15：Live LayoutLMv3 改为核心后续路径，先做本地 extraction spike
+
+Phase 1 已有真实 checkpoint 和离线指标，但模型资产、OCR 输入、资源、延迟和错误契约尚未产品化。Phase 4F 先验证本地 OCR token+bbox 到 LayoutLMv3 字段候选，不立即改变 HF public Demo；候选经人工确认后才能进入 Phase 2。
+
+## 2026-06-15：LoRA 只允许 guarded controlled rewrite
+
+两轮 LoRA 未通过 hard gate，因此它只能在确定性事实和模板冻结后生成可选语言候选。任何 schema、事实、风险、动作、异常或引用校验失败都必须 fail closed 并返回 deterministic template，不能改变审核结论。
+
+## 2026-06-15：LangChain comparison 排在核心图片审核闭环之后
+
+当前 SQLite FTS5/BM25 Policy RAG 已是可解释正式主链。LangChain 只在 Phase 4I 使用相同本地语料和查询做可选对比，避免框架集成抢占 LayoutLMv3、字段确认和 Phase 2 集成的优先级。
+
+## 2026-06-15：SQLite persistence 暂停为当前优先项
+
+进程重启丢失 review 状态是已知限制，但当前更关键的产品缺口是用户无法从发票图片进入真实抽取与审核链。Persistence 在 Phase 4G 后按跨重启工作区需求重新评估，认证、多租户和生产数据治理继续后置。
+
+## 2026-06-15：Phase 4D 使用应用进程内 store，不修改 Phase 2 schema
+
+Manual Audit 的 Phase 4C 数据库是请求级临时数据库，强行复用 Phase 2 review 表会要求持久化整套临时上下文并扩大迁移范围。Phase 4D 选择进程内 store 保存本地 MVP 请求、结果和 reviewer metadata，满足导出与复核演示，同时明确服务重启即清空，不包装成生产审计留存。
+
+## 2026-06-15：人工决定只做附加元数据，不覆盖规则结论
+
+reviewer 可以 approve、reject 或 request_more_info，但原始 `risk_level`、`recommended_action`、policy flags 和 evidence 始终保留。这样可以展示人机复核闭环，又不会混淆“确定性系统判断”和“本地人工意见”。
+
+## 2026-06-15：导出同时提供 JSON 与 Markdown，并强制带非付款边界
+
+JSON 服务机器读取，Markdown 服务面试展示和本地审核说明。两种格式都包含来源、fallback、review 和 `payment_authority=false`，避免导出文件被误认为付款凭证、合规批准或企业采购记录。
+
+## 2026-06-15：Manual Audit 使用请求级内存 SQLite 注入显式 mock context
+
+现有五个工具和 AgentInvoiceProcessor 都依赖 SQLite 查询。为复用真实 Phase 2 主链且不污染默认 seed，每次请求创建独立内存数据库，只写入用户显式提供的 PO、GRN、重复标志和 mock policies，请求结束即关闭。这样无需修改工具签名，也不会影响 HF Demo 或已有数据库。
+
+## 2026-06-15：Manual Audit 只开放 deterministic template
+
+真实用户最小输入流的目标是验证字段、采购上下文和规则审核闭环，不是继续模型实验。API 固定 `explanation_mode=template`，不暴露 shadow 或 experimental，确保模型不能进入正式结果路径，也避免把 Phase 3 离线实验误写成产品能力。
+
+## 2026-06-15：产品响应单独声明来源和付款权限
+
+AuditReport 保持共享业务契约不变，ManualAuditResponse 额外返回 manual input、explicit mock context、deterministic rules、deterministic template、无 live model 和无 payment authority 标签。这样既不破坏 Phase 2 契约，又让试用者能直接判断每类结果来自哪里。
+
+## 2026-06-15：开源 sample 使用内存 SQLite 和现有确定性主链
+
+clean-clone smoke 只读取 synthetic 结构化发票字段，并复用现有 mock PO/GRN、Policy RAG、Risk Engine 和 deterministic template。这样陌生开发者可以在无模型、无网络、无本地数据残留的情况下验证真实业务主链，同时不会把 sample 误写成图片在线推理或企业数据。
+
+## 2026-06-15：环境样例只公开当前代码真实支持的配置
+
+当前应用只读取 `DATABASE_PATH` 和 `UPLOAD_DIR`，尚未实现统一的环境标记、Demo mode 或日志级别配置。`.env.example` 不主动新增未生效变量，避免让开源用户误以为项目已经具备生产环境隔离或日志治理。
+
+## 2026-06-15：MIT 仅覆盖仓库代码，不覆盖外部数据与模型资产
+
+SROIE、Voxel51 scanned_receipts、CORD 和基础模型保留原发布方许可，模型权重、checkpoint、adapter、缓存和原始训练 artifacts 继续不提交 Git。这样可以开放工程代码，同时不错误转授权第三方数据和模型资产。
+
+## 2026-06-15：真实用户 MVP 先采用手动字段输入，不以在线 LayoutLMv3 为前置
+
+当前 Phase 2 规则链已经能验证三单匹配、Policy RAG、风险判断和人工审核价值，而在线 OCR/LayoutLMv3 仍涉及权重托管、资源、延迟、文件安全和泛化风险。先用手动发票字段与显式 mock PO/GRN 打通用户流程，可以更低成本验证产品价值；在线模型推理延后为可选 Phase 4F。
+
+## 2026-06-15：开源发布先完成 Quickstart 与安全边界，再扩展产品功能
+
+当前仓库具备 Demo、CI 和测试基础，但缺干净 clone Quickstart、环境样例、许可、统一 sample、隐私说明和分层测试入口。Phase 4B 优先补齐这些开源基础，避免把“作者机器可运行”误判为“陌生开发者可复现”，也避免真实敏感发票被误上传到研究原型。
+
+## 2026-06-15：HF Space 与真实用户 MVP 保持两条产品路径
+
+HF Space 继续作为 public portfolio demo，展示离线模型证据、mock 采购上下文和受控审核架构；真实用户 MVP 另行提供手动输入、规则审核、报告导出和人工复核。这样既保留稳定公开展示，也不会把固定案例或离线 artifacts 包装成生产能力。
+
+## 2026-06-15：Phase 3K citation 必须由上游证据目录约束
+
+Evidence Catalog 只从 Canonical Audit Facts 构造，bullet 的 claim type、关键实体和 evidence ID 必须同时匹配；引用存在但内容不匹配仍然拒绝，任何失败继续回退确定性模板。这样可增加解释可追溯性，但不把规则校验夸大为通用语义蕴含，也不改变正式默认解释路径。
+
+## 2026-06-15：Phase 3J 结构化解释采用 exact-match 与 fail-closed
+
+Structured Output First baseline 对 `risk_level`、`recommended_action`、`anomaly_types` 和 `missing_fields` 采用上游事实 exact-match，不允许用子集掩盖多异常漏项；bullet 必须绑定允许 evidence ID，任何 schema、事实或引用失败都回退现有确定性模板。这样可以验证结构化路线的可审计性，同时不改变 Phase 3H 正式默认路径，也不把离线 rule-only 实验包装成模型能力。
+
 ## 2026-06-14：最终作品集定位采用受控 Agent，不补 LLM Tool Router
 
 采购审核中的 PO、GRN、重复检测、政策查询和人工审核流转存在固定业务依赖，强行让 LLM 自主选择工具顺序只会制造不可解释的伪自由度。最终作品集统一定位为“受控采购发票审核 Agent”：LayoutLMv3 负责字段抽取，五个工具负责证据查询，确定性风险引擎决定风险等级和建议动作，LoRA 只作为受控解释候选，并由 Guard / Fallback 阻止未知事实或结论篡改。

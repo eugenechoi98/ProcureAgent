@@ -1,0 +1,54 @@
+{
+  "phase": "Phase 4D",
+  "title": "AuditReport Export & Human Review UX",
+  "status": "pass",
+  "completed_date": "2026-06-15",
+  "storage": {
+    "type": "application_process_memory",
+    "survives_restart": false,
+    "phase2_schema_changed": false,
+    "production_audit_retention": false
+  },
+  "exports": {
+    "json": true,
+    "markdown": true,
+    "payment_authority": false,
+    "includes_source_labels": true,
+    "includes_fallback_status": true,
+    "includes_review_metadata": true
+  },
+  "review": {
+    "queue": true,
+    "decisions": ["approve", "reject", "request_more_info"],
+    "reviewer_note": true,
+    "mutates_deterministic_result": false,
+    "enterprise_approval": false
+  },
+  "boundaries": {
+    "invoice_field_source": "manual_input",
+    "procurement_context_source": "explicit_mock_context",
+    "risk_decision_source": "deterministic_rules",
+    "explanation_source": "deterministic_template",
+    "live_layoutlmv3_used": false,
+    "live_lora_used": false,
+    "payment_authority": false,
+    "production_authentication": false,
+    "multi_tenant": false,
+    "privacy_sla": false
+  },
+  "validation": {
+    "phase4d_tests_passed": 11,
+    "phase4c_regression_passed": true,
+    "phase2_api_regression_passed": true,
+    "sample_json_export_passed": true,
+    "sample_markdown_review_export_passed": true,
+    "pip_check_passed": true,
+    "openapi_check_passed": true,
+    "json_parse_passed": true,
+    "markdown_links_passed": true,
+    "git_diff_check_passed": true,
+    "full_test_suite_run": false,
+    "full_test_suite_reason": "51 focused Phase 2/API/Phase 4C/4D tests passed; unrelated uncommitted Phase 3 work remains in the workspace"
+  },
+  "recommended_next": "real_user_trial_preparation_and_portfolio_materials"
+}

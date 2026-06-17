@@ -1,0 +1,7 @@
+{
+  "risk_level": "medium",
+  "recommended_action": "request_human_approval",
+  "po_match": true,
+  "goods_receipt_match": false,
+  "required_policy_flag": "goods_receipt_mismatch"
+}

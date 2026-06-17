@@ -1,0 +1,29 @@
+{
+  "phase": "4G-EXT",
+  "title": "End-to-End Audit Pipeline Closure",
+  "status": "completed",
+  "api": "POST /api/mvp/audit/execute",
+  "end_to_end_pipeline_closure": true,
+  "supported_inputs": [
+    "image",
+    "field_candidates",
+    "confirmed_fields"
+  ],
+  "phase2_input_contract": "confirmed_fields_only",
+  "raw_layoutlmv3_bypass_allowed": false,
+  "ocr_bypass_allowed": false,
+  "risk_level_origin": "deterministic_rules_only",
+  "recommended_action_origin": "deterministic_rules_only",
+  "lora_role": "optional_explanation_candidate_only",
+  "guard_failure_behavior": "fallback_deterministic_template",
+  "exports": [
+    "json",
+    "markdown",
+    "trace"
+  ],
+  "tests": {
+    "phase4g_ext": "8 passed"
+  },
+  "developer_goal": "clone repo, run one API, get full audit result, see trace of AI + human + rules",
+  "next_recommendation": "Phase 4H explanation runtime hardening or release readiness"
+}

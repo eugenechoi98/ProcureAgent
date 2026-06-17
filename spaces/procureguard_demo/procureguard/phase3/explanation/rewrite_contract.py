@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -19,7 +19,7 @@ class RewriteRequest(BaseModel):
     facts: CanonicalAuditFacts
     template_output: str = Field(min_length=1)
     prompt_version: str = PROMPT_VERSION
-    mode: Literal["shadow", "experimental"] = "shadow"
+    mode: Literal["shadow", "experimental", "shadow_lora", "guarded_lora"] = "shadow"
 
 
 class RewriteResponse(BaseModel):
@@ -28,8 +28,12 @@ class RewriteResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     raw_text: str
+    parsed_sections: dict[str, Any] | None = None
+    provider_name: str = "unavailable"
     model_version: str = "unavailable"
     adapter_version: str = "unavailable"
+    latency_ms: float | None = None
+    error: str | None = None
 
 
 def build_rewrite_prompt(request: RewriteRequest) -> str:

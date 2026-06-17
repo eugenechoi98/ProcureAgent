@@ -33,6 +33,8 @@ data/phase3/*
 !data/phase3/generated/*.jsonl
 uploads/
 tmp/
+.tmp/
+samples/manual_audit/generated/
 .cache/
 paddleocr/
 reports/phase1/gpu_notebook_bootstrap.json

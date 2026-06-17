@@ -14,9 +14,8 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from demo.app import build_app
 from demo.architecture_view import ARCHITECTURE_MARKDOWN
-from demo.e2e_case_view import load_e2e_case_catalog
 from demo.invoice_case_view import load_invoice_case_catalog, preview_values
-from demo.model_lab_view import load_model_lab_artifacts, render_model_lab_summary
+from demo.model_lab_view import load_model_lab_artifacts
 
 
 def run_smoke() -> dict[str, Any]:
@@ -31,7 +30,11 @@ def run_smoke() -> dict[str, Any]:
         for item in components
         if item.get("type") == "tabitem"
     ]
-    expected_tabs = ["发票审核", "模型实验", "系统架构"]
+    expected_tabs = [
+        "Path A 手动审核",
+        "Path B Scenario Demo",
+        "系统说明",
+    ]
     for label in expected_tabs:
         if label not in tab_labels:
             errors.append(f"missing_tab:{label}")
@@ -39,15 +42,6 @@ def run_smoke() -> dict[str, Any]:
         errors.append("unexpected_tab_structure")
 
     case_catalog = load_invoice_case_catalog()
-    e2e_catalog = load_e2e_case_catalog()
-    if len(e2e_catalog) != 3:
-        errors.append("e2e_case_count_not_three")
-    if _component_value(components, "e2e-case-selector") != "case_a_standard_pass":
-        errors.append("e2e_default_case_mismatch")
-    if _component_props(components, "synthetic-case-showcase").get("open") is not False:
-        errors.append("synthetic_cases_not_collapsed")
-    if _component_props(components, "e2e-case-technical-details").get("open") is not False:
-        errors.append("e2e_technical_details_not_collapsed")
     if len(case_catalog) != 5:
         errors.append("invoice_case_count_not_five")
     for case_id, case in case_catalog.items():
@@ -61,86 +55,44 @@ def run_smoke() -> dict[str, Any]:
         if preview[5][0][1] != "尚未运行":
             errors.append(f"invoice_evidence_prepopulated:{case_id}")
     for elem_id in (
-        "invoice-case-brief",
-        "invoice-case-image-note",
+        "main-ocr-result",
+        "main-risk-card",
+        "main-action-card",
+        "main-final-explanation",
+        "main-result-card",
+        "path-a-vendor",
+        "path-a-amount",
+        "path-a-po",
+        "path-a-grn",
+        "path-a-run",
+        "path-a-summary",
+        "path-b-tab",
+        "case-validation-summary",
         "invoice-case-image",
         "invoice-case-extraction",
-        "invoice-case-match",
-        "invoice-case-evidence",
-        "invoice-case-risk-action",
-        "invoice-case-explanation",
-        "invoice-run-status",
-        "explanation-mode-help",
+        "case-explanation-mode-selector",
+        "explanation-layer-trace",
     ):
         if not _component_props(components, elem_id):
             errors.append(f"invoice_case_component_missing:{elem_id}")
 
-    mode_selector = _component_props(
-        components, "explanation-mode-selector"
-    )
-    expected_mode_choices = [
-        ("确定性模板", "template"),
-        ("Shadow 影子改写", "shadow"),
-        ("实验改写：Guard 通过", "experimental_guard_pass"),
-        ("实验改写：Guard 拦截回退", "experimental_guard_fail"),
-        ("Provider 运行错误回退", "provider_runtime_error"),
-        ("非法输出回退", "invalid_output"),
-    ]
-    if mode_selector.get("choices") != expected_mode_choices:
-        errors.append("explanation_mode_labels_not_chinese")
-    run_status = _component_value(components, "invoice-run-status") or ""
-    if "审核状态：待运行" not in run_status:
-        errors.append("invoice_run_status_missing")
-
+    case_selector = _component_props(components, "demo-case-selector")
+    case_values = {
+        choice[1] if isinstance(choice, (list, tuple)) else choice
+        for choice in case_selector.get("choices", [])
+    }
+    if case_values != set(case_catalog):
+        errors.append("case_validation_does_not_include_five_cases")
+    mode_selector = _component_props(components, "case-explanation-mode-selector")
+    if mode_selector.get("value") != "LoRA OFF":
+        errors.append("explanation_default_not_template_view")
+    mode_choices = {
+        choice[1] if isinstance(choice, (list, tuple)) else choice
+        for choice in mode_selector.get("choices", [])
+    }
+    if mode_choices != {"LoRA OFF", "LoRA ON"}:
+        errors.append("explanation_view_choices_missing")
     artifacts = load_model_lab_artifacts()
-    model_lab_text = "\n".join(
-        str(item.get("props", {}).get("value", ""))
-        for item in components
-        if item.get("type") == "markdown"
-    )
-    required_model_lab_terms = [
-        "真实离线模型实验结果",
-        "OCR + Regex baseline Macro F1",
-        "修复后 LayoutLMv3 Macro F1",
-        "日期字段 F1",
-        "offline_checkpoint_inference",
-        "local_validation_split_seed_42",
-        "official_test=false",
-        "0.8067",
-        "0.1423",
-        "0.8764",
-        "确定性模板 + 可选受控改写 + 输出守卫 + 模板回退",
-    ]
-    for term in required_model_lab_terms:
-        if term not in model_lab_text:
-            errors.append(f"model_lab_missing:{term}")
-
-    raw_evidence = _component_props(components, "model-lab-raw-evidence")
-    if raw_evidence.get("open") is not False:
-        errors.append("model_lab_raw_evidence_not_collapsed")
-    if any(
-        item.get("props", {}).get("label") == "缺失 artifacts"
-        for item in components
-    ):
-        errors.append("model_lab_missing_artifacts_visible")
-    guard_visual_text = "\n".join(
-        str(_component_value(components, elem_id) or "")
-        for elem_id in (
-            "lora-guard-visual-intro",
-            "lora-guard-visual-raw-output",
-            "lora-guard-visual-result",
-            "lora-guard-visual-fallback",
-        )
-    )
-    for term in (
-        "LoRA 幻觉与 Guard 拦截示例",
-        "GRN-20260149",
-        "REJECT",
-        "未补全未知 GRN",
-        "Phase 3I",
-    ):
-        if term not in guard_visual_text:
-            errors.append(f"model_lab_guard_visual_missing:{term}")
 
     required_architecture_terms = [
         "受控采购审核 Agent",
@@ -168,7 +120,7 @@ def run_smoke() -> dict[str, Any]:
         "scope": "unified_portfolio_demo_offline_build",
         "tabs": tab_labels,
         "default_case": _component_value(components, "demo-case-selector"),
-        "default_mode": _component_value(components, "explanation-mode-selector"),
+        "default_mode": _component_value(components, "case-explanation-mode-selector"),
         "invoice_cases": {
             "count": len(case_catalog),
             "case_ids": list(case_catalog),
@@ -178,12 +130,12 @@ def run_smoke() -> dict[str, Any]:
             ),
             "single_case_f1_claim": False,
         },
-        "e2e_cases": {
-            "count": len(e2e_catalog),
-            "case_ids": list(e2e_catalog),
-            "default_case": _component_value(components, "e2e-case-selector"),
+        "case_validation": {
+            "count": len(case_catalog),
+            "case_ids": list(case_catalog),
             "model_weights_included": False,
             "single_case_f1_claim": False,
+            "live_layoutlmv3_required": False,
         },
         "model_lab": {
             "manifest_loaded": bool(artifacts["manifest"]),

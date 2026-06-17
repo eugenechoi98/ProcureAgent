@@ -1,0 +1,55 @@
+{
+  "phase": "4F.1",
+  "title": "Restore LayoutLMv3 Runtime Asset Bundle",
+  "engineering_status": "completed",
+  "runtime_bundle_status": "blocked_missing_checkpoint",
+  "asset_audit": {
+    "fine_tuned_checkpoint_found": false,
+    "model_safetensors_found": false,
+    "saved_processor_found": false,
+    "checkpoint_label_map_found": false,
+    "checkpoint_zip_found": false,
+    "base_layoutlmv3_cache_found": true,
+    "base_cache_used_as_fine_tuned_checkpoint": false,
+    "phase1_bio_definition_found": true,
+    "phase4f_path_matches_phase1_output_path": true,
+    "phase1_notebook_saved_model": true,
+    "phase1_notebook_saved_processor": true,
+    "phase1_notebook_created_checkpoint_zip": true,
+    "phase1_validation_used_cloud_or_notebook_runtime_assets": true
+  },
+  "prepare_run": {
+    "output_directory": "artifacts/phase1_runtime/layoutlmv3_sroie_corrected",
+    "exit_code": 2,
+    "manifest_status": "blocked_missing_checkpoint",
+    "download_attempted": false,
+    "label_map_rebuilt": false,
+    "label_map_reason": "Checkpoint config is unavailable, so matching label order cannot be proven."
+  },
+  "asset_checker": {
+    "status": false,
+    "failure_codes": [
+      "missing_checkpoint",
+      "missing_processor",
+      "missing_label_map"
+    ],
+    "sample_image": "demo/e2e_cases/case_a_standard_pass/source_invoice.png",
+    "sample_image_exists": true,
+    "ocr_dependencies_available": true,
+    "cuda_available": false,
+    "cpu_allowed": true
+  },
+  "runtime_manifest_records_sha256": true,
+  "real_live_extraction_completed": false,
+  "real_live_extraction_latency_seconds": null,
+  "real_field_candidates": [],
+  "fake_fixture_used": true,
+  "fake_fixture_is_live_success_evidence": false,
+  "phase2_invoked": false,
+  "risk_level_generated": false,
+  "recommended_action_generated": false,
+  "model_downloaded": false,
+  "model_weights_committed": false,
+  "phase4g_recommended_now": false,
+  "phase4g_entry_gate": "Retrieve the original fine-tuned layoutlmv3_best bundle and complete one real public-image extraction run."
+}

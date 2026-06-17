@@ -21,20 +21,36 @@ class ExplanationMetadata(BaseModel):
 
     explanation_text: str
     explanation_source: Literal["template", "controlled_rewrite"]
-    explanation_mode: Literal["template", "shadow", "experimental"]
+    explanation_mode: Literal[
+        "template", "shadow", "experimental", "shadow_lora", "guarded_lora"
+    ]
     anomaly_types: list[str] = Field(default_factory=list)
     evidence: list[dict[str, Any]] = Field(default_factory=list)
     missing_fields: list[str] = Field(default_factory=list)
     facts_hash: str
     template_version: str
+    template_hash: str | None = None
     prompt_version: str
+    guard_version: str | None = None
+    provider_name: str = "unavailable"
     model_version: str
     adapter_version: str
+    latency_ms: float | None = None
+    lora_candidate_hash: str | None = None
+    final_source: Literal["template", "lora", "fallback"] = "template"
+    explanation_mode_requested: str | None = None
+    explanation_mode_used: str | None = None
     raw_llm_output: str | None = None
+    raw_lora_output_saved: bool = False
+    raw_lora_output_saved_reason: str = "not_requested"
     used_rewrite: bool
     fallback_reason: str | None = None
     guard_passed: bool
     guard_violations: list[str] = Field(default_factory=list)
+    guard_violation_details: list[dict[str, Any]] = Field(default_factory=list)
+    checked_entities: list[str] = Field(default_factory=list)
+    checked_numbers: list[str] = Field(default_factory=list)
+    checked_decision_fields: list[str] = Field(default_factory=list)
 
 
 class AuditReport(BaseModel):

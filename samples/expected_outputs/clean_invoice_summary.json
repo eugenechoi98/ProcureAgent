@@ -1,0 +1,8 @@
+{
+  "risk_level": "low",
+  "recommended_action": "auto_approve",
+  "po_match": true,
+  "goods_receipt_match": true,
+  "explanation_source": "template",
+  "live_model_inference": false
+}

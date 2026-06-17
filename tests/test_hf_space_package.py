@@ -37,7 +37,12 @@ def test_readme_contains_hf_spaces_yaml() -> None:
     assert "sdk_version: 5.50.0" in readme
     assert "app_file: app.py" in readme
     assert "不加载 LayoutLMv3" in readme
-    assert "模型实验页展示真实离线 artifacts，不是网页实时推理" in readme
+    assert "Path A 手动审核" in readme
+    assert "5 个案例都有发票图片、Run Audit 按钮和结果卡片" in readme
+    assert "每张发票图片绑定唯一 scenario_id" in readme
+    assert "页面不调用 OCR 模型、不调用 LayoutLMv3" in readme
+    assert "不展示空字段或失败状态" in readme
+    assert "LoRA OFF/ON 切换放在 Audit Result 内部" in readme
 
 
 def test_requirements_are_minimal_and_pinned() -> None:
@@ -73,13 +78,12 @@ def test_package_can_import_and_build_gradio_app() -> None:
     result = run_smoke()
 
     assert result["ready"] is True
-    assert result["tabs"] == ["发票审核", "模型实验", "系统架构"]
+    assert result["tabs"] == ["Path A 手动审核", "Path B Scenario Demo", "系统说明"]
     assert result["default_case"] == "normal_invoice"
-    assert result["default_mode"] == "template"
+    assert result["default_mode"] == "LoRA OFF"
     assert result["invoice_cases"]["count"] == 5
     assert result["invoice_cases"]["images_present"] is True
     assert result["e2e_cases"]["count"] == 3
-    assert result["e2e_cases"]["default_case"] == "case_a_standard_pass"
     assert result["e2e_cases"]["evidence_present"] is True
     assert result["model_lab"]["manifest_loaded"] is True
     assert result["model_lab"]["layoutlmv3_metrics_loaded"] is True

@@ -1,0 +1,40 @@
+{
+  "invoice_fields": {
+    "invoice_number": "INV-MANUAL-PASS-001",
+    "vendor_name": "Acme Office Supplies",
+    "invoice_date": "2026-06-15",
+    "total_amount": 1200.0,
+    "currency": "USD",
+    "po_number": "PO-MANUAL-1001",
+    "line_items": [
+      {"item": "Printer Paper", "quantity": 100, "unit_price": 8.0, "amount": 800.0},
+      {"item": "Toner Cartridge", "quantity": 4, "unit_price": 100.0, "amount": 400.0}
+    ]
+  },
+  "procurement_context": {
+    "po_number": "PO-MANUAL-1001",
+    "po_vendor_name": "Acme Office Supplies",
+    "po_total_amount": 1200.0,
+    "po_currency": "USD",
+    "po_status": "open",
+    "po_line_items": [
+      {"item": "Printer Paper", "quantity": 100, "unit_price": 8.0, "amount": 800.0},
+      {"item": "Toner Cartridge", "quantity": 4, "unit_price": 100.0, "amount": 400.0}
+    ],
+    "grn_available": true,
+    "grn_number": "GRN-MANUAL-1001",
+    "grn_received_date": "2026-06-14",
+    "grn_line_items": [
+      {"item": "Printer Paper", "received_quantity": 100},
+      {"item": "Toner Cartridge", "received_quantity": 4}
+    ],
+    "duplicate_invoice_exists": false,
+    "policy_profile": "mock_default"
+  },
+  "metadata": {
+    "source": "manual_input",
+    "context_source": "explicit_mock_context",
+    "explanation_mode": "template",
+    "user_note": "Synthetic standard-pass sample."
+  }
+}

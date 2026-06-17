@@ -10,6 +10,7 @@ from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, Upl
 from procureguard.api.dependencies import get_db
 from procureguard.models.invoice import ExtractedFields, LineItem
 from procureguard.models.status import InvoiceStatus
+from procureguard.phase3.explanation.orchestrator import ExplanationMode
 from procureguard.repositories import AuditTraceRepository, InvoiceRepository
 from procureguard.services import AgentInvoiceProcessor
 from procureguard.services.mock_processor import MockInvoiceProcessor
@@ -24,9 +25,7 @@ async def upload_invoice(
     request: Request,
     file: UploadFile = File(...),
     processing_mode: Literal["real", "mock"] = Query("real"),
-    explanation_mode: Literal["template", "shadow", "experimental"] = Query(
-        "template"
-    ),
+    explanation_mode: ExplanationMode = Query("template"),
     conn: sqlite3.Connection = Depends(get_db),
 ) -> dict:
     """上传发票文件并同步执行真实规则链，可显式切换 mock 模式。"""

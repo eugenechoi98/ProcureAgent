@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 import shutil
+import stat
 import sys
+import time
 from typing import Any
 
 
@@ -29,9 +32,9 @@ ProcureGuard AI 是采购发票智能审核 Agent 的 CPU-only 作品集 Demo。
 
 页面包含：
 
-1. 发票审核
-2. 模型实验
-3. 系统架构
+1. Path A 手动审核：无 ML，手动字段直接进入确定性审核
+2. Path B Scenario Demo：5 个案例，每个案例都有图片、Run Audit 和 Audit Result
+3. 系统说明：架构、边界和 trace/log 说明
 
 当前公开 Demo：
 
@@ -41,15 +44,19 @@ ProcureGuard AI 是采购发票智能审核 Agent 的 CPU-only 作品集 Demo。
 - 不需要 GPU
 - 不需要 API Key
 - 不需要 secrets
-- 发票审核页展示已验收的端到端离线证据包
-- 模型实验页展示真实离线 artifacts，不是网页实时推理
+- Path B 展示流程驱动 UI，不使用纯文本案例页
+- 5 个案例都有发票图片、Run Audit 按钮和结果卡片
+- 每张发票图片绑定唯一 scenario_id，Run Audit 会加载该 scenario 的固定字段映射
+- 所有 scenario OCR 字段均为非空值，不展示空字段或失败状态
+- LoRA OFF/ON 切换放在 Audit Result 内部，不再单独作为页面
+- AI 图片链路是预置场景驱动展示，不是网页实时推理
 
 ## 运行边界
 
-发票审核展示 SROIE 图片、离线 checkpoint 预测、Phase 2 审核结果与
-Guard/fallback 证据；其中 PO/GRN 为明确标注的 mock 上下文。模型实验
-仅读取轻量 JSON artifacts。当前没有启用线上模型推理，也不把本作品集
-Demo 表述为生产服务。
+发票图片会绑定固定 scenario_id；字段展示、审计输入和解释文本均来自该 scenario
+的预置映射。页面不调用 OCR 模型、不调用 LayoutLMv3、不随机生成字段。LoRA 只做
+解释语言增强，不影响 risk_level 或 recommended_action。当前没有启用线上模型推理，
+也不把本作品集 Demo 表述为生产服务。
 """
 
 APP_TEXT = '''"""Hugging Face Spaces entrypoint for ProcureGuard AI Demo."""
@@ -77,6 +84,7 @@ ALLOWLIST_FILES = [
     "demo/e2e_case_view.py",
     "demo/invoice_case_view.py",
     "demo/invoice_cases.json",
+    "demo/scenario_registry.py",
     "demo/model_lab_view.py",
     "demo/architecture_view.py",
     "tests/fixtures/phase3h_demo_cases.json",
@@ -89,6 +97,7 @@ ALLOWLIST_DIRS = [
     "procureguard/db",
     "procureguard/models",
     "procureguard/phase3/explanation",
+    "procureguard/productization",
     "procureguard/repositories",
     "procureguard/services",
     "procureguard/tools",
@@ -139,7 +148,7 @@ def build_package() -> dict[str, Any]:
     """按 allowlist 重建发布目录并返回摘要。"""
 
     if SPACE_ROOT.exists():
-        shutil.rmtree(SPACE_ROOT)
+        _remove_tree(SPACE_ROOT)
     SPACE_ROOT.mkdir(parents=True)
 
     copied: list[str] = []
@@ -200,6 +209,20 @@ def build_package() -> dict[str, Any]:
 def _write_text(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8", newline="\n")
+
+
+def _remove_tree(path: Path) -> None:
+    """删除旧 Space 包，兼容 Windows 下只读或短暂占用文件。"""
+
+    def onerror(func: Any, failed_path: str, _exc_info: Any) -> None:
+        try:
+            os.chmod(failed_path, stat.S_IWRITE)
+            func(failed_path)
+        except PermissionError:
+            time.sleep(0.2)
+            func(failed_path)
+
+    shutil.rmtree(path, onerror=onerror)
 
 
 def _copy_file(relative: str, copied: list[str]) -> None:

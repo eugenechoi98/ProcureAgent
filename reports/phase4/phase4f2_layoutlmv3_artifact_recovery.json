@@ -1,0 +1,58 @@
+{
+  "phase": "4F.2",
+  "title": "LayoutLMv3 Artifact Recovery & Rebuild Fallback",
+  "status": "success",
+  "layoutlmv3_best_zip_found": true,
+  "artifact_zip": "D:\\ProcureAgent_LocalArtifacts\\Phase1\\layoutlmv3_best.zip",
+  "runtime_bundle_recovered": true,
+  "runtime_bundle": "artifacts/phase1_runtime/layoutlmv3_sroie_corrected",
+  "runtime_manifest_files": 10,
+  "rebuild_fallback_entered": false,
+  "rebuild_plan_generated": true,
+  "rebuild_plan": "docs/phase4f2_layoutlmv3_rebuild_plan.md",
+  "real_live_extraction_completed": true,
+  "sample_image": "demo/e2e_cases/case_a_standard_pass/source_invoice.png",
+  "device": "cpu",
+  "cuda_available": false,
+  "ocr_token_count": 40,
+  "latency_seconds": 203.3415,
+  "field_candidates": [
+    {
+      "field_name": "company",
+      "predicted_value": "Golden Arches Restaurants Sdn Bhd",
+      "confidence": 0.9032489061355591,
+      "source": "live_layoutlmv3",
+      "requires_human_confirmation": true
+    },
+    {
+      "field_name": "address",
+      "predicted_value": "Level 6, Bangunan TH, Damansara Uptown3 No.3, Jalan SS21/39,47400 Petaling Jaya Selangor",
+      "confidence": 0.9014355142911276,
+      "source": "live_layoutlmv3",
+      "requires_human_confirmation": true
+    },
+    {
+      "field_name": "date",
+      "predicted_value": "2016-12-25",
+      "confidence": 0.9743645191192627,
+      "source": "live_layoutlmv3",
+      "requires_human_confirmation": true
+    },
+    {
+      "field_name": "total",
+      "predicted_value": "29.28",
+      "confidence": 0.8010721206665039,
+      "source": "live_layoutlmv3",
+      "requires_human_confirmation": true
+    }
+  ],
+  "phase2_invoked": false,
+  "risk_level_generated": false,
+  "recommended_action_generated": false,
+  "auto_training_started": false,
+  "fake_checkpoint_created": false,
+  "fake_fixture_is_live_success_evidence": false,
+  "model_downloaded": false,
+  "model_weights_committed": false,
+  "phase4g_recommended_now": true
+}

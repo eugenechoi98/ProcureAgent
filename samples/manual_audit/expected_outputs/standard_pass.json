@@ -1,0 +1,6 @@
+{
+  "risk_level": "low",
+  "recommended_action": "auto_approve",
+  "po_match": true,
+  "goods_receipt_match": true
+}

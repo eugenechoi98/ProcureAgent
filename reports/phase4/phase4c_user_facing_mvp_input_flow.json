@@ -1,0 +1,51 @@
+{
+  "phase": "Phase 4C",
+  "title": "User-facing MVP Input Flow",
+  "status": "pass",
+  "completed_date": "2026-06-15",
+  "endpoint": "POST /api/mvp/manual-audit",
+  "input": {
+    "invoice_field_source": "manual_input",
+    "procurement_context_source": "explicit_mock_context",
+    "line_items_supported": true,
+    "duplicate_flag_supported": true,
+    "policy_profile": "mock_default"
+  },
+  "execution": {
+    "context_strategy": "request_scoped_in_memory_sqlite_adapter",
+    "existing_phase2_chain_reused": true,
+    "default_database_mutated": false,
+    "live_layoutlmv3": false,
+    "live_lora": false,
+    "network_required": false,
+    "explanation_mode": "template"
+  },
+  "source_labels": {
+    "invoice_field_source": "manual_input",
+    "procurement_context_source": "explicit_mock_context",
+    "risk_decision_source": "deterministic_rules",
+    "explanation_source": "deterministic_template",
+    "live_layoutlmv3_used": false,
+    "live_lora_used": false,
+    "payment_authority": false
+  },
+  "scenarios": {
+    "standard_pass": {"risk_level": "low", "recommended_action": "auto_approve"},
+    "amount_mismatch": {"risk_level": "medium", "recommended_action": "request_human_approval"},
+    "missing_grn": {"risk_level": "medium", "recommended_action": "request_human_approval"},
+    "duplicate_invoice": {"risk_level": "high", "recommended_action": "reject"}
+  },
+  "validation": {
+    "phase4c_tests_passed": 10,
+    "phase2_regression_passed": true,
+    "api_tests_passed": true,
+    "sample_smoke_passed": true,
+    "pip_check_passed": true,
+    "json_parse_passed": true,
+    "markdown_links_passed": true,
+    "git_diff_check_passed": true,
+    "full_test_suite_run": false,
+    "full_test_suite_reason": "Focused productization change covered by 41 Phase 2/API/Phase 4 regression tests; unrelated uncommitted Phase 3 work remains in the workspace"
+  },
+  "recommended_next_phase": "Phase 4D"
+}

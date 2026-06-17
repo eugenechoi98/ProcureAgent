@@ -64,3 +64,17 @@
 - 2026-06-14：完成 Batch H1 端到端证据链 Demo 接入，主视图展示 H0 三案例并将合成流程案例收进补充折叠区。
 - 2026-06-15：完成端到端证据链 Demo 文档与面试口径同步，主展示明确为 SROIE、LayoutLMv3 离线预测、Phase 2 审核和 LoRA Guard/fallback 证据链。
 - 2026-06-15：完成 Phase 3I LoRA 后续路线评估，比较第三轮 LoRA、结构化输出、检索约束解释、继续 shadow research 和更大模型路线。
+- 2026-06-15：完成 Phase 3J Structured Output First 离线 baseline，新增结构化校验、确定性渲染、21 条 challenge fixture 和 evaluator debug report。
+- 2026-06-15：更新协作输出规范，后续交接回复默认只保留结论、关键改动、验证结果、风险和未完成项。
+- 2026-06-15：完成 Phase 3K evidence citation 离线 baseline，新增稳定证据目录、claim-evidence 校验、20 条挑战案例和分层指标。
+- 2026-06-15：完成 Phase 4A 产品化与开源差距审计，明确 Phase 4B 至 4F 路线和真实用户 MVP 优先级。
+- 2026-06-15：完成 Phase 4B Open-source Quickstart、MIT License、隐私边界、synthetic sample audit 和分层测试入口。
+- 2026-06-15：完成 Phase 4C 手动字段与显式 mock PO/GRN 输入流，新增确定性 Manual Audit API、三类 sample 和来源标签。
+- 2026-06-15：完成 Phase 4D AuditReport JSON/Markdown 导出、进程内人工复核队列和 reviewer metadata 闭环。
+- 2026-06-15：完成 Phase 4E-R 产品 MVP 架构纠偏，确定 4F 本地 OCR/LayoutLMv3、4G 字段确认、4H guarded explanation、4I LangChain 对比和 4J 开源发布路线。
+- 2026-06-15：完成 Phase 4F 本地 extraction 资产检查、独立 spike、字段候选与失败契约，确认微调 checkpoint 缺失并暂缓进入 Phase 4G。
+- 2026-06-15：完成 Phase 4F.1 runtime bundle prepare/checker 与资产审计，确认云端 checkpoint zip 未回传并记录 `blocked_missing_checkpoint`。
+- 2026-06-17：完成 Phase 4F.2 artifact recovery，从本地外部 `layoutlmv3_best.zip` 恢复 runtime bundle 并跑通一次 CPU live extraction。
+- 2026-06-17：完成 Phase 4G 字段确认层和 `/api/fields/confirm`，确认后字段成为后续 Phase 2 唯一允许的审计输入。
+- 2026-06-17：完成 Phase 4G-EXT 端到端 API `/api/mvp/audit/execute`，输出 AuditReport JSON、Markdown 和 AI/human/rules trace。
+- 2026-06-17：完成 Phase 4H Guarded LoRA Rewrite Runtime，新增 `guarded_lora/shadow_lora`、严格 Guard trace 和 4G-EXT fallback 接入。

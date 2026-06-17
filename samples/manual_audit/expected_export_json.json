@@ -1,0 +1,25 @@
+{
+  "export_version": "phase4d-v1",
+  "required_fields": [
+    "generated_at",
+    "boundary_notice",
+    "payment_authority",
+    "audit_id",
+    "trace_id",
+    "invoice_fields",
+    "procurement_context_summary",
+    "risk_level",
+    "recommended_action",
+    "validation_results",
+    "explanation_text",
+    "source_labels",
+    "fallback_status",
+    "explanation_mode_used",
+    "warnings",
+    "review_status",
+    "review_decision",
+    "reviewer_note"
+  ],
+  "payment_authority": false,
+  "deterministic_result_unchanged": true
+}

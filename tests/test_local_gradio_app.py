@@ -25,9 +25,12 @@ def test_app_contains_required_inputs_and_buttons():
     }
 
     assert "demo-case-selector" in elem_ids
-    assert "explanation-mode-selector" in elem_ids
+    assert "case-explanation-mode-selector" in elem_ids
     assert "run-audit-button" in elem_ids
-    assert "reset-demo-button" in elem_ids
+    assert "path-a-tab" in elem_ids
+    assert "path-b-tab" in elem_ids
+    assert "system-explanation-tab" in elem_ids
+    assert "explanation-layer-tab" not in elem_ids
 
 
 def test_app_contains_explanation_and_audit_outputs():
@@ -35,12 +38,13 @@ def test_app_contains_explanation_and_audit_outputs():
     labels = {component.get("props", {}).get("label") for component in components}
 
     assert {
-        "审核解释",
-        "解释来源",
-        "原始改写输出",
-        "完整审核报告 JSON（AuditReport）",
-        "证据",
-        "缺失字段",
+        "风险等级",
+        "建议动作",
+        "LoRA 语言增强",
+        "AuditReport JSON",
+        "Trace",
+        "OCR 字段表格",
+        "Scenario Field Mapping",
     } <= labels
 
 

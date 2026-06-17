@@ -1,0 +1,108 @@
+{
+  "phase": "Phase 4A",
+  "title": "Productization & Open-source Gap Audit",
+  "status": "pass",
+  "audit_date": "2026-06-15",
+  "current_positioning": "public portfolio demo and research-grade controlled procurement audit prototype",
+  "production_ready": false,
+  "open_source_clean_clone_ready": false,
+  "real_user_mvp_ready": false,
+  "official_explanation_default": "deterministic_template",
+  "live_layoutlmv3_enabled": false,
+  "live_lora_enabled": false,
+  "top_5_gaps": [
+    "Clean-clone Quickstart, environment example, sample bundle, license, attribution, and privacy notes",
+    "Manual invoice fields plus explicit mock PO/GRN user input flow",
+    "Unified safety disclaimer, provenance labels, and failure/fallback states",
+    "AuditReport JSON/Markdown export and human review UX",
+    "Stable API error contract, database initialization/migration guidance, and demo seed/reset"
+  ],
+  "capability_status": {
+    "portfolio_demo": "completed",
+    "phase2_deterministic_audit": "completed",
+    "local_demo": "mostly_completed",
+    "open_source_runnability": "partial",
+    "real_user_mvp": "missing",
+    "production_readiness": "missing",
+    "live_model_inference": "deferred"
+  },
+  "mvp_scope": {
+    "short_term_required": [
+      "manual_invoice_field_input",
+      "explicit_mock_po_grn_context",
+      "audit_report_json_markdown_export",
+      "human_review_workspace"
+    ],
+    "medium_term_optional": [
+      "image_attachment_without_live_inference",
+      "pdf_export"
+    ],
+    "deferred": [
+      "live_ocr_layoutlmv3",
+      "live_lora",
+      "erp_integration",
+      "payment_execution"
+    ]
+  },
+  "safety_invariants": {
+    "risk_level_source": "deterministic_rules",
+    "recommended_action_source": "deterministic_rules",
+    "model_may_override_rule_results": false,
+    "public_demo_is_production_product": false,
+    "case_ab_po_grn_source": "mock_procurement_context",
+    "case_c_fact_source": "synthetic_evaluation_fixture",
+    "sensitive_invoice_upload_allowed": false,
+    "financial_payment_authority": false
+  },
+  "roadmap": [
+    {
+      "phase": "4A",
+      "name": "Productization Gap Audit",
+      "status": "completed",
+      "blocks_real_user_trial": true,
+      "blocks_open_source_release": true
+    },
+    {
+      "phase": "4B",
+      "name": "Open-source Quickstart & Repo Hygiene",
+      "status": "recommended_next",
+      "blocks_real_user_trial": false,
+      "blocks_open_source_release": true
+    },
+    {
+      "phase": "4C",
+      "name": "User-facing MVP Input Flow",
+      "status": "planned",
+      "blocks_real_user_trial": true,
+      "blocks_open_source_release": false
+    },
+    {
+      "phase": "4D",
+      "name": "AuditReport Export & Review UX",
+      "status": "planned",
+      "blocks_real_user_trial": true,
+      "blocks_open_source_release": false
+    },
+    {
+      "phase": "4E",
+      "name": "Optional Docker / Deployment Hardening",
+      "status": "optional",
+      "blocks_real_user_trial": false,
+      "blocks_open_source_release": false
+    },
+    {
+      "phase": "4F",
+      "name": "Optional Live OCR / LayoutLMv3 Inference",
+      "status": "optional",
+      "blocks_real_user_trial": false,
+      "blocks_open_source_release": false
+    }
+  ],
+  "validation": {
+    "required_input_paths_checked": true,
+    "json_parse_checked": true,
+    "markdown_links_checked": true,
+    "full_test_suite_run": false,
+    "full_test_suite_reason": "Documentation-only audit with unrelated uncommitted Phase 3 changes already present in the workspace"
+  }
+}

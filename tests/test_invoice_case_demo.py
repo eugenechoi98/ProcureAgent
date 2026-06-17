@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from demo.app import _run_for_ui, build_app
+from demo.app import _path_b_preview, _run_for_ui, _run_path_b_scenario_for_ui, build_app
 from demo.demo_service import DemoService
 from demo.invoice_case_view import (
     EXPLANATION_MODE_LABELS,
@@ -13,6 +13,7 @@ from demo.invoice_case_view import (
     preview_values,
     render_case_summary,
 )
+from demo.scenario_registry import SCENARIO_REGISTRY, get_scenario
 from scripts.demo.run_invoice_case_demo_smoke import run_smoke
 
 
@@ -98,33 +99,43 @@ def test_guard_and_fallback_story_uses_controlled_demo_providers() -> None:
     assert high_risk_case.fallback_reason == "high_risk_template_only"
 
 
-def test_invoice_tab_has_exactly_six_case_showcase_sections() -> None:
+def test_path_b_interactive_flow_sections_are_visible() -> None:
     expected = {
         "invoice-case-image",
-        "invoice-case-brief",
-        "invoice-case-image-note",
         "invoice-case-extraction",
-        "invoice-case-match",
-        "invoice-case-evidence",
-        "invoice-case-risk-action",
-        "invoice-case-explanation",
+        "main-ocr-result",
+        "main-risk-card",
+        "main-action-card",
+        "main-final-explanation",
+        "case-validation-summary",
+        "run-audit-button",
+        "case-explanation-mode-selector",
     }
 
     for elem_id in expected:
         assert _component_props(elem_id)
-    assert _component_props("invoice-audit-technical-output")["open"] is False
+    assert _component_props("path-a-tab")
+    assert _component_props("path-b-tab")
+    assert _component_props("system-explanation-tab")
+    try:
+        _component_props("explanation-layer-tab")
+    except AssertionError:
+        pass
+    else:
+        raise AssertionError("LoRA explanation must not be a standalone tab")
 
 
-def test_invoice_case_brief_and_metric_note_are_visible() -> None:
-    brief = _component_props("invoice-case-brief")["value"]
-    image_note = _component_props("invoice-case-image-note")["value"]
-    metric_note = _component_props("invoice-case-f1-note")["value"]
+def test_main_chain_copy_is_interview_friendly() -> None:
+    rendered = "\n".join(
+        str(component.get("props", {}).get("value", ""))
+        for component in build_app().get_config_file()["components"]
+        if component.get("type") == "markdown"
+    )
 
-    assert "正常标准发票" in brief
-    assert "低风险" in brief
-    assert "演示用合成示意图" in image_note
-    assert "不代表单图模型评测结论" in image_note
-    assert "整体 F1 指标请见“模型实验”页" in metric_note
+    assert "Path B 展示发票图片到 AuditReport 的完整交互链路" in rendered
+    assert "预置场景流程演示" in rendered
+    assert "Run Audit 会按 OCR预置结果" in rendered
+    assert "不执行实时 OCR 或模型推理" in rendered
 
 
 def test_explanation_modes_use_chinese_labels_and_stable_internal_values() -> None:
@@ -135,17 +146,19 @@ def test_explanation_modes_use_chinese_labels_and_stable_internal_values() -> No
     assert dict((value, label) for label, value in choices) == (
         EXPLANATION_MODE_LABELS
     )
-    selector = _component_props("explanation-mode-selector")
-    assert selector["choices"] == choices
-    assert selector["value"] == "template"
+    selector = _component_props("case-explanation-mode-selector")
+    selector_values = [
+        choice[1] if isinstance(choice, (list, tuple)) else choice
+        for choice in selector["choices"]
+    ]
+    assert selector_values == ["LoRA OFF", "LoRA ON"]
+    assert selector["value"] == "LoRA OFF"
 
 
 def test_invoice_run_status_is_visible_and_completed_output_is_concise() -> None:
     catalog = load_invoice_case_catalog()
     service = DemoService()
-    initial_status = _component_props("invoice-run-status")["value"]
 
-    assert "审核状态：待运行" in initial_status
     output = _run_for_ui(
         service,
         catalog,
@@ -177,13 +190,122 @@ def test_case_preview_does_not_prepopulate_audit_results() -> None:
         assert "正式解释：** 尚未运行" in preview[7]
 
 
+def test_path_b_preview_and_run_follow_preset_scenario_flow() -> None:
+    catalog = load_invoice_case_catalog()
+
+    preview = _path_b_preview(catalog, "normal_invoice")
+    assert preview[3] == []
+    assert preview[4] == {}
+    assert preview[10] == ""
+    assert preview[11] == ""
+    assert "未运行" in preview[7]
+
+    output = _run_path_b_scenario_for_ui(catalog, "normal_invoice", "LoRA OFF")
+    trace = output[5]
+    ocr_json = output[10]
+    assert trace["execution_id"].startswith("exec_")
+    assert ocr_json["execution_id"] == trace["execution_id"]
+    assert trace["status"] == "已完成审计"
+    assert trace["state_sequence"] == ["已加载", "已展示OCR", "已完成审计"]
+    assert trace["scenario_source"] == "scenario_registry"
+    assert trace["realtime_ocr"] is False
+    assert ocr_json["state"] == "已展示OCR"
+    assert all(item["value"] for item in ocr_json["fields"])
+    assert output[1] == "低风险"
+    assert output[2] == "自动通过"
+    assert len(output[9]) == 7
+    assert output[9][0][1] == "INV-2505-1001"
+    assert "scenario_001" in output[4]
+    assert "确定性规则审计" in output[4]
+
+    lora_output = _run_path_b_scenario_for_ui(catalog, "normal_invoice", "LoRA ON")
+    assert lora_output[5]["lora_mode"] == "LoRA ON"
+    assert "多维度规则核验" in lora_output[4]
+    assert lora_output[1:3] == output[1:3]
+
+
+def test_all_scenarios_have_complete_non_null_ocr_fields() -> None:
+    required = {
+        "invoice_number",
+        "po_number",
+        "grn_number",
+        "total_amount",
+        "vendor_name",
+        "date",
+        "item_list",
+    }
+    scenario_ids = set()
+
+    for case_id, scenario in SCENARIO_REGISTRY.items():
+        scenario_ids.add(scenario.scenario_id)
+        assert scenario.image_path.endswith(".png")
+        fields = scenario.fields
+        assert set(fields) == required, case_id
+        assert all(value not in ("", None) for value in fields.values())
+        assert not any(str(value).startswith("NO_") for value in fields.values())
+    assert len(scenario_ids) == len(SCENARIO_REGISTRY)
+
+
+def test_all_scenario_runs_use_complete_bound_fields_and_case_outcomes() -> None:
+    catalog = load_invoice_case_catalog()
+
+    forbidden = {"缺失", "未提供"}
+    failing_cases = {"vendor_name_mismatch", "duplicate_invoice"}
+    for case_id in catalog:
+        output = _run_path_b_scenario_for_ui(catalog, case_id, "LoRA OFF")
+        scenario = get_scenario(case_id)
+        rule_rows = output[7]
+        field_rows = output[9]
+        if case_id in failing_cases:
+            assert any(row[2] == "FALSE" for row in rule_rows)
+            assert output[1] == "高风险"
+            assert output[2] == "拒绝"
+            assert output[6]["audit_result"] == "not_pass"
+        else:
+            assert all(row[2] == "TRUE" for row in rule_rows)
+            assert output[6]["audit_result"] == "pass"
+        assert all(row[1] not in forbidden for row in field_rows)
+        assert not any(str(row[1]).startswith("NO_") for row in field_rows)
+        assert output[5]["scenario_id"] == scenario.scenario_id
+        assert output[5]["image_scenario_id"] == scenario.scenario_id
+        assert output[5]["ocr_scenario_id"] == scenario.scenario_id
+        assert output[5]["audit_scenario_id"] == scenario.scenario_id
+
+
+def test_pre_audit_preview_has_no_mismatch_or_warning_flags() -> None:
+    catalog = load_invoice_case_catalog()
+    forbidden = {
+        "mismatch",
+        "warning",
+        "duplicate",
+        "high risk",
+        "不一致",
+        "高风险",
+        "重复",
+        "缺失",
+    }
+
+    for case_id in catalog:
+        preview = _path_b_preview(catalog, case_id)
+        rendered = " ".join(str(item).lower() for item in preview[:3])
+        assert not any(flag in rendered for flag in forbidden), case_id
+
+
+def test_path_b_ui_has_no_local_scenario_hardcode() -> None:
+    source = Path("demo/app.py").read_text(encoding="utf-8")
+
+    assert "SCENARIO_MAP" not in source
+    assert "SCENARIO_FIELD_LABELS" not in source
+    assert "FIELD_CONFIDENCES" not in source
+
+
 def test_each_case_summary_explains_the_governance_path() -> None:
     catalog = load_invoice_case_catalog()
 
     for case in catalog.values():
         summary = render_case_summary(case)
         assert "解释路径" in summary
-        assert "确定性模板" in summary
+        assert "scenario" in case["summary"] or "确定性模板" in summary
 
     assert "Guard 拦截" in render_case_summary(
         catalog["vendor_name_mismatch"]

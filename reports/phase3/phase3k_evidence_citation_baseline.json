@@ -1,0 +1,721 @@
+{
+  "phase": "Phase 3K",
+  "baseline": "rule_only_evidence_citation",
+  "sample_count": 20,
+  "training_performed": false,
+  "model_loaded": false,
+  "api_integration": false,
+  "official_default": "deterministic_template",
+  "official_default_changed": false,
+  "citation_accept_reject_accuracy": 1.0,
+  "fallback_accuracy": 1.0,
+  "accepted_only_metrics": {
+    "evidence_id_precision": 1.0,
+    "evidence_id_recall": 1.0,
+    "claim_type_precision": 1.0,
+    "claim_type_recall": 1.0,
+    "unsupported_claim_rate": 0.0,
+    "invalid_evidence_id_rate": 0.0,
+    "mismatched_evidence_claim_rate": 0.0,
+    "missing_citation_rate": 0.0
+  },
+  "all_candidate_metrics": {
+    "evidence_id_precision": 0.9826086956521739,
+    "evidence_id_recall": 0.8692307692307693,
+    "claim_type_precision": 0.9915254237288136,
+    "claim_type_recall": 0.936,
+    "unsupported_claim_rate": 0.05,
+    "invalid_evidence_id_rate": 0.1,
+    "mismatched_evidence_claim_rate": 0.6,
+    "missing_citation_rate": 0.05
+  },
+  "reject_reason_distribution": {
+    "anomaly_citation_missing": 1,
+    "cited_evidence_ids_mismatch": 1,
+    "invalid_evidence_ids": 2,
+    "mismatched_evidence_claim": 12,
+    "recommended_action_copy_mismatch": 1,
+    "risk_level_copy_mismatch": 1,
+    "schema_invalid:ValidationError": 1,
+    "unsupported_claims": 1
+  },
+  "per_case_debug_rows": [
+    {
+      "case_id": "p3k-001-valid-po-amount",
+      "expected_status": "accepted",
+      "actual_status": "accepted",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "failed_components": [],
+      "invalid_evidence_ids": [],
+      "mismatched_claims": [],
+      "unsupported_claims": [],
+      "missing_citations": [],
+      "expected_evidence_ids": [
+        "action.recommended",
+        "anomaly.amount_discrepancy",
+        "grn.number",
+        "invoice.total_amount",
+        "invoice.vendor_name",
+        "po.number",
+        "po.total_amount",
+        "risk.level"
+      ],
+      "actual_evidence_ids": [
+        "action.recommended",
+        "anomaly.amount_discrepancy",
+        "grn.number",
+        "invoice.total_amount",
+        "invoice.vendor_name",
+        "po.number",
+        "po.total_amount",
+        "risk.level"
+      ],
+      "fallback_used": false,
+      "rendered_text_preview": "引用约束审核说明：\n- 发票供应商 Fabrikam Logistics。 [evidence: invoice.vendor_name]\n- 采购订单 PO-CIT-001。 [evidence: po.number]\n- 收货单 GRN-CIT-001。 [evidence: grn.number]\n- 发票金额 1200.00 与 PO 金额 1000"
+    },
+    {
+      "case_id": "p3k-002-valid-grn-missing",
+      "expected_status": "accepted",
+      "actual_status": "accepted",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "failed_components": [],
+      "invalid_evidence_ids": [],
+      "mismatched_claims": [],
+      "unsupported_claims": [],
+      "missing_citations": [],
+      "expected_evidence_ids": [
+        "action.recommended",
+        "anomaly.missing_goods_receipt",
+        "invoice.vendor_name",
+        "missing.grn_number",
+        "po.number",
+        "risk.level"
+      ],
+      "actual_evidence_ids": [
+        "action.recommended",
+        "anomaly.missing_goods_receipt",
+        "invoice.vendor_name",
+        "missing.grn_number",
+        "po.number",
+        "risk.level"
+      ],
+      "fallback_used": false,
+      "rendered_text_preview": "引用约束审核说明：\n- 发票供应商 Northwind Office Supplies。 [evidence: invoice.vendor_name]\n- 采购订单 PO-CIT-002。 [evidence: po.number]\n- 检测到缺少收货记录（missing_goods_receipt）。 [evidence: anomaly.missing"
+    },
+    {
+      "case_id": "p3k-003-valid-duplicate",
+      "expected_status": "accepted",
+      "actual_status": "accepted",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "failed_components": [],
+      "invalid_evidence_ids": [],
+      "mismatched_claims": [],
+      "unsupported_claims": [],
+      "missing_citations": [],
+      "expected_evidence_ids": [
+        "action.recommended",
+        "anomaly.duplicate_invoice",
+        "duplicate_check.match",
+        "grn.number",
+        "invoice.vendor_name",
+        "po.number",
+        "risk.level"
+      ],
+      "actual_evidence_ids": [
+        "action.recommended",
+        "anomaly.duplicate_invoice",
+        "duplicate_check.match",
+        "grn.number",
+        "invoice.vendor_name",
+        "po.number",
+        "risk.level"
+      ],
+      "fallback_used": false,
+      "rendered_text_preview": "引用约束审核说明：\n- 发票供应商 Blue Yonder Components。 [evidence: invoice.vendor_name]\n- 采购订单 PO-CIT-003。 [evidence: po.number]\n- 收货单 GRN-CIT-003。 [evidence: grn.number]\n- 检测到重复发票（duplicate_inv"
+    },
+    {
+      "case_id": "p3k-004-valid-policy",
+      "expected_status": "accepted",
+      "actual_status": "accepted",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "failed_components": [],
+      "invalid_evidence_ids": [],
+      "mismatched_claims": [],
+      "unsupported_claims": [],
+      "missing_citations": [],
+      "expected_evidence_ids": [
+        "action.recommended",
+        "anomaly.high_value_approval_required",
+        "grn.number",
+        "invoice.vendor_name",
+        "po.number",
+        "policy.rule.001",
+        "risk.level"
+      ],
+      "actual_evidence_ids": [
+        "action.recommended",
+        "anomaly.high_value_approval_required",
+        "grn.number",
+        "invoice.vendor_name",
+        "po.number",
+        "policy.rule.001",
+        "risk.level"
+      ],
+      "fallback_used": false,
+      "rendered_text_preview": "引用约束审核说明：\n- 发票供应商 Contoso Industrial Parts。 [evidence: invoice.vendor_name]\n- 采购订单 PO-CIT-004。 [evidence: po.number]\n- 收货单 GRN-CIT-004。 [evidence: grn.number]\n- 政策规则 approval_thres"
+    },
+    {
+      "case_id": "p3k-005-valid-risk-action",
+      "expected_status": "accepted",
+      "actual_status": "accepted",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "failed_components": [],
+      "invalid_evidence_ids": [],
+      "mismatched_claims": [],
+      "unsupported_claims": [],
+      "missing_citations": [],
+      "expected_evidence_ids": [
+        "action.recommended",
+        "anomaly.amount_discrepancy",
+        "grn.number",
+        "invoice.vendor_name",
+        "po.number",
+        "risk.level"
+      ],
+      "actual_evidence_ids": [
+        "action.recommended",
+        "anomaly.amount_discrepancy",
+        "grn.number",
+        "invoice.vendor_name",
+        "po.number",
+        "risk.level"
+      ],
+      "fallback_used": false,
+      "rendered_text_preview": "引用约束审核说明：\n- 发票供应商 Fabrikam Logistics。 [evidence: invoice.vendor_name]\n- 采购订单 PO-CIT-005。 [evidence: po.number]\n- 收货单 GRN-CIT-005。 [evidence: grn.number]\n- 检测到发票金额不一致（amount_discrep"
+    },
+    {
+      "case_id": "p3k-006-invalid-id",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "failed_components": [
+        "invalid_evidence_ids",
+        "mismatched_evidence_claim"
+      ],
+      "invalid_evidence_ids": [
+        "po.unknown"
+      ],
+      "mismatched_claims": [
+        "vendor_not_grounded:bullet_1"
+      ],
+      "unsupported_claims": [],
+      "missing_citations": [],
+      "expected_evidence_ids": [
+        "action.recommended",
+        "anomaly.amount_discrepancy",
+        "grn.number",
+        "invoice.vendor_name",
+        "po.number",
+        "risk.level"
+      ],
+      "actual_evidence_ids": [
+        "action.recommended",
+        "anomaly.amount_discrepancy",
+        "grn.number",
+        "po.number",
+        "po.unknown",
+        "risk.level"
+      ],
+      "fallback_used": true,
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：发票金额不一致\n关键证据：供应商 Fabrikam Logistics；发票号 INV-CIT-006；采购订单号 PO-CIT-006；收货单号 GRN-CIT-006；发票金额 USD 1200.00\n缺失字段：无\n风险等级：medi"
+    },
+    {
+      "case_id": "p3k-007-unrelated",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "failed_components": [
+        "mismatched_evidence_claim"
+      ],
+      "invalid_evidence_ids": [],
+      "mismatched_claims": [
+        "claim_type_not_allowed:bullet_1",
+        "vendor_not_grounded:bullet_1",
+        "citation_unrelated:bullet_1"
+      ],
+      "unsupported_claims": [],
+      "missing_citations": [],
+      "expected_evidence_ids": [
+        "action.recommended",
+        "anomaly.amount_discrepancy",
+        "grn.number",
+        "invoice.vendor_name",
+        "po.number",
+        "risk.level"
+      ],
+      "actual_evidence_ids": [
+        "action.recommended",
+        "anomaly.amount_discrepancy",
+        "grn.number",
+        "po.number",
+        "risk.level"
+      ],
+      "fallback_used": true,
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：发票金额不一致\n关键证据：供应商 Fabrikam Logistics；发票号 INV-CIT-007；采购订单号 PO-CIT-007；收货单号 GRN-CIT-007；发票金额 USD 1200.00\n缺失字段：无\n风险等级：medi"
+    },
+    {
+      "case_id": "p3k-008-po-claims-grn",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "failed_components": [
+        "mismatched_evidence_claim"
+      ],
+      "invalid_evidence_ids": [],
+      "mismatched_claims": [
+        "claim_type_not_allowed:bullet_1",
+        "identifier_not_grounded:bullet_1:GRN-999999",
+        "citation_unrelated:bullet_1"
+      ],
+      "unsupported_claims": [],
+      "missing_citations": [],
+      "expected_evidence_ids": [
+        "action.recommended",
+        "anomaly.amount_discrepancy",
+        "grn.number",
+        "invoice.vendor_name",
+        "po.number",
+        "risk.level"
+      ],
+      "actual_evidence_ids": [
+        "action.recommended",
+        "anomaly.amount_discrepancy",
+        "grn.number",
+        "po.number",
+        "risk.level"
+      ],
+      "fallback_used": true,
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：发票金额不一致\n关键证据：供应商 Fabrikam Logistics；发票号 INV-CIT-008；采购订单号 PO-CIT-008；收货单号 GRN-CIT-008；发票金额 USD 1200.00\n缺失字段：无\n风险等级：medi"
+    },
+    {
+      "case_id": "p3k-009-amount-mismatch",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "failed_components": [
+        "mismatched_evidence_claim"
+      ],
+      "invalid_evidence_ids": [],
+      "mismatched_claims": [
+        "amount_not_grounded:bullet_1:8100.24"
+      ],
+      "unsupported_claims": [],
+      "missing_citations": [],
+      "expected_evidence_ids": [
+        "action.recommended",
+        "anomaly.amount_discrepancy",
+        "grn.number",
+        "invoice.total_amount",
+        "invoice.vendor_name",
+        "po.number",
+        "po.total_amount",
+        "risk.level"
+      ],
+      "actual_evidence_ids": [
+        "action.recommended",
+        "anomaly.amount_discrepancy",
+        "grn.number",
+        "invoice.total_amount",
+        "invoice.vendor_name",
+        "po.number",
+        "po.total_amount",
+        "risk.level"
+      ],
+      "fallback_used": true,
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：发票金额不一致\n关键证据：供应商 Fabrikam Logistics；发票号 INV-CIT-009；采购订单号 PO-CIT-009；收货单号 GRN-CIT-009；发票金额 USD 1200.00；金额对比 发票 1200.0、订"
+    },
+    {
+      "case_id": "p3k-010-vendor-mismatch",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "failed_components": [
+        "mismatched_evidence_claim"
+      ],
+      "invalid_evidence_ids": [],
+      "mismatched_claims": [
+        "vendor_not_grounded:bullet_1"
+      ],
+      "unsupported_claims": [],
+      "missing_citations": [],
+      "expected_evidence_ids": [
+        "action.recommended",
+        "anomaly.amount_discrepancy",
+        "grn.number",
+        "invoice.vendor_name",
+        "po.number",
+        "risk.level"
+      ],
+      "actual_evidence_ids": [
+        "action.recommended",
+        "anomaly.amount_discrepancy",
+        "grn.number",
+        "invoice.vendor_name",
+        "po.number",
+        "risk.level"
+      ],
+      "fallback_used": true,
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：发票金额不一致\n关键证据：供应商 Fabrikam Logistics；发票号 INV-CIT-010；采购订单号 PO-CIT-010；收货单号 GRN-CIT-010；发票金额 USD 1200.00\n缺失字段：无\n风险等级：medi"
+    },
+    {
+      "case_id": "p3k-011-policy-approver",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "failed_components": [
+        "unsupported_claims"
+      ],
+      "invalid_evidence_ids": [],
+      "mismatched_claims": [],
+      "unsupported_claims": [
+        "approver_not_grounded:bullet_4"
+      ],
+      "missing_citations": [],
+      "expected_evidence_ids": [
+        "action.recommended",
+        "anomaly.high_value_approval_required",
+        "grn.number",
+        "invoice.vendor_name",
+        "po.number",
+        "policy.rule.001",
+        "risk.level"
+      ],
+      "actual_evidence_ids": [
+        "action.recommended",
+        "anomaly.high_value_approval_required",
+        "grn.number",
+        "invoice.vendor_name",
+        "po.number",
+        "policy.rule.001",
+        "risk.level"
+      ],
+      "fallback_used": true,
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：高金额需要额外审批\n关键证据：供应商 Contoso Industrial Parts；发票号 INV-CIT-011；采购订单号 PO-CIT-011；收货单号 GRN-CIT-011；发票金额 USD 15000.00；政策标记 ap"
+    },
+    {
+      "case_id": "p3k-012-risk-mismatch",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "failed_components": [
+        "risk_level_copy_mismatch",
+        "mismatched_evidence_claim"
+      ],
+      "invalid_evidence_ids": [],
+      "mismatched_claims": [
+        "citation_unrelated:bullet_5"
+      ],
+      "unsupported_claims": [],
+      "missing_citations": [],
+      "expected_evidence_ids": [
+        "action.recommended",
+        "anomaly.amount_discrepancy",
+        "grn.number",
+        "invoice.vendor_name",
+        "po.number",
+        "risk.level"
+      ],
+      "actual_evidence_ids": [
+        "action.recommended",
+        "anomaly.amount_discrepancy",
+        "grn.number",
+        "invoice.vendor_name",
+        "po.number",
+        "risk.level"
+      ],
+      "fallback_used": true,
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：发票金额不一致\n关键证据：供应商 Fabrikam Logistics；发票号 INV-CIT-012；采购订单号 PO-CIT-012；收货单号 GRN-CIT-012；发票金额 USD 1200.00\n缺失字段：无\n风险等级：medi"
+    },
+    {
+      "case_id": "p3k-013-action-mismatch",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "failed_components": [
+        "recommended_action_copy_mismatch",
+        "mismatched_evidence_claim"
+      ],
+      "invalid_evidence_ids": [],
+      "mismatched_claims": [
+        "citation_unrelated:bullet_6"
+      ],
+      "unsupported_claims": [],
+      "missing_citations": [],
+      "expected_evidence_ids": [
+        "action.recommended",
+        "anomaly.amount_discrepancy",
+        "grn.number",
+        "invoice.vendor_name",
+        "po.number",
+        "risk.level"
+      ],
+      "actual_evidence_ids": [
+        "action.recommended",
+        "anomaly.amount_discrepancy",
+        "grn.number",
+        "invoice.vendor_name",
+        "po.number",
+        "risk.level"
+      ],
+      "fallback_used": true,
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：发票金额不一致\n关键证据：供应商 Fabrikam Logistics；发票号 INV-CIT-013；采购订单号 PO-CIT-013；收货单号 GRN-CIT-013；发票金额 USD 1200.00\n缺失字段：无\n风险等级：medi"
+    },
+    {
+      "case_id": "p3k-014-multi-citation-missing",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "failed_components": [
+        "anomaly_citation_missing",
+        "mismatched_evidence_claim"
+      ],
+      "invalid_evidence_ids": [],
+      "mismatched_claims": [
+        "claim_type_not_allowed:bullet_5",
+        "citation_unrelated:bullet_5"
+      ],
+      "unsupported_claims": [],
+      "missing_citations": [],
+      "expected_evidence_ids": [
+        "action.recommended",
+        "anomaly.amount_discrepancy",
+        "anomaly.missing_po_number",
+        "grn.number",
+        "invoice.total_amount",
+        "invoice.vendor_name",
+        "missing.po_number",
+        "po.total_amount",
+        "risk.level"
+      ],
+      "actual_evidence_ids": [
+        "action.recommended",
+        "anomaly.missing_po_number",
+        "grn.number",
+        "invoice.total_amount",
+        "invoice.vendor_name",
+        "missing.po_number",
+        "po.total_amount",
+        "risk.level"
+      ],
+      "fallback_used": true,
+      "rendered_text_preview": "审核摘要：发现 2 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：缺少采购订单号、发票金额不一致\n关键证据：供应商 Adventure Works Services；发票号 INV-CIT-014；采购订单号 未提供（缺失）；收货单号 GRN-CIT-014；发票金额 GBP 2200.00；金额对比 "
+    },
+    {
+      "case_id": "p3k-015-bullet-no-citation",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "failed_components": [
+        "schema_invalid:ValidationError"
+      ],
+      "invalid_evidence_ids": [],
+      "mismatched_claims": [],
+      "unsupported_claims": [],
+      "missing_citations": [
+        "bullet_1"
+      ],
+      "expected_evidence_ids": [
+        "action.recommended",
+        "anomaly.amount_discrepancy",
+        "grn.number",
+        "invoice.vendor_name",
+        "po.number",
+        "risk.level"
+      ],
+      "actual_evidence_ids": [],
+      "fallback_used": true,
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：发票金额不一致\n关键证据：供应商 Fabrikam Logistics；发票号 INV-CIT-015；采购订单号 PO-CIT-015；收货单号 GRN-CIT-015；发票金额 USD 1200.00\n缺失字段：无\n风险等级：medi"
+    },
+    {
+      "case_id": "p3k-016-claim-type-mismatch",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "failed_components": [
+        "mismatched_evidence_claim"
+      ],
+      "invalid_evidence_ids": [],
+      "mismatched_claims": [
+        "claim_type_not_allowed:bullet_1",
+        "policy_not_grounded:bullet_1"
+      ],
+      "unsupported_claims": [],
+      "missing_citations": [],
+      "expected_evidence_ids": [
+        "action.recommended",
+        "anomaly.amount_discrepancy",
+        "grn.number",
+        "invoice.vendor_name",
+        "po.number",
+        "risk.level"
+      ],
+      "actual_evidence_ids": [
+        "action.recommended",
+        "anomaly.amount_discrepancy",
+        "grn.number",
+        "invoice.vendor_name",
+        "po.number",
+        "risk.level"
+      ],
+      "fallback_used": true,
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：发票金额不一致\n关键证据：供应商 Fabrikam Logistics；发票号 INV-CIT-016；采购订单号 PO-CIT-016；收货单号 GRN-CIT-016；发票金额 USD 1200.00\n缺失字段：无\n风险等级：medi"
+    },
+    {
+      "case_id": "p3k-017-fill-missing-po",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "failed_components": [
+        "mismatched_evidence_claim"
+      ],
+      "invalid_evidence_ids": [],
+      "mismatched_claims": [
+        "identifier_not_grounded:bullet_1:PO-999999"
+      ],
+      "unsupported_claims": [],
+      "missing_citations": [],
+      "expected_evidence_ids": [
+        "action.recommended",
+        "anomaly.missing_po_number",
+        "grn.number",
+        "invoice.vendor_name",
+        "missing.po_number",
+        "risk.level"
+      ],
+      "actual_evidence_ids": [
+        "action.recommended",
+        "anomaly.missing_po_number",
+        "grn.number",
+        "invoice.vendor_name",
+        "missing.po_number",
+        "risk.level"
+      ],
+      "fallback_used": true,
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：缺少采购订单号\n关键证据：供应商 Northwind Office Supplies；发票号 INV-CIT-017；采购订单号 未提供（缺失）；收货单号 GRN-CIT-017；发票金额 EUR 800.00\n缺失字段：po_numbe"
+    },
+    {
+      "case_id": "p3k-018-fill-missing-grn",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "failed_components": [
+        "mismatched_evidence_claim"
+      ],
+      "invalid_evidence_ids": [],
+      "mismatched_claims": [
+        "identifier_not_grounded:bullet_1:GRN-999999"
+      ],
+      "unsupported_claims": [],
+      "missing_citations": [],
+      "expected_evidence_ids": [
+        "action.recommended",
+        "anomaly.missing_goods_receipt",
+        "invoice.vendor_name",
+        "missing.grn_number",
+        "po.number",
+        "risk.level"
+      ],
+      "actual_evidence_ids": [
+        "action.recommended",
+        "anomaly.missing_goods_receipt",
+        "invoice.vendor_name",
+        "missing.grn_number",
+        "po.number",
+        "risk.level"
+      ],
+      "fallback_used": true,
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：缺少收货记录\n关键证据：供应商 Northwind Office Supplies；发票号 INV-CIT-018；采购订单号 PO-CIT-018；收货单号 未提供（缺失）；发票金额 EUR 800.00\n缺失字段：grn_number"
+    },
+    {
+      "case_id": "p3k-019-citation-union",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "failed_components": [
+        "cited_evidence_ids_mismatch"
+      ],
+      "invalid_evidence_ids": [],
+      "mismatched_claims": [],
+      "unsupported_claims": [],
+      "missing_citations": [],
+      "expected_evidence_ids": [
+        "action.recommended",
+        "anomaly.amount_discrepancy",
+        "grn.number",
+        "invoice.vendor_name",
+        "po.number",
+        "risk.level"
+      ],
+      "actual_evidence_ids": [],
+      "fallback_used": true,
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：发票金额不一致\n关键证据：供应商 Fabrikam Logistics；发票号 INV-CIT-019；采购订单号 PO-CIT-019；收货单号 GRN-CIT-019；发票金额 USD 1200.00\n缺失字段：无\n风险等级：medi"
+    },
+    {
+      "case_id": "p3k-020-fallback",
+      "expected_status": "rejected",
+      "actual_status": "rejected",
+      "status_match": true,
+      "expected_reasons_found": true,
+      "failed_components": [
+        "invalid_evidence_ids",
+        "mismatched_evidence_claim"
+      ],
+      "invalid_evidence_ids": [
+        "po.unknown"
+      ],
+      "mismatched_claims": [
+        "vendor_not_grounded:bullet_1"
+      ],
+      "unsupported_claims": [],
+      "missing_citations": [],
+      "expected_evidence_ids": [
+        "action.recommended",
+        "anomaly.amount_discrepancy",
+        "grn.number",
+        "invoice.vendor_name",
+        "po.number",
+        "risk.level"
+      ],
+      "actual_evidence_ids": [
+        "action.recommended",
+        "anomaly.amount_discrepancy",
+        "grn.number",
+        "po.number",
+        "po.unknown",
+        "risk.level"
+      ],
+      "fallback_used": true,
+      "rendered_text_preview": "审核摘要：发现 1 类异常，风险等级为 medium，建议动作 request_human_approval。\n异常类型：发票金额不一致\n关键证据：供应商 Fabrikam Logistics；发票号 INV-CIT-020；采购订单号 PO-CIT-020；收货单号 GRN-CIT-020；发票金额 USD 1200.00\n缺失字段：无\n风险等级：medi"
+    }
+  ],
+  "baseline_passed": true
+}

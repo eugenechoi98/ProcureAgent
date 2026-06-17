@@ -61,46 +61,38 @@ def test_app_builds_with_three_tabs() -> None:
 
     assert config["title"] == "ProcureGuard AI"
     assert config["analytics_enabled"] is False
-    assert ["发票审核", "模型实验", "系统架构"] == tab_labels
+    assert ["Path A 手动审核", "Path B Scenario Demo", "系统说明"] == tab_labels
 
 
-def test_invoice_audit_keeps_existing_inputs_outputs_and_defaults() -> None:
+def test_main_chain_case_validation_and_explanation_controls_are_visible() -> None:
     labels = _labels()
 
     assert _component_props("demo-case-selector")["value"] == "normal_invoice"
-    assert _component_props("explanation-mode-selector")["value"] == "template"
+    assert _component_props("case-explanation-mode-selector")["value"] == "LoRA OFF"
     case_values = {
         choice[1] if isinstance(choice, (list, tuple)) else choice
         for choice in _component_props("demo-case-selector")["choices"]
     }
     mode_values = {
         choice[1] if isinstance(choice, (list, tuple)) else choice
-        for choice in _component_props("explanation-mode-selector")["choices"]
+        for choice in _component_props("case-explanation-mode-selector")["choices"]
     }
-    assert "normal_invoice" in case_values
-    assert len(case_values) == 5
-    assert "template" in mode_values
+    assert case_values == {
+        "normal_invoice",
+        "missing_goods_receipt",
+        "missing_po_number",
+        "vendor_name_mismatch",
+        "duplicate_invoice",
+    }
+    assert mode_values == {"LoRA OFF", "LoRA ON"}
     assert {
-        "预置发票案例",
-        "解释模式",
+        "选择案例",
+        "1. 发票图片",
+        "2. OCR / LayoutLMv3 字段识别 + 人工确认",
         "风险等级",
         "建议动作",
-        "异常类型",
-        "证据",
-        "缺失字段",
-        "审核解释",
-        "解释来源",
-        "是否使用改写",
-        "守卫是否通过",
-        "回退原因",
-        "事实哈希",
-        "模板版本",
-        "提示词版本",
-        "模型版本",
-        "Adapter 版本",
-        "原始改写输出",
-        "安全回退详情",
-        "完整审核报告 JSON（AuditReport）",
+        "AuditReport JSON",
+        "Trace",
     } <= labels
 
 
@@ -112,14 +104,11 @@ def test_public_demo_contains_chinese_usage_guidance() -> None:
     ]
     rendered = "\n".join(str(value) for value in markdown_values)
 
-    assert "如何看本页" in rendered
-    assert "点击“运行审核”" in rendered
-    assert "完整审核报告" in rendered
-    assert "整体 F1 指标请见“模型实验”页" in rendered
-    assert "演示用合成示意图" in rendered
-    assert "不需要 GPU、API Key 或在线模型" in rendered
-    assert "真实离线模型实验结果" in rendered
-    assert "为什么模型不能直接决定风险" in rendered
+    assert "流程驱动的采购发票审核 Demo" in rendered
+    assert "Path B 展示发票图片到 AuditReport 的完整交互链路" in rendered
+    assert "Run Audit 会按 OCR预置结果 → 字段确认 → 规则审计 → LoRA语言增强 的顺序展示" in rendered
+    assert "LoRA OFF/ON 只切换解释文本" in rendered
+    assert "risk_level 和 recommended_action 只能来自确定性规则" in rendered
 
 
 def test_public_demo_avoids_bare_english_business_labels() -> None:
@@ -127,8 +116,6 @@ def test_public_demo_avoids_bare_english_business_labels() -> None:
 
     for forbidden in (
         '"Invoice Audit"',
-        '"Model Lab"',
-        '"Architecture"',
         '"Audit Trail"',
         '"Canonical Facts"',
         '"Deterministic Template"',
@@ -189,45 +176,21 @@ def test_model_lab_surfaces_real_lora_guard_fallback_evidence() -> None:
     assert "request_human_approval" in render_lora_fallback(case)
     assert "real_offline_model_output" in render_lora_raw_output(case)
 
-    rendered = "\n".join(
-        _component_props(elem_id)["value"]
-        for elem_id in (
-            "lora-guard-visual-intro",
-            "lora-guard-visual-raw-output",
-            "lora-guard-visual-result",
-            "lora-guard-visual-fallback",
-        )
-    )
-    assert "LoRA 幻觉与 Guard 拦截示例" in rendered
-    assert "GRN-20260149" in rendered
-    assert "Phase 3I" in rendered
+    assert "GRN-20260149" in render_lora_guard_result(case)
 
 
-def test_model_lab_raw_json_evidence_is_collapsed_by_default() -> None:
-    accordion = _component_props("model-lab-raw-evidence")
+def test_model_lab_artifacts_remain_available_but_not_as_main_tab() -> None:
+    components = _components()
+    tab_labels = [
+        component.get("props", {}).get("label")
+        for component in components
+        if component.get("type") == "tabitem"
+    ]
     labels = _labels()
 
-    assert accordion["label"] == "查看原始 JSON 证据"
-    assert accordion["open"] is False
-    assert "LayoutLMv3 错误分析 JSON" in labels
-    assert "LoRA 指标 JSON" in labels
-    assert "Guard / Fallback 案例 JSON" in labels
-    assert "模型实验 manifest JSON" in labels
-    assert "缺失 artifacts" not in labels
-
-
-def test_model_lab_highlight_precedes_collapsed_detail_tables() -> None:
-    components = _components()
-    indexes = {
-        component.get("props", {}).get("elem_id"): index
-        for index, component in enumerate(components)
-    }
-
-    assert _component_props("layoutlmv3-detail-tables")["open"] is False
-    assert _component_props("lora-detail-tables")["open"] is False
-    assert indexes["model-lab-how-to-read"] < indexes["lora-guard-visual-intro"]
-    assert indexes["lora-guard-visual-intro"] < indexes["layoutlmv3-metrics-table"]
-    assert indexes["lora-guard-visual-intro"] < indexes["lora-metrics-table"]
+    assert "Model Lab" not in tab_labels
+    assert "模型实验 manifest JSON" not in labels
+    assert load_model_lab_artifacts()["manifest"]["offline_only"] is True
 
 
 def test_unified_build_requires_no_model_network_gpu_or_api_key(monkeypatch) -> None:
@@ -300,9 +263,9 @@ def test_smoke_cli_prints_json_without_writing(tmp_path: Path) -> None:
 
     assert completed.returncode == 0
     assert payload["ready"] is True
-    assert payload["tabs"] == ["发票审核", "模型实验", "系统架构"]
+    assert payload["tabs"] == ["Path A 手动审核", "Path B Scenario Demo", "系统说明"]
     assert payload["default_case"] == "normal_invoice"
-    assert payload["default_mode"] == "template"
+    assert payload["default_mode"] == "LoRA OFF"
     assert set(tmp_path.iterdir()) == before
 
 

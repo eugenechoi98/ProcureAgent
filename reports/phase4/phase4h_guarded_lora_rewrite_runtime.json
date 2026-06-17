@@ -1,0 +1,129 @@
+{
+  "phase": "Phase 4H",
+  "name": "Guarded LoRA Rewrite Runtime",
+  "status": "completed",
+  "completed_at": "2026-06-17",
+  "runtime_modes": {
+    "template": {
+      "final_explanation": "deterministic_template",
+      "provider_called": false
+    },
+    "guarded_lora": {
+      "final_explanation": "lora_on_guard_pass_else_template_fallback",
+      "provider_called": true,
+      "fail_closed_reasons": [
+        "provider_unavailable",
+        "high_risk_template_only",
+        "empty_lora_output",
+        "rewrite_parse_error",
+        "invalid_lora_output",
+        "model_runtime_error",
+        "guard_parse_error",
+        "guard_failed"
+      ]
+    },
+    "shadow_lora": {
+      "final_explanation": "deterministic_template",
+      "provider_called": true,
+      "notes": "candidate and guard result are recorded but never affect user output"
+    }
+  },
+  "legacy_modes_kept": [
+    "shadow",
+    "experimental"
+  ],
+  "phase3_failure_context": {
+    "phase3e": {
+      "result": "failed_hard_gate",
+      "issues": [
+        "low_format_compliance",
+        "unknown_amount_hallucination",
+        "unknown_grn_hallucination",
+        "unsupported_supplier_relationship"
+      ]
+    },
+    "phase3g": {
+      "result": "failed_hard_gate",
+      "metrics": {
+        "format_compliance": 0.0,
+        "factual_consistency": 0.9,
+        "action_consistency": 0.45,
+        "anomaly_coverage": 0.425,
+        "hallucination_rate": 0.15
+      }
+    }
+  },
+  "hard_boundaries": {
+    "lora_can_modify": [
+      "language_style_only"
+    ],
+    "lora_cannot_modify": [
+      "risk_level",
+      "recommended_action",
+      "anomaly_types",
+      "extracted_fields",
+      "validation_result",
+      "invoice_po_grn_vendor_amount_date_policy_evidence",
+      "phase2_decision",
+      "field_confirmation",
+      "review_decision",
+      "audit_report_structured_conclusions"
+    ],
+    "risk_level_origin": "deterministic_rules_only",
+    "recommended_action_origin": "deterministic_rules_only"
+  },
+  "provider_status": {
+    "interface_available": true,
+    "real_adapter_runtime_available": false,
+    "clean_clone_behavior": "template_path_works_guarded_lora_falls_back",
+    "fake_provider_used_for_tests_only": true
+  },
+  "guard_coverage": [
+    "changed_risk_level",
+    "changed_recommended_action",
+    "missing_or_unknown_anomaly_type",
+    "unknown_invoice_or_po_or_grn",
+    "unknown_amount",
+    "unknown_vendor",
+    "unknown_date",
+    "unsupported_policy_or_approver",
+    "missing_field_completion",
+    "forbidden_payment_or_bypass_claim",
+    "missing_required_template_section"
+  ],
+  "audit_trace_fields": [
+    "explanation_mode_requested",
+    "explanation_mode_used",
+    "final_source",
+    "template_version",
+    "guard_version",
+    "provider_name",
+    "model_version",
+    "adapter_version",
+    "facts_hash",
+    "template_hash",
+    "lora_candidate_hash",
+    "guard_passed",
+    "guard_violations",
+    "fallback_reason",
+    "latency_ms",
+    "raw_lora_output_saved"
+  ],
+  "api_integration": {
+    "endpoint": "/api/mvp/audit/execute",
+    "guarded_lora_supported": true,
+    "provider_unavailable_fallback": true,
+    "phase2_receives_confirmed_fields_only": true
+  },
+  "validation": {
+    "phase4h_runtime_tests": "passed",
+    "phase3_explanation_tests": "passed",
+    "phase4g_ext_regression": "passed",
+    "api_tests": "passed",
+    "pip_check": "passed",
+    "json_parse": "passed",
+    "markdown_links": "passed",
+    "git_diff_check": "passed",
+    "full_test_suite": "not_run_scope_explained"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "phase": "Phase 4B",
+  "title": "Open-source Quickstart & Repo Hygiene",
+  "status": "pass",
+  "completed_date": "2026-06-15",
+  "quickstart": {
+    "python_requirement": ">=3.10, recommended 3.11",
+    "virtual_environment_documented": true,
+    "dependency_install_documented": true,
+    "env_copy_documented": true,
+    "sqlite_initialization_documented": true,
+    "fastapi_start_documented": true,
+    "openapi_docs_documented": true,
+    "sample_audit_documented": true,
+    "gradio_start_documented": true,
+    "layered_tests_documented": true
+  },
+  "open_source_hygiene": {
+    "license": "MIT",
+    "env_example_added": true,
+    "privacy_document_added": true,
+    "sample_bundle_added": true,
+    "absolute_github_links_fixed": true,
+    "model_artifacts_excluded": true,
+    "large_sroie_archives_tracked": false
+  },
+  "sample_audit": {
+    "data_source": "synthetic_invoice_and_mock_procurement_context",
+    "database": "sqlite_in_memory",
+    "live_layoutlmv3": false,
+    "live_lora": false,
+    "network_required": false,
+    "writes_project_database": false,
+    "expected": {
+      "risk_level": "low",
+      "recommended_action": "auto_approve",
+      "po_match": true,
+      "goods_receipt_match": true,
+      "explanation_source": "template"
+    }
+  },
+  "test_layers": {
+    "smoke": "cpu_only_no_model_download",
+    "phase1": "fixtures_and_lightweight_artifact_validation",
+    "phase2": "contracts_api_rules_and_review",
+    "phase3": "offline_evaluation_guard_structured_and_citation",
+    "full": "cpu_only_tests_directory"
+  },
+  "boundaries": {
+    "public_demo_is_production": false,
+    "sensitive_invoice_upload_recommended": false,
+    "financial_decision_authority": false,
+    "risk_level_source": "deterministic_rules",
+    "recommended_action_source": "deterministic_rules",
+    "official_explanation_default": "deterministic_template"
+  },
+  "validation": {
+    "report_json_parse": true,
+    "markdown_links": true,
+    "git_diff_check": true,
+    "env_secret_scan": true,
+    "license_exists": true,
+    "quickstart_commands_static_check": true,
+    "pip_check": true,
+    "sample_audit": true,
+    "phase4b_pytest_passed": 1,
+    "full_test_suite_run": false,
+    "full_test_suite_reason": "Repo-hygiene scope with focused smoke coverage and unrelated uncommitted Phase 3 work already present"
+  },
+  "recommended_next_phase": "Phase 4C"
+}

@@ -6,9 +6,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from procureguard.api.dependencies import initialize_app_database
-from procureguard.api.routes import invoice, review
+from procureguard.api.routes import fields, invoice, mvp, review
 from procureguard.config import Settings, get_settings
 from procureguard.phase3.explanation.orchestrator import RewriteProvider
+from procureguard.productization import ManualAuditStore
 
 
 def create_app(
@@ -24,12 +25,15 @@ def create_app(
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         app.state.settings = app_settings
         app.state.explanation_rewrite_provider = explanation_rewrite_provider
+        app.state.manual_audit_store = ManualAuditStore()
         initialize_app_database(app_settings)
         yield
 
     app = FastAPI(title="ProcureGuard AI", lifespan=lifespan)
     app.include_router(invoice.router)
     app.include_router(review.router)
+    app.include_router(mvp.router)
+    app.include_router(fields.router)
 
     @app.get("/health")
     def health() -> dict[str, str]:

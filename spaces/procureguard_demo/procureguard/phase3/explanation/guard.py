@@ -13,6 +13,7 @@ from procureguard.phase3.explanation.renderer import REQUIRED_TEMPLATE_SECTIONS
 IDENTIFIER_PATTERN = re.compile(r"\b(?:INV|PO|GRN)-[A-Z0-9-]+\b", re.IGNORECASE)
 MONEY_PATTERN = re.compile(r"\b(?:USD|EUR|GBP|CNY)\s+([0-9][0-9,]*\.\d{2})\b")
 VENDOR_PATTERN = re.compile(r"(?:供应商|订单供应商)\s+([^；。\n]+)")
+DATE_PATTERN = re.compile(r"\b\d{4}-\d{2}-\d{2}\b")
 RISK_LEVELS = ("low", "medium", "high")
 ACTIONS = ("auto_approve", "request_human_approval", "reject")
 RISK_FIELD_PATTERN = re.compile(r"风险等级[：:]\s*(low|medium|high)")
@@ -28,6 +29,24 @@ FORBIDDEN_POLICY_TERMS = (
     "条款第",
     "审批人",
 )
+FORBIDDEN_CLAIMS = (
+    "立即付款",
+    "直接付款",
+    "已付款",
+    "付款已批准",
+    "无需人工审核",
+    "可以跳过审核",
+)
+
+
+class GuardViolationDetail(BaseModel):
+    """guard 拒绝原因的结构化明细。"""
+
+    model_config = ConfigDict(extra="forbid")
+
+    violation_type: str
+    offending_text: str | None = None
+    expected_fact: str | None = None
 
 
 class GuardResult(BaseModel):
@@ -37,6 +56,10 @@ class GuardResult(BaseModel):
 
     passed: bool
     violations: list[str] = Field(default_factory=list)
+    violation_details: list[GuardViolationDetail] = Field(default_factory=list)
+    checked_entities: list[str] = Field(default_factory=list)
+    checked_numbers: list[str] = Field(default_factory=list)
+    checked_decision_fields: list[str] = Field(default_factory=list)
 
 
 class LoRAOutputGuard:
@@ -47,15 +70,18 @@ class LoRAOutputGuard:
 
         violations: list[str] = []
         if not output.strip():
-            return GuardResult(passed=False, violations=["empty_output"])
+            return self._build_result(facts, ["empty_output"])
         violations.extend(self._missing_sections(output))
         violations.extend(self._unknown_identifiers(facts, output))
         violations.extend(self._unknown_amounts(facts, output))
         violations.extend(self._unknown_vendors(facts, output))
+        violations.extend(self._unknown_dates(facts, output))
         violations.extend(self._unsupported_policy_terms(facts, output))
+        violations.extend(self._forbidden_claims(output))
+        violations.extend(self._missing_field_completion(facts, output))
         violations.extend(self._decision_changes(facts, output))
         violations.extend(self._anomaly_changes(facts, output))
-        return GuardResult(passed=not violations, violations=violations)
+        return self._build_result(facts, violations)
 
     def _missing_sections(self, output: str) -> list[str]:
         """固定章节缺失时直接拒绝。"""
@@ -102,6 +128,18 @@ class LoRAOutputGuard:
                 violations.append(f"unknown_vendor:{value}")
         return violations
 
+    def _unknown_dates(self, facts: CanonicalAuditFacts, output: str) -> list[str]:
+        """未知日期不得出现。"""
+
+        known = facts.known_dates()
+        if not known:
+            return []
+        return [
+            f"unknown_date:{value}"
+            for value in DATE_PATTERN.findall(output)
+            if value not in known
+        ]
+
     def _unsupported_policy_terms(
         self, facts: CanonicalAuditFacts, output: str
     ) -> list[str]:
@@ -113,6 +151,23 @@ class LoRAOutputGuard:
             for term in FORBIDDEN_POLICY_TERMS
             if term in output and term not in allowed_text
         ]
+
+    def _forbidden_claims(self, output: str) -> list[str]:
+        """解释不得生成付款执行或绕过审核承诺。"""
+
+        return [f"forbidden_claim:{term}" for term in FORBIDDEN_CLAIMS if term in output]
+
+    def _missing_field_completion(
+        self, facts: CanonicalAuditFacts, output: str
+    ) -> list[str]:
+        """上游缺失字段必须继续声明缺失，不能被模型补全。"""
+
+        violations: list[str] = []
+        for field in facts.missing_fields:
+            required_phrase = f"{field}：未提供（缺失）"
+            if required_phrase not in output:
+                violations.append(f"missing_field_completion:{field}")
+        return violations
 
     def _decision_changes(self, facts: CanonicalAuditFacts, output: str) -> list[str]:
         """风险等级和建议动作只能等于事实值。"""
@@ -147,3 +202,44 @@ class LoRAOutputGuard:
         if extra:
             violations.append("unknown_anomaly_type:" + ",".join(sorted(extra)))
         return violations
+
+    def _build_result(
+        self, facts: CanonicalAuditFacts, violations: list[str]
+    ) -> GuardResult:
+        """补全 guard 可审计明细。"""
+
+        return GuardResult(
+            passed=not violations,
+            violations=violations,
+            violation_details=[
+                self._violation_detail(item, facts) for item in violations
+            ],
+            checked_entities=sorted(facts.known_identifiers() | facts.known_vendors() | facts.known_dates()),
+            checked_numbers=sorted(facts.known_amounts()),
+            checked_decision_fields=[
+                f"risk_level:{facts.risk_level}",
+                f"recommended_action:{facts.recommended_action}",
+                "anomaly_types:" + ",".join(item.value for item in facts.anomaly_types),
+            ],
+        )
+
+    def _violation_detail(
+        self, violation: str, facts: CanonicalAuditFacts
+    ) -> GuardViolationDetail:
+        """把旧字符串 violation 转成结构化明细。"""
+
+        violation_type, _, offending_text = violation.partition(":")
+        expected_fact = None
+        if violation_type == "changed_risk_level":
+            expected_fact = facts.risk_level
+        elif violation_type == "changed_recommended_action":
+            expected_fact = facts.recommended_action
+        elif violation_type in {"missing_anomaly_type", "unknown_anomaly_type"}:
+            expected_fact = ",".join(item.value for item in facts.anomaly_types)
+        elif violation_type == "missing_field_completion":
+            expected_fact = "must remain missing"
+        return GuardViolationDetail(
+            violation_type=violation_type,
+            offending_text=offending_text or None,
+            expected_fact=expected_fact,
+        )

@@ -12,6 +12,7 @@ from procureguard.phase3.explanation.orchestrator import (
     ExplanationResult,
     FallbackOrchestrator,
 )
+from procureguard.phase3.explanation.lora_provider import UnavailableLoRARewriteProvider
 from procureguard.phase3.explanation.renderer import DeterministicTemplateRenderer
 from procureguard.phase3.explanation.rewrite_contract import (
     RewriteRequest,
@@ -19,6 +20,34 @@ from procureguard.phase3.explanation.rewrite_contract import (
     build_rewrite_prompt,
 )
 from procureguard.phase3.explanation.trace import ExplanationAuditTrail
+from procureguard.phase3.explanation.structured_output import (
+    StructuredExplanation,
+    StructuredExplanationBullet,
+    StructuredExplanationRenderer,
+    StructuredExplanationResult,
+    StructuredExplanationService,
+    StructuredExplanationValidator,
+    StructuredValidationResult,
+    ValidatedStructuredExplanation,
+    build_evidence_catalog,
+    build_rule_only_structured_explanation,
+)
+from procureguard.phase3.explanation.evidence_citation import (
+    CitationBullet,
+    CitationExplanationResult,
+    CitationExplanationService,
+    CitationRenderer,
+    CitationStructuredExplanation,
+    CitationValidationResult,
+    ClaimEvidenceValidator,
+    ClaimType,
+    EvidenceCatalog,
+    EvidenceItem,
+    EvidenceSourceType,
+    ValidatedCitationExplanation,
+    build_evidence_catalog as build_citation_evidence_catalog,
+    build_rule_only_citation_explanation,
+)
 
 __all__ = [
     "CanonicalAuditFacts",
@@ -31,8 +60,33 @@ __all__ = [
     "LoRAOutputGuard",
     "RewriteRequest",
     "RewriteResponse",
+    "UnavailableLoRARewriteProvider",
     "build_rewrite_prompt",
     "build_canonical_audit_facts",
     "build_explanation_metadata",
     "generate_guarded_explanation",
+    "StructuredExplanation",
+    "StructuredExplanationBullet",
+    "StructuredExplanationRenderer",
+    "StructuredExplanationResult",
+    "StructuredExplanationService",
+    "StructuredExplanationValidator",
+    "StructuredValidationResult",
+    "ValidatedStructuredExplanation",
+    "build_evidence_catalog",
+    "build_rule_only_structured_explanation",
+    "CitationBullet",
+    "CitationExplanationResult",
+    "CitationExplanationService",
+    "CitationRenderer",
+    "CitationStructuredExplanation",
+    "CitationValidationResult",
+    "ClaimEvidenceValidator",
+    "ClaimType",
+    "EvidenceCatalog",
+    "EvidenceItem",
+    "EvidenceSourceType",
+    "ValidatedCitationExplanation",
+    "build_citation_evidence_catalog",
+    "build_rule_only_citation_explanation",
 ]
