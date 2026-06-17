@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from PIL import Image
+
 from demo.app import _path_b_preview, _run_for_ui, _run_path_b_scenario_for_ui, build_app
 from demo.demo_service import DemoService
 from demo.invoice_case_view import (
@@ -275,6 +277,16 @@ def test_cross_document_scenarios_keep_po_grn_comparison_data() -> None:
     )
     assert vendor_context.vendor_invoice != vendor_context.vendor_po
     assert vendor_context.vendor_po != vendor_context.vendor_grn
+
+
+def test_cross_document_demo_images_include_context_panel() -> None:
+    for case_id in ("vendor_name_mismatch", "duplicate_invoice"):
+        scenario = get_scenario(case_id)
+        image_path = Path("demo") / scenario.image_path
+        image = Image.open(image_path)
+
+        assert image.size == (900, 1260)
+        assert image_path.stat().st_size > 55_000
 
 
 def test_all_scenario_runs_use_complete_bound_fields_and_case_outcomes() -> None:
