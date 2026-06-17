@@ -285,7 +285,7 @@ def test_cross_document_demo_images_include_context_panel() -> None:
         image_path = Path("demo") / scenario.image_path
         image = Image.open(image_path)
 
-        assert image.size == (900, 1260)
+        assert image.size == (900, 1120)
         assert image_path.stat().st_size > 55_000
 
 
