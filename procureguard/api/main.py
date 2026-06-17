@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from procureguard.api.dependencies import initialize_app_database
-from procureguard.api.routes import fields, invoice, mvp, review
+from procureguard.api.routes import demo, fields, invoice, mvp, review
 from procureguard.config import Settings, get_settings
 from procureguard.phase3.explanation.orchestrator import RewriteProvider
 from procureguard.productization import ManualAuditStore
@@ -34,6 +34,7 @@ def create_app(
     app.include_router(review.router)
     app.include_router(mvp.router)
     app.include_router(fields.router)
+    app.include_router(demo.router)
 
     @app.get("/health")
     def health() -> dict[str, str]:

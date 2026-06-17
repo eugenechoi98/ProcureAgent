@@ -14,6 +14,7 @@
 - Phase 4G 已新增字段确认层和 `POST /api/fields/confirm`，LayoutLMv3 只作为 candidate generator，后续 Phase 2 只能读取 `ConfirmedAuditInput.confirmed_fields`。
 - Phase 4G-EXT 已新增 `POST /api/mvp/audit/execute`，统一串联 image/candidates/confirmed_fields -> confirmation -> Phase 2 deterministic audit -> AuditReport JSON/Markdown/trace。
 - Phase 4H 已实现 Guarded LoRA Rewrite Runtime：`template`、`guarded_lora`、`shadow_lora` 三种产品模式可用，旧 `shadow/experimental` 兼容；无真实 provider 时 fail closed 到 template。
+- 方案 B 已实现 demo mock PO/GRN 预置和自动上下文解析：`/api/mvp/audit/execute` 可在未显式提供 `procurement_context` 时按 invoice_number/vendor keyword 查预置 demo DB；`POST /api/demo/audit` 固定标注 demo mode。
 
 ## 下一步
 建议进入 Phase 4J release readiness，先把当前可运行端到端 API、模型资产边界、mock context 和 provider unavailable 行为整理给开源用户；Phase 4I LangChain comparison 可后置。
@@ -33,8 +34,9 @@
 - SQLite persistence、Docker hardening、HF live inference、认证和多租户均后置，不代表永久放弃。
 - Phase 4F.2 的真实成功只证明单张公开样例本地可跑，不是 official test，也不证明企业发票泛化。
 - confidence 不能影响 `risk_level` 或 `recommended_action`；rejected/missing 字段不能进入 audit input。
-- `/api/mvp/audit/execute` 仍使用 explicit mock PO/GRN，不是企业 ERP；AuditReport 不是付款凭证。
+- `/api/mvp/audit/execute` 可使用 explicit mock PO/GRN 或预置 demo mock DB；两者都不是企业 ERP，AuditReport 不是付款凭证。
+- demo mock DB 只服务演示体验，response 必须保留 `demo_mode`、`context_source`、`mock_data_notice` 和 `payment_authority=false`。
 - 工作区存在其他线程未提交的 Phase 3 和文档改动，后续不得覆盖。
 
 ## 最后更新时间
-2026-06-17
+2026-06-18

@@ -1,5 +1,9 @@
 # DECISIONS.md
 
+## 2026-06-18：Demo 自动采购上下文只使用预置 mock DB，不提升为真实 ERP
+
+为降低演示用户门槛，`/api/mvp/audit/execute` 在缺少 `procurement_context` 时可以按 invoice_number 精确匹配、vendor keyword 备用匹配，从预置 demo mock DB 自动解析 PO/GRN；`/api/demo/audit` 固定走该 demo mode。该路径只解决作品集体验，不代表企业采购系统接入。所有 response 必须标注 `demo_mode`、`context_source`、`mock_data_notice` 和 `payment_authority=false`，风险等级和建议动作仍只由 Phase 2 deterministic rules 生成。
+
 ## 2026-06-17：Phase 4H 将 LoRA 收口为 Guarded Rewrite Runtime
 
 两轮真实 LoRA 评测均未通过 hard gate，因此不能把 LoRA 提升为默认解释器或事实来源。Phase 4H 只允许 LoRA 在 Phase 2 已确定的 Canonical Audit Facts 和 deterministic template 之后生成语言改写候选；`guarded_lora` 只有 Guard PASS 才能成为最终解释，FAIL、provider 不可用、空输出、解析失败或高风险场景都回退 template。无论 PASS/FAIL，`risk_level`、`recommended_action`、`anomaly_types` 和 evidence 都不允许被解释层改写。

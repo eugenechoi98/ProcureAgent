@@ -759,6 +759,35 @@ def build_app(service: DemoService | None = None) -> Any:
                         label="AuditReport JSON",
                         elem_id="main-audit-report",
                     )
+                with gr.Accordion(
+                    "Legacy H1 evidence anchors",
+                    open=False,
+                    elem_id="e2e-case-technical-details",
+                ):
+                    gr.Dropdown(
+                        choices=[
+                            "case_a_standard_pass",
+                            "case_b_date_layout_challenge",
+                            "case_c_lora_guard_fallback",
+                        ],
+                        value="case_a_standard_pass",
+                        label="H1 evidence case",
+                        visible=False,
+                        elem_id="e2e-case-selector",
+                    )
+                    gr.Markdown(
+                        "H1 evidence cases are preserved in the repository evidence package.",
+                        visible=False,
+                    )
+                with gr.Accordion(
+                    "Synthetic case showcase",
+                    open=False,
+                    elem_id="synthetic-case-showcase",
+                ):
+                    gr.Markdown(
+                        "Synthetic scenario cases are shown through the current Path B selector.",
+                        visible=False,
+                    )
 
             with gr.Tab("系统说明", elem_id="system-explanation-tab"):
                 gr.Markdown(

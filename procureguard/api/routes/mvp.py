@@ -26,6 +26,7 @@ def execute_mvp_audit(payload: ExecuteAuditRequest, request: Request) -> Execute
     try:
         return execute_audit_pipeline(
             payload,
+            database_path=request.app.state.settings.database_path,
             explanation_rewrite_provider=request.app.state.explanation_rewrite_provider,
         )
     except ValueError as exc:

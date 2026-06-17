@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import sqlite3
 from typing import Any, Callable, Literal
+import warnings
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -15,8 +16,12 @@ from procureguard.db import initialize_database, seed_policy_documents
 from procureguard.db.connection import get_connection
 from procureguard.db.json_utils import dumps_json
 from procureguard.models.audit import AuditReport
-from procureguard.models.invoice import ExtractedFields
+from procureguard.models.invoice import ExtractedFields, LineItem
 from procureguard.phase3.explanation.orchestrator import ExplanationMode, RewriteProvider
+from procureguard.productization.demo_seed import (
+    MOCK_DATA_NOTICE,
+    resolve_demo_procurement_context,
+)
 from procureguard.productization.field_confirmation import (
     ConfirmedAuditInput,
     FieldCandidate,
@@ -30,6 +35,13 @@ from procureguard.repositories import InvoiceRepository
 from procureguard.services import AgentInvoiceProcessor
 
 
+warnings.filterwarnings(
+    "ignore",
+    message='Field name "json" in "ExecuteAuditResponse" shadows an attribute in parent "BaseModel"',
+    category=UserWarning,
+)
+
+
 class ExecuteAuditRequest(BaseModel):
     """端到端 MVP 审核请求。"""
 
@@ -38,7 +50,7 @@ class ExecuteAuditRequest(BaseModel):
     field_candidates: list[FieldCandidate] | None = None
     confirmation_decisions: list[FieldDecision] = Field(default_factory=list)
     confirmed_fields: ExtractedFields | None = None
-    procurement_context: ExplicitMockProcurementContext
+    procurement_context: ExplicitMockProcurementContext | None = None
     confirmation_mode: Literal["human", "simulated_human"] = "human"
     explanation_mode: ExplanationMode = "template"
 
@@ -71,6 +83,25 @@ class PipelineTrace(BaseModel):
     explanation_mode_requested: str = "template"
     explanation_mode_used: str = "template"
     fallback_reason: str | None = None
+    procurement_context_source: Literal[
+        "explicit_mock_context", "pre_seeded_mock_po_grn", "no_po_found"
+    ] = "explicit_mock_context"
+    demo_mode: bool = False
+    mock_data_notice: str | None = None
+
+
+class ExecuteSourceLabels(BaseModel):
+    """端到端响应的来源边界标签。"""
+
+    demo_mode: bool = False
+    context_source: Literal[
+        "explicit_mock_context", "pre_seeded_mock_po_grn", "no_po_found"
+    ] = "explicit_mock_context"
+    payment_authority: Literal[False] = False
+    live_layoutlmv3_used: bool = False
+    live_lora_used: bool = False
+    risk_decision_source: Literal["deterministic_rules"] = "deterministic_rules"
+    mock_data_notice: str | None = None
 
 
 class ExecuteAuditResponse(BaseModel):
@@ -80,6 +111,7 @@ class ExecuteAuditResponse(BaseModel):
     json: dict[str, Any]
     markdown: str
     trace: PipelineTrace
+    source_labels: ExecuteSourceLabels
     payment_authority: Literal[False] = False
 
 
@@ -89,8 +121,10 @@ ImageCandidateRunner = Callable[[str], tuple[list[FieldCandidate], dict[str, Any
 def execute_audit_pipeline(
     request: ExecuteAuditRequest,
     *,
+    database_path: str | Path | None = None,
     image_candidate_runner: ImageCandidateRunner | None = None,
     explanation_rewrite_provider: RewriteProvider | None = None,
+    demo_mode: bool | None = None,
 ) -> ExecuteAuditResponse:
     """串联 image/candidates/confirmed_fields 到 Phase 2 AuditReport。"""
 
@@ -132,10 +166,38 @@ def execute_audit_pipeline(
         missing_fields = confirmation.missing_fields
         fields_confirmed_by = request.confirmation_mode
 
+    context = request.procurement_context
+    context_source: Literal[
+        "explicit_mock_context", "pre_seeded_mock_po_grn", "no_po_found"
+    ] = "explicit_mock_context"
+    if context is None:
+        if database_path is None:
+            raise ValueError("database_path is required when procurement_context is omitted")
+        context, context_source = resolve_demo_procurement_context(database_path, extracted)
+        if context is not None:
+            extracted = extracted.model_copy(
+                update={
+                    "po_number": context.po_number,
+                    "currency": context.po_currency,
+                    "line_items": _ensure_demo_line_items(extracted, context),
+                }
+            )
+        else:
+            extracted = extracted.model_copy(
+                update={
+                    "po_number": extracted.po_number or "NO-PO-FOUND",
+                    "line_items": _ensure_fallback_line_items(extracted),
+                }
+            )
+    effective_demo_mode = bool(demo_mode) or context_source in {
+        "pre_seeded_mock_po_grn",
+        "no_po_found",
+    }
+
     report = _run_phase2(
         audit_id,
         extracted,
-        request.procurement_context,
+        context,
         explanation_mode=request.explanation_mode,
         explanation_rewrite_provider=explanation_rewrite_provider,
     )
@@ -174,19 +236,46 @@ def execute_audit_pipeline(
         fallback_reason=report.explanation.fallback_reason
         if report.explanation
         else None,
+        procurement_context_source=context_source,
+        demo_mode=effective_demo_mode,
+        mock_data_notice=MOCK_DATA_NOTICE if effective_demo_mode else None,
     )
+    source_labels = ExecuteSourceLabels(
+        demo_mode=effective_demo_mode,
+        context_source=context_source,
+        live_layoutlmv3_used=layoutlmv3_used,
+        live_lora_used=bool(report.explanation and report.explanation.used_rewrite),
+        mock_data_notice=MOCK_DATA_NOTICE if effective_demo_mode else None,
+    )
+    audit_report_json = report.model_dump(mode="json")
+    audit_report_json["source_labels"] = source_labels.model_dump(mode="json")
+    audit_report_json["mismatches"] = _mismatches_from_evidence(audit_report_json["evidence"])
+    if context_source == "pre_seeded_mock_po_grn" and any(
+        item["field"] == "total_amount" for item in audit_report_json["mismatches"]
+    ):
+        audit_report_json["po_match"] = False
+    if context_source == "no_po_found":
+        audit_report_json["context_resolution"] = {
+            "status": "no_po_found",
+            "message": "No pre-seeded demo PO/GRN matched the confirmed invoice fields.",
+        }
     payload = {
         "audit_id": audit_id,
-        "audit_report": report.model_dump(mode="json"),
+        "audit_report": audit_report_json,
         "trace": trace.model_dump(mode="json"),
         "image_trace": image_trace,
+        "source_labels": source_labels.model_dump(mode="json"),
+        "context_source": "demo_mock_database" if effective_demo_mode else context_source,
+        "demo_mode": effective_demo_mode,
+        "mock_data_notice": MOCK_DATA_NOTICE if effective_demo_mode else None,
         "exports": {"json_version": "phase4g-ext-v1", "markdown_version": "phase4g-ext-v1"},
     }
     return ExecuteAuditResponse(
         audit_id=audit_id,
         json=payload,
-        markdown=_render_markdown(report, trace),
+        markdown=_render_markdown(report, trace, source_labels),
         trace=trace,
+        source_labels=source_labels,
     )
 
 
@@ -205,7 +294,7 @@ def _run_image_to_candidates(image_path: str) -> tuple[list[FieldCandidate], dic
 def _run_phase2(
     audit_id: str,
     fields: ExtractedFields,
-    context: ExplicitMockProcurementContext,
+    context: ExplicitMockProcurementContext | None,
     *,
     explanation_mode: ExplanationMode,
     explanation_rewrite_provider: RewriteProvider | None,
@@ -216,7 +305,8 @@ def _run_phase2(
     try:
         initialize_database(conn)
         seed_policy_documents(conn)
-        _insert_context(conn, context, fields)
+        if context is not None:
+            _insert_context(conn, context, fields)
         InvoiceRepository(conn).create_invoice(
             invoice_id=audit_id,
             file_path="confirmed_fields/no_raw_model_bypass",
@@ -304,7 +394,61 @@ def _mark_confirmed_fields(fields: ExtractedFields) -> ExtractedFields:
     )
 
 
-def _render_markdown(report: AuditReport, trace: PipelineTrace) -> str:
+def _ensure_demo_line_items(
+    fields: ExtractedFields,
+    context: ExplicitMockProcurementContext,
+) -> list:
+    """演示字段无行项目时补齐 Receipt total，保证 GRN 数量匹配可运行。"""
+
+    if fields.line_items:
+        return fields.line_items
+    return [
+        LineItem(
+            item="Receipt total",
+            qty=1,
+            unit_price=fields.total_amount or context.po_total_amount,
+            amount=fields.total_amount or context.po_total_amount,
+        )
+    ]
+
+
+def _ensure_fallback_line_items(fields: ExtractedFields) -> list:
+    """未找到 PO 时也给 Phase 2 一个稳定的占位行项目。"""
+
+    if fields.line_items:
+        return fields.line_items
+    return [
+        LineItem(
+            item="Receipt total",
+            qty=1,
+            unit_price=fields.total_amount or 0,
+            amount=fields.total_amount or 0,
+        )
+    ]
+
+
+def _mismatches_from_evidence(evidence: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """为 demo response 提供更贴近用户预期的 mismatch 字段。"""
+
+    mismatches: list[dict[str, Any]] = []
+    for item in evidence:
+        mismatch = {
+            "field": item.get("field"),
+            "invoice_value": item.get("invoice_value"),
+        }
+        if item.get("received_value") is not None:
+            mismatch["received"] = item.get("received_value")
+        if item.get("expected_value") is not None:
+            mismatch["expected"] = item.get("expected_value")
+        mismatches.append(mismatch)
+    return mismatches
+
+
+def _render_markdown(
+    report: AuditReport,
+    trace: PipelineTrace,
+    source_labels: ExecuteSourceLabels,
+) -> str:
     """渲染端到端 Markdown AuditReport。"""
 
     explanation = report.explanation.explanation_text if report.explanation else report.anomaly_explanation
@@ -314,6 +458,8 @@ def _render_markdown(report: AuditReport, trace: PipelineTrace) -> str:
             "",
             f"- Generated at: `{datetime.now(timezone.utc).isoformat()}`",
             "- Payment authority: `false`",
+            f"- Demo mode: `{str(source_labels.demo_mode).lower()}`",
+            f"- Context source: `{source_labels.context_source}`",
             "",
             "## Deterministic Audit Result",
             "",

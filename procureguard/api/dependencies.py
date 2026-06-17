@@ -13,6 +13,7 @@ from procureguard.db import (
     seed_mock_data,
     seed_policy_documents,
 )
+from procureguard.productization.demo_seed import seed_demo_procurement_data
 
 
 def initialize_app_database(settings: Settings) -> None:
@@ -23,6 +24,7 @@ def initialize_app_database(settings: Settings) -> None:
         initialize_database(conn)
         seed_mock_data(conn)
         seed_policy_documents(conn)
+        seed_demo_procurement_data(conn)
     finally:
         conn.close()
 
