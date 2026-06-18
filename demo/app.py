@@ -582,15 +582,15 @@ def _product_overview_markdown() -> str:
 ProcureGuard AI 用来演示一个真实采购发票审核系统的核心闭环：
 
 ```text
-Invoice image
--> OCR tokens + bbox
--> LayoutLMv3 field extraction
--> confirmed fields
--> PO / GRN context lookup
--> deterministic audit rules
--> AuditReport
--> template explanation
--> optional LoRA rewrite + Guard / fallback
+发票图片
+-> OCR 文本与 bbox 坐标
+-> LayoutLMv3 字段候选抽取
+-> 人工确认后的字段
+-> PO / GRN 采购上下文查询
+-> 确定性审核规则
+-> AuditReport 审核报告
+-> 模板解释
+-> 可选 LoRA 改写 + Guard / fallback
 ```
 
 核心原则很简单：**AI 负责读票和润色解释，规则负责风险决策。**
@@ -617,11 +617,11 @@ Invoice image
 LoRA 是 Qwen2.5-0.5B 的受控解释改写候选，只作用在审核结果之后：
 
 ```text
-deterministic template
--> LoRA rewrite candidate
--> Guard checks facts / risk / action
--> PASS: show enhanced explanation
--> FAIL: fallback template
+确定性模板解释
+-> LoRA 改写候选
+-> Guard 检查事实 / 风险 / 动作
+-> 通过：展示增强解释
+-> 失败：回退模板解释
 ```
 
 如果 LoRA 输出空、格式不对、改了风险等级、改了建议动作、编造 PO/GRN 或金额，Guard 会拒绝它。<br>
@@ -649,13 +649,13 @@ def _video_intro_markdown() -> str:
 这个视频展示本地真实运行流程，而不是公网 Space 的轻量 scenario 映射：
 
 ```text
-upload invoice image
--> PaddleOCR / OCR tokens
--> LayoutLMv3 field extraction
--> demo PO/GRN context lookup
--> deterministic Phase 2 audit
--> guarded LoRA explanation
--> template fallback when needed
+上传发票图片
+-> PaddleOCR / OCR 文本
+-> LayoutLMv3 字段抽取
+-> demo PO/GRN 上下文查询
+-> Phase 2 确定性审核
+-> 受控 LoRA 解释候选
+-> 必要时回退模板解释
 ```
 
 为什么放视频而不是直接在公网跑模型：
@@ -670,34 +670,127 @@ def _project_links_markdown() -> str:
     """第四页：项目入口、运行方式和边界说明。"""
 
     return f"""
-## Project Links
+## 项目入口
 
-- GitHub repository: [{GITHUB_URL}]({GITHUB_URL})
-- Hugging Face Space: [{HF_SPACE_URL}]({HF_SPACE_URL})
-- Open-source Quickstart: `docs/OPEN_SOURCE_QUICKSTART.md`
-- Privacy and data boundaries: `docs/PRIVACY_AND_DATA_BOUNDARIES.md`
-- Full architecture: `ARCHITECTURE.md`
+- GitHub 仓库：[{GITHUB_URL}]({GITHUB_URL})
+- Hugging Face 展示页：[{HF_SPACE_URL}]({HF_SPACE_URL})
+- 开源快速启动：`docs/OPEN_SOURCE_QUICKSTART.md`
+- 隐私与数据边界：`docs/PRIVACY_AND_DATA_BOUNDARIES.md`
+- 完整架构说明：`ARCHITECTURE.md`
 
-## What This Public Space Runs
+## 公网页面实际运行什么
 
-- Scenario-based deterministic demo UI.
-- Manual audit flow with explicit mock context.
-- Five interactive scenario cases with image, Run Audit and result card.
-- LoRA OFF / ON explanation switch as presentation layer.
+- Scenario 驱动的确定性演示界面。
+- 手动字段审核流程，使用显式 mock PO/GRN 上下文。
+- 5 个可交互案例，每个案例都有发票图片、Run Audit 按钮和结果卡片。
+- LoRA OFF / ON 只作为解释文本切换，不参与审核决策。
 
-## What The Local Full Pipeline Runs
+## 本地完整链路实际运行什么
 
-- Real local OCR / LayoutLMv3 field extraction.
-- Demo PO/GRN mock context lookup.
-- Existing deterministic audit engine.
-- Guarded LoRA provider when local model assets are configured.
+- 真实本地 OCR / LayoutLMv3 字段抽取。
+- Demo PO/GRN mock context 自动查询。
+- 已有 Phase 2 确定性审核引擎。
+- 配置本地模型资产后，可调用受控 LoRA provider 生成解释候选。
 
-## Runtime Boundary
+## 运行边界
 
-- Public Space does not make payment decisions.
-- Public Space does not call ERP or process sensitive enterprise invoices.
-- Public Space does not online-load LayoutLMv3 or Qwen/LoRA weights.
-- `risk_level` and `recommended_action` are always rule-based.
+- 公网页面不做付款决策。
+- 公网页面不连接 ERP，也不处理真实敏感企业发票。
+- 公网页面不在线加载 LayoutLMv3、Qwen 或 LoRA 权重。
+- `risk_level` 和 `recommended_action` 始终由规则生成。
+"""
+
+
+def _architecture_diagram_html() -> str:
+    """用 SVG 渲染中文系统架构图，避免 Mermaid 源码裸露。"""
+
+    return """
+<div style="overflow-x:auto; padding: 8px 0;">
+  <svg width="1180" height="390" viewBox="0 0 1180 390" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ProcureGuard AI 系统架构图">
+    <defs>
+      <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#2563eb" />
+      </marker>
+      <style>
+        .box { fill: #eff6ff; stroke: #2563eb; stroke-width: 1.6; rx: 12; }
+        .safe { fill: #ecfdf5; stroke: #059669; stroke-width: 1.6; rx: 12; }
+        .warn { fill: #fff7ed; stroke: #ea580c; stroke-width: 1.6; rx: 12; }
+        .fallback { fill: #f8fafc; stroke: #64748b; stroke-width: 1.6; rx: 12; }
+        .title { font: 700 16px Arial, 'Microsoft YaHei', sans-serif; fill: #0f172a; }
+        .text { font: 13px Arial, 'Microsoft YaHei', sans-serif; fill: #334155; }
+        .small { font: 12px Arial, 'Microsoft YaHei', sans-serif; fill: #475569; }
+        .line { stroke: #2563eb; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+        .guard { stroke: #ea580c; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      </style>
+    </defs>
+
+    <text x="20" y="28" class="title">ProcureGuard AI 端到端审核链路</text>
+    <text x="20" y="50" class="small">模型负责读票和解释增强；风险等级与建议动作只由确定性规则生成。</text>
+
+    <rect class="box" x="20" y="85" width="130" height="72" />
+    <text x="85" y="114" text-anchor="middle" class="title">发票图片</text>
+    <text x="85" y="138" text-anchor="middle" class="small">用户上传 / 示例图</text>
+
+    <rect class="box" x="185" y="85" width="145" height="72" />
+    <text x="258" y="114" text-anchor="middle" class="title">OCR 结果</text>
+    <text x="258" y="138" text-anchor="middle" class="small">文本 + bbox 坐标</text>
+
+    <rect class="box" x="365" y="85" width="165" height="72" />
+    <text x="448" y="111" text-anchor="middle" class="title">LayoutLMv3</text>
+    <text x="448" y="135" text-anchor="middle" class="small">字段候选抽取</text>
+    <text x="448" y="151" text-anchor="middle" class="small">不做风险判断</text>
+
+    <rect class="warn" x="565" y="85" width="150" height="72" />
+    <text x="640" y="112" text-anchor="middle" class="title">字段确认层</text>
+    <text x="640" y="136" text-anchor="middle" class="small">人工确认 / 修正</text>
+
+    <rect class="safe" x="750" y="85" width="160" height="72" />
+    <text x="830" y="111" text-anchor="middle" class="title">采购上下文</text>
+    <text x="830" y="135" text-anchor="middle" class="small">PO / GRN mock 查询</text>
+
+    <rect class="safe" x="945" y="85" width="180" height="72" />
+    <text x="1035" y="107" text-anchor="middle" class="title">确定性审核引擎</text>
+    <text x="1035" y="131" text-anchor="middle" class="small">三单匹配 / 重复检测</text>
+    <text x="1035" y="148" text-anchor="middle" class="small">生成风险与建议动作</text>
+
+    <path class="line" d="M150 121 H185" />
+    <path class="line" d="M330 121 H365" />
+    <path class="line" d="M530 121 H565" />
+    <path class="line" d="M715 121 H750" />
+    <path class="line" d="M910 121 H945" />
+
+    <rect class="safe" x="120" y="235" width="170" height="78" />
+    <text x="205" y="263" text-anchor="middle" class="title">AuditReport</text>
+    <text x="205" y="288" text-anchor="middle" class="small">风险等级 / 建议动作</text>
+
+    <rect class="fallback" x="345" y="235" width="165" height="78" />
+    <text x="428" y="263" text-anchor="middle" class="title">模板解释</text>
+    <text x="428" y="288" text-anchor="middle" class="small">默认、安全、永远可用</text>
+
+    <rect class="warn" x="565" y="235" width="165" height="78" />
+    <text x="648" y="263" text-anchor="middle" class="title">LoRA 改写候选</text>
+    <text x="648" y="288" text-anchor="middle" class="small">只润色解释文本</text>
+
+    <rect class="warn" x="785" y="235" width="130" height="78" />
+    <text x="850" y="263" text-anchor="middle" class="title">Guard 校验</text>
+    <text x="850" y="288" text-anchor="middle" class="small">禁止改事实/结论</text>
+
+    <rect class="safe" x="970" y="205" width="155" height="62" />
+    <text x="1048" y="232" text-anchor="middle" class="title">增强解释</text>
+    <text x="1048" y="252" text-anchor="middle" class="small">Guard PASS</text>
+
+    <rect class="fallback" x="970" y="300" width="155" height="62" />
+    <text x="1048" y="327" text-anchor="middle" class="title">模板回退</text>
+    <text x="1048" y="347" text-anchor="middle" class="small">Guard FAIL</text>
+
+    <path class="line" d="M1035 157 V185 C1035 210 205 207 205 235" />
+    <path class="line" d="M290 274 H345" />
+    <path class="line" d="M510 274 H565" />
+    <path class="guard" d="M730 274 H785" />
+    <path class="guard" d="M915 260 C940 250 945 236 970 236" />
+    <path class="guard" d="M915 288 C940 300 945 331 970 331" />
+  </svg>
+</div>
 """
 
 
@@ -720,22 +813,7 @@ def build_app(service: DemoService | None = None) -> Any:
             with gr.Tab("产品总览", elem_id="product-overview-tab"):
                 gr.Markdown(_product_overview_markdown(), elem_id="product-overview")
                 with gr.Accordion("系统架构图", open=True):
-                    gr.Markdown(
-                        "```mermaid\n"
-                        "flowchart LR\n"
-                        "A[Invoice Image] --> B[OCR tokens + bbox]\n"
-                        "B --> C[LayoutLMv3 field candidates]\n"
-                        "C --> D[Confirmed fields]\n"
-                        "D --> E[PO / GRN context]\n"
-                        "E --> F[Deterministic audit engine]\n"
-                        "F --> G[AuditReport]\n"
-                        "G --> H[Template explanation]\n"
-                        "H --> I[Optional LoRA rewrite]\n"
-                        "I --> J[Guard]\n"
-                        "J -->|PASS| K[Enhanced explanation]\n"
-                        "J -->|FAIL| L[Template fallback]\n"
-                        "```"
-                    )
+                    gr.HTML(_architecture_diagram_html(), elem_id="architecture-diagram")
 
             with gr.Tab("Scenario Demo", elem_id="path-b-tab"):
                 gr.Markdown(
