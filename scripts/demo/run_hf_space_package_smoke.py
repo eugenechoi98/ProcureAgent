@@ -52,9 +52,10 @@ def run_smoke() -> dict[str, Any]:
         sys.dont_write_bytecode = original_dont_write_bytecode
 
     expected_tabs = (
-        "Path A 手动审核",
-        "Path B Scenario Demo",
-        "系统说明",
+        "产品总览",
+        "Scenario Demo",
+        "完整流程视频",
+        "GitHub / 运行边界",
     )
     for expected in expected_tabs:
         if expected not in tabs:
@@ -67,6 +68,8 @@ def run_smoke() -> dict[str, Any]:
         errors.append("invoice_case_count_not_five")
     if len(e2e_catalog) != 3:
         errors.append("e2e_case_count_not_three")
+    if not (SPACE_ROOT / "demo" / "assets" / "videos" / "procureguard_full_pipeline_demo.mp4").is_file():
+        errors.append("full_pipeline_video_missing")
     if not all(
         (SPACE_ROOT / "demo" / case["image"]).is_file()
         for case in case_catalog.values()

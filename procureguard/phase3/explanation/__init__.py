@@ -12,7 +12,12 @@ from procureguard.phase3.explanation.orchestrator import (
     ExplanationResult,
     FallbackOrchestrator,
 )
-from procureguard.phase3.explanation.lora_provider import UnavailableLoRARewriteProvider
+from procureguard.phase3.explanation.lora_provider import (
+    LocalLoRAProviderConfig,
+    LocalLoRARewriteProvider,
+    UnavailableLoRARewriteProvider,
+    provider_from_environment,
+)
 from procureguard.phase3.explanation.renderer import DeterministicTemplateRenderer
 from procureguard.phase3.explanation.rewrite_contract import (
     RewriteRequest,
@@ -58,9 +63,12 @@ __all__ = [
     "FallbackOrchestrator",
     "GuardResult",
     "LoRAOutputGuard",
+    "LocalLoRAProviderConfig",
+    "LocalLoRARewriteProvider",
     "RewriteRequest",
     "RewriteResponse",
     "UnavailableLoRARewriteProvider",
+    "provider_from_environment",
     "build_rewrite_prompt",
     "build_canonical_audit_facts",
     "build_explanation_metadata",

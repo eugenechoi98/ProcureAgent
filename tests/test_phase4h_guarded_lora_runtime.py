@@ -14,6 +14,7 @@ from procureguard.phase3.explanation import (
     FallbackOrchestrator,
 )
 from procureguard.phase3.explanation.rewrite_contract import RewriteRequest, RewriteResponse
+from procureguard.phase3.explanation.lora_provider import provider_from_environment
 from procureguard.phase3.schemas import AnomalyType
 from procureguard.productization.e2e_audit import ExecuteAuditRequest, execute_audit_pipeline
 from tests.test_phase4g_ext_e2e_pipeline import candidate_payload
@@ -208,3 +209,41 @@ def test_api_execute_template_mode_still_passes(tmp_path) -> None:
     body = response.json()
     assert body["trace"]["guard_status"] == "not_used"
     assert body["json"]["audit_report"]["risk_level"] == "low"
+
+
+def test_lora_provider_is_disabled_by_default(monkeypatch) -> None:
+    """默认 API 启动不加载真实 Qwen/LoRA runtime。"""
+
+    monkeypatch.delenv("PROCUREGUARD_LORA_ENABLED", raising=False)
+    monkeypatch.delenv("PHASE3_MODEL_DIR", raising=False)
+
+    assert provider_from_environment() is None
+
+
+def test_lora_provider_enabled_requires_model_dir(monkeypatch) -> None:
+    """显式开启 LoRA 时缺模型目录必须 fail fast，不能伪装成功。"""
+
+    monkeypatch.setenv("PROCUREGUARD_LORA_ENABLED", "1")
+    monkeypatch.delenv("PHASE3_MODEL_DIR", raising=False)
+
+    with pytest.raises(RuntimeError, match="PHASE3_MODEL_DIR"):
+        provider_from_environment()
+
+
+def test_lora_provider_enabled_requires_adapter_files(tmp_path, monkeypatch) -> None:
+    """显式开启 LoRA 时缺 adapter 权重必须 fail fast。"""
+
+    model_dir = tmp_path / "qwen"
+    adapter_dir = tmp_path / "adapter"
+    model_dir.mkdir()
+    adapter_dir.mkdir()
+    (model_dir / "config.json").write_text("{}", encoding="utf-8")
+    (model_dir / "tokenizer_config.json").write_text("{}", encoding="utf-8")
+    (model_dir / "tokenizer.json").write_text("{}", encoding="utf-8")
+    (model_dir / "model.safetensors").write_bytes(b"not-a-real-model")
+    monkeypatch.setenv("PROCUREGUARD_LORA_ENABLED", "1")
+    monkeypatch.setenv("PHASE3_MODEL_DIR", str(model_dir))
+    monkeypatch.setenv("PROCUREGUARD_LORA_ADAPTER_DIR", str(adapter_dir))
+
+    with pytest.raises(RuntimeError, match="adapter_config"):
+        provider_from_environment()

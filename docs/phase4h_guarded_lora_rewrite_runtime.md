@@ -40,7 +40,7 @@ LoRA 永远不能修改：
 
 ## Provider Status
 
-当前 clean clone 没有真实 LoRA adapter runtime。代码提供 provider interface 和 `UnavailableLoRARewriteProvider`，但不会伪造真实 LoRA 成功。
+当前 clean clone 默认不加载真实 LoRA adapter。代码提供 provider interface、`UnavailableLoRARewriteProvider` 和可显式开启的 `LocalLoRARewriteProvider`，但不会伪造真实 LoRA 成功。
 
 测试中的 fake provider 只用于验证 Guard 行为和 fallback，不代表模型质量。
 
@@ -50,6 +50,24 @@ Provider 输入只能包含：
 - Canonical Audit Facts
 
 Provider 不允许接收 raw OCR、raw LayoutLMv3 candidates、unconfirmed fields 或 Phase 2 之外的临时事实。
+
+## Local LoRA Runtime
+
+真实 LoRA rewrite provider 必须显式开启：
+
+```powershell
+$env:PROCUREGUARD_LORA_ENABLED="1"
+$env:PHASE3_MODEL_DIR="D:\ProcureAgent_LocalArtifacts\Phase3\Qwen2.5-0.5B-Instruct"
+$env:PROCUREGUARD_LORA_ADAPTER_DIR="D:\ProcureAgent_LocalArtifacts\Phase3\phase3_first_lora_run\phase3\adapters\qwen2.5-0.5b-anomaly-explainer"
+$env:PROCUREGUARD_LORA_DEVICE="auto"
+$env:PROCUREGUARD_LORA_MAX_NEW_TOKENS="256"
+$env:PROCUREGUARD_LORA_SUBPROCESS="1"
+.\.venv\Scripts\python.exe -m uvicorn procureguard.api.main:app --host 127.0.0.1 --port 8000
+```
+
+开启后，`create_app()` 会从环境变量构造 `LocalLoRARewriteProvider`。如果 base model、tokenizer、adapter config 或 adapter weights 缺失，API 会在启动时 fail fast，不会回退成“假 LoRA 成功”。`PROCUREGUARD_LORA_SUBPROCESS=1` 会把 Qwen/LoRA 推理隔离到子进程，避免与 OCR/LayoutLMv3 运行时互相污染。
+
+当前 Windows `.venv` 已补齐 `peft==0.13.2` 和 `accelerate==1.1.1`。仓库仍不提交 Qwen base model 或 adapter 权重；本机真实资产位于 `D:\ProcureAgent_LocalArtifacts\Phase3`。
 
 ## Guard Coverage
 

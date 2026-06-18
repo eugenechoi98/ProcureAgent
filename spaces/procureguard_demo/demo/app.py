@@ -38,6 +38,9 @@ from procureguard.productization.manual_audit import (
 
 DEMO_ROOT = Path(__file__).resolve().parent
 MAIN_CHAIN_ROOT = DEMO_ROOT / "e2e_cases" / "case_a_standard_pass"
+DEMO_VIDEO_PATH = DEMO_ROOT / "assets" / "videos" / "procureguard_full_pipeline_demo.mp4"
+GITHUB_URL = "https://github.com/eugenechoi98/ProcureAgent"
+HF_SPACE_URL = "https://huggingface.co/spaces/eugene-98/procureguard-ai-demo"
 
 try:
     import gradio as gr
@@ -565,6 +568,139 @@ def _render_explanation_view(selection: str) -> tuple[str, dict[str, Any]]:
     return markdown, trace
 
 
+def _product_overview_markdown() -> str:
+    """第一页：让面试官快速理解产品、模型和安全边界。"""
+
+    return f"""
+# ProcureGuard AI
+
+**ProcureGuard AI 是一个受控采购发票审核 Agent。**<br>
+它把发票图片理解、PO/GRN 采购上下文、三单匹配、重复检测、风险规则和解释层串成一个可审计的 `AuditReport`。
+
+## 这是什么产品
+
+ProcureGuard AI 用来演示一个真实采购发票审核系统的核心闭环：
+
+```text
+Invoice image
+-> OCR tokens + bbox
+-> LayoutLMv3 field extraction
+-> confirmed fields
+-> PO / GRN context lookup
+-> deterministic audit rules
+-> AuditReport
+-> template explanation
+-> optional LoRA rewrite + Guard / fallback
+```
+
+核心原则很简单：**AI 负责读票和润色解释，规则负责风险决策。**
+
+## 我用 LayoutLMv3 做了什么
+
+- 使用 PyTorch / Transformers 微调 LayoutLMv3，处理 SROIE 发票字段抽取。
+- 输入不是普通文本，而是 OCR token、bbox 坐标和文档版面信息。
+- 输出 company、date、total、address 等字段候选，再映射成审核需要的供应商、日期和金额。
+- 做过 OCR + Regex baseline、字段级 F1、错误分析和字段重建优化。
+- Date 字段从容易混入 `Date:`、时间和旁边文本，优化到更稳定的日期 span reconstruction。
+
+公开 Space 不在线加载 LayoutLMv3 权重；真实本地运行流程见第三页视频。
+
+## 审核系统怎么做决策
+
+- PO 匹配、GRN 匹配、金额一致性、重复发票检测都由 deterministic rules 完成。
+- `risk_level` 和 `recommended_action` 不由 LayoutLMv3、LoRA 或任何 LLM 决定。
+- 采购上下文在 Demo 中使用 mock PO/GRN，用来展示真实业务链路，不代表企业 ERP 数据。
+- AuditReport 是审核说明，不是付款凭证。
+
+## LoRA 怎么用，失败怎么兜底
+
+LoRA 是 Qwen2.5-0.5B 的受控解释改写候选，只作用在审核结果之后：
+
+```text
+deterministic template
+-> LoRA rewrite candidate
+-> Guard checks facts / risk / action
+-> PASS: show enhanced explanation
+-> FAIL: fallback template
+```
+
+如果 LoRA 输出空、格式不对、改了风险等级、改了建议动作、编造 PO/GRN 或金额，Guard 会拒绝它。<br>
+这个 fallback 是产品安全设计，不是演示失败。
+
+## 产品亮点
+
+- 真实 LayoutLMv3 微调和字段抽取实验，不只是套 OCR。
+- 图片字段、采购上下文、规则审核、解释层形成完整闭环。
+- 模型职责受控：模型不越权做财务判断。
+- Scenario Demo 可在公网稳定交互；本地视频展示真实 OCR/LayoutLMv3 + LoRA 运行链路。
+- GitHub 仓库保留 README、Quickstart、报告、测试和边界说明。
+
+**GitHub:** [{GITHUB_URL}]({GITHUB_URL})<br>
+**Hugging Face Space:** [{HF_SPACE_URL}]({HF_SPACE_URL})
+"""
+
+
+def _video_intro_markdown() -> str:
+    """第三页：解释视频展示的本地真实链路。"""
+
+    return """
+## Full Pipeline Video
+
+这个视频展示本地真实运行流程，而不是公网 Space 的轻量 scenario 映射：
+
+```text
+upload invoice image
+-> PaddleOCR / OCR tokens
+-> LayoutLMv3 field extraction
+-> demo PO/GRN context lookup
+-> deterministic Phase 2 audit
+-> guarded LoRA explanation
+-> template fallback when needed
+```
+
+为什么放视频而不是直接在公网跑模型：
+
+- LayoutLMv3 checkpoint、Qwen base model 和 LoRA adapter 都是大文件，不适合直接塞进 CPU-only Space。
+- 公网 Space 冷启动和内存限制会影响面试演示稳定性。
+- 视频可以清楚展示真实本地 pipeline，同时 Space 保持可打开、可交互、可解释。
+"""
+
+
+def _project_links_markdown() -> str:
+    """第四页：项目入口、运行方式和边界说明。"""
+
+    return f"""
+## Project Links
+
+- GitHub repository: [{GITHUB_URL}]({GITHUB_URL})
+- Hugging Face Space: [{HF_SPACE_URL}]({HF_SPACE_URL})
+- Open-source Quickstart: `docs/OPEN_SOURCE_QUICKSTART.md`
+- Privacy and data boundaries: `docs/PRIVACY_AND_DATA_BOUNDARIES.md`
+- Full architecture: `ARCHITECTURE.md`
+
+## What This Public Space Runs
+
+- Scenario-based deterministic demo UI.
+- Manual audit flow with explicit mock context.
+- Five interactive scenario cases with image, Run Audit and result card.
+- LoRA OFF / ON explanation switch as presentation layer.
+
+## What The Local Full Pipeline Runs
+
+- Real local OCR / LayoutLMv3 field extraction.
+- Demo PO/GRN mock context lookup.
+- Existing deterministic audit engine.
+- Guarded LoRA provider when local model assets are configured.
+
+## Runtime Boundary
+
+- Public Space does not make payment decisions.
+- Public Space does not call ERP or process sensitive enterprise invoices.
+- Public Space does not online-load LayoutLMv3 or Qwen/LoRA weights.
+- `risk_level` and `recommended_action` are always rule-based.
+"""
+
+
 def build_app(service: DemoService | None = None) -> Any:
     """构建流程驱动版 HF Spaces UI。"""
 
@@ -576,77 +712,37 @@ def build_app(service: DemoService | None = None) -> Any:
     with gr.Blocks(title="ProcureGuard AI", analytics_enabled=False) as app:
         gr.Markdown(
             "# ProcureGuard AI\n"
-            "流程驱动的采购发票审核 Demo：Path A 是手动字段快速审核；"
-            "Path B 展示发票图片到 AuditReport 的完整交互链路。"
-            "风险等级和建议动作始终来自确定性规则，LoRA 只在结果解释里做受控润色。"
+            "受控采购发票审核 Agent：AI 负责读票和解释增强，"
+            "风险等级与建议动作始终由确定性规则生成。"
         )
 
         with gr.Tabs(elem_id="unified-portfolio-tabs"):
-            with gr.Tab("Path A 手动审核", elem_id="path-a-tab"):
-                gr.Markdown(
-                    "## Path A: Manual Audit\n\n"
-                    "主产品入口：不使用 ML，直接把手动字段和演示用 PO/GRN 上下文送入规则审核引擎。"
-                )
-                with gr.Row():
-                    vendor_name = gr.Textbox(
-                        value="Acme Office Supplies",
-                        label="供应商",
-                        elem_id="path-a-vendor",
+            with gr.Tab("产品总览", elem_id="product-overview-tab"):
+                gr.Markdown(_product_overview_markdown(), elem_id="product-overview")
+                with gr.Accordion("系统架构图", open=True):
+                    gr.Markdown(
+                        "```mermaid\n"
+                        "flowchart LR\n"
+                        "A[Invoice Image] --> B[OCR tokens + bbox]\n"
+                        "B --> C[LayoutLMv3 field candidates]\n"
+                        "C --> D[Confirmed fields]\n"
+                        "D --> E[PO / GRN context]\n"
+                        "E --> F[Deterministic audit engine]\n"
+                        "F --> G[AuditReport]\n"
+                        "G --> H[Template explanation]\n"
+                        "H --> I[Optional LoRA rewrite]\n"
+                        "I --> J[Guard]\n"
+                        "J -->|PASS| K[Enhanced explanation]\n"
+                        "J -->|FAIL| L[Template fallback]\n"
+                        "```"
                     )
-                    invoice_number = gr.Textbox(
-                        value="INV-MANUAL-PASS-001",
-                        label="发票号",
-                        elem_id="path-a-invoice-number",
-                    )
-                    invoice_date = gr.Textbox(
-                        value="2026-06-15",
-                        label="发票日期",
-                        elem_id="path-a-invoice-date",
-                    )
-                with gr.Row():
-                    total_amount = gr.Number(
-                        value=1200.0,
-                        label="金额",
-                        elem_id="path-a-amount",
-                    )
-                    currency = gr.Textbox(
-                        value="USD",
-                        label="货币",
-                        elem_id="path-a-currency",
-                    )
-                    po_number = gr.Textbox(
-                        value="PO-MANUAL-1001",
-                        label="采购单号",
-                        elem_id="path-a-po",
-                    )
-                    grn_number = gr.Textbox(
-                        value="GRN-MANUAL-1001",
-                        label="收货单号",
-                        elem_id="path-a-grn",
-                    )
-                duplicate_invoice = gr.Checkbox(
-                    value=False,
-                    label="模拟重复发票",
-                    elem_id="path-a-duplicate",
-                )
-                path_a_button = gr.Button(
-                    "Run Audit",
-                    variant="primary",
-                    elem_id="path-a-run",
-                )
-                with gr.Row():
-                    path_a_risk = gr.Textbox(label="风险等级", interactive=False)
-                    path_a_action = gr.Textbox(label="建议动作", interactive=False)
-                path_a_summary = gr.Markdown("结果会显示在这里。", elem_id="path-a-summary")
-                with gr.Accordion("AuditReport JSON", open=False):
-                    path_a_report = gr.JSON(label="AuditReport JSON")
 
-            with gr.Tab("Path B Scenario Demo", elem_id="path-b-tab"):
+            with gr.Tab("Scenario Demo", elem_id="path-b-tab"):
                 gr.Markdown(
-                    "## Path B: AI Vision + 5 Interactive Cases\n\n"
-                    "这是 Hugging Face Space 的预置场景流程演示：每张发票图片绑定一个固定 scenario。"
-                    "Run Audit 会按 OCR预置结果 → 字段确认 → 规则审计 → LoRA语言增强 的顺序展示，"
-                    "不执行实时 OCR 或模型推理。"
+                    "## Scenario Demo\n\n"
+                    "公网 Space 使用稳定的 scenario-driven demo：每张发票图片绑定唯一 scenario。"
+                    "点击 Run Audit 后，页面按字段展示 → 字段确认 → 规则审计 → LoRA解释切换的顺序展示。"
+                    "这里不执行实时 LayoutLMv3；真实本地运行请看第三页视频。"
                 )
                 path_b_case_selector = gr.Dropdown(
                     choices=scenario_choices(),
@@ -789,11 +885,31 @@ def build_app(service: DemoService | None = None) -> Any:
                         visible=False,
                     )
 
-            with gr.Tab("系统说明", elem_id="system-explanation-tab"):
+            with gr.Tab("完整流程视频", elem_id="full-pipeline-video-tab"):
+                gr.Markdown(_video_intro_markdown(), elem_id="video-intro")
+                if DEMO_VIDEO_PATH.is_file():
+                    gr.Video(
+                        value=str(DEMO_VIDEO_PATH.resolve()),
+                        label="Local full pipeline recording",
+                        elem_id="full-pipeline-video",
+                    )
+                else:
+                    gr.Markdown(
+                        "视频文件暂未打包到 Space。请检查 `demo/assets/videos/procureguard_full_pipeline_demo.mp4`。"
+                    )
                 gr.Markdown(
-                    "## System Explanation\n\n"
-                    "本页只放系统结构、边界和日志说明。LoRA 不再作为单独页面展示；"
-                    "它已经移动到 Audit Result 内部的 Explanation Switch。"
+                    "### 视频里应该重点看什么\n\n"
+                    "1. 上传真实 SROIE 发票图片。\n"
+                    "2. LayoutLMv3 抽出发票号、供应商和金额。\n"
+                    "3. 系统自动查 demo PO/GRN context。\n"
+                    "4. Phase 2 deterministic audit 输出风险等级和建议动作。\n"
+                    "5. LoRA 只作为解释层候选；Guard 失败会回退模板。"
+                )
+
+            with gr.Tab("GitHub / 运行边界", elem_id="system-explanation-tab"):
+                gr.Markdown(
+                    _project_links_markdown(),
+                    elem_id="project-links",
                 )
                 gr.Markdown(ARCHITECTURE_MARKDOWN, elem_id="architecture-summary")
                 with gr.Accordion("运行边界", open=False):
@@ -809,6 +925,67 @@ def build_app(service: DemoService | None = None) -> Any:
                         "当前 Space 不上传模型权重，不加载真实 OCR / Qwen / LoRA；"
                         "交互日志以页面 trace 和 AuditReport JSON 展示。"
                     )
+                with gr.Accordion("辅助入口：Path A 手动审核", open=False):
+                    gr.Markdown(
+                        "Path A 是 product-like 快速审核入口：不使用 ML，"
+                        "直接把手动字段和演示 PO/GRN 上下文送入规则审核引擎。"
+                    )
+                    with gr.Row():
+                        vendor_name = gr.Textbox(
+                            value="Acme Office Supplies",
+                            label="供应商",
+                            elem_id="path-a-vendor",
+                        )
+                        invoice_number = gr.Textbox(
+                            value="INV-MANUAL-PASS-001",
+                            label="发票号",
+                            elem_id="path-a-invoice-number",
+                        )
+                        invoice_date = gr.Textbox(
+                            value="2026-06-15",
+                            label="发票日期",
+                            elem_id="path-a-invoice-date",
+                        )
+                    with gr.Row():
+                        total_amount = gr.Number(
+                            value=1200.0,
+                            label="金额",
+                            elem_id="path-a-amount",
+                        )
+                        currency = gr.Textbox(
+                            value="USD",
+                            label="货币",
+                            elem_id="path-a-currency",
+                        )
+                        po_number = gr.Textbox(
+                            value="PO-MANUAL-1001",
+                            label="采购单号",
+                            elem_id="path-a-po",
+                        )
+                        grn_number = gr.Textbox(
+                            value="GRN-MANUAL-1001",
+                            label="收货单号",
+                            elem_id="path-a-grn",
+                        )
+                    duplicate_invoice = gr.Checkbox(
+                        value=False,
+                        label="模拟重复发票",
+                        elem_id="path-a-duplicate",
+                    )
+                    path_a_button = gr.Button(
+                        "Run Audit",
+                        variant="primary",
+                        elem_id="path-a-run",
+                    )
+                    with gr.Row():
+                        path_a_risk = gr.Textbox(label="风险等级", interactive=False)
+                        path_a_action = gr.Textbox(label="建议动作", interactive=False)
+                    path_a_summary = gr.Markdown(
+                        "结果会显示在这里。",
+                        elem_id="path-a-summary",
+                    )
+                    with gr.Accordion("AuditReport JSON", open=False):
+                        path_a_report = gr.JSON(label="AuditReport JSON")
 
         path_a_button.click(
             fn=_run_manual_audit_for_ui,

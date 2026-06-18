@@ -14,6 +14,8 @@
 - Phase 4G 已新增字段确认层和 `POST /api/fields/confirm`，LayoutLMv3 只作为 candidate generator，后续 Phase 2 只能读取 `ConfirmedAuditInput.confirmed_fields`。
 - Phase 4G-EXT 已新增 `POST /api/mvp/audit/execute`，统一串联 image/candidates/confirmed_fields -> confirmation -> Phase 2 deterministic audit -> AuditReport JSON/Markdown/trace。
 - Phase 4H 已实现 Guarded LoRA Rewrite Runtime：`template`、`guarded_lora`、`shadow_lora` 三种产品模式可用，旧 `shadow/experimental` 兼容；无真实 provider 时 fail closed 到 template。
+- Phase 4H runtime 已补齐可显式开启的 `LocalLoRARewriteProvider`：默认关闭；设置 `PROCUREGUARD_LORA_ENABLED=1`、`PHASE3_MODEL_DIR` 和 `PROCUREGUARD_LORA_ADAPTER_DIR` 后才尝试加载真实 Qwen base + LoRA adapter。
+- 当前 Windows `.venv` 已安装 `peft==0.13.2` 和 `accelerate==1.1.1`；本机 Qwen base 与 LoRA adapter 位于 `D:\ProcureAgent_LocalArtifacts\Phase3`，full pipeline 已通过真实 uvicorn/curl smoke 调用到 `local_lora_adapter_provider`。
 - 方案 B 已实现 demo mock PO/GRN 预置和自动上下文解析：`/api/mvp/audit/execute` 可在未显式提供 `procurement_context` 时按 invoice_number/vendor keyword 查预置 demo DB；`POST /api/demo/audit` 固定标注 demo mode。
 
 ## 下一步
@@ -26,7 +28,7 @@
 - OCR 只提供 token+bbox，不替代 LayoutLMv3；字段候选需人工确认后进入 Phase 2。
 - LoRA 只能作为 guarded controlled rewrite candidate，默认解释仍是 deterministic template。
 - Phase 3E/3G 两轮 LoRA 未通过 hard gate；4H 只证明运行时门禁，不证明 LoRA 可靠。
-- `/api/mvp/audit/execute` 支持 `guarded_lora`，但 clean clone 没有真实 LoRA adapter，会记录 `provider_unavailable` 并返回 template fallback。
+- `/api/mvp/audit/execute` 和 `/api/demo/full_pipeline` 支持 `guarded_lora`；clean clone 默认不加载真实 LoRA，显式开启但缺资产会 fail fast，不伪造 adapter 成功。
 - LangChain 只在 Phase 4I 做 optional comparison，不替代正式 Policy RAG。
 - `.env.example` 只记录当前代码真实支持的路径变量，不代表已有环境隔离、认证或日志治理。
 - Manual Audit MVP 不持久化结果，不能替代正式审核工作台或付款系统。

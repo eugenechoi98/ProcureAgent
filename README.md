@@ -45,8 +45,8 @@ Invoice image
 [Hugging Face Space](https://huggingface.co/spaces/eugene-98/procureguard-ai-demo)
 
 CPU-only 公网 Demo，不需要 API Key、GPU 或模型下载。
-当前页面不支持上传任意发票并现场运行 LayoutLMv3；主入口展示已验收的
-端到端离线模型证据，以及轻量 CPU 审核规则链。
+当前页面采用产品说明型结构：产品总览、Scenario Demo、完整流程视频和 GitHub / 运行边界。
+公网 Space 不支持上传任意发票并现场运行 LayoutLMv3；真实本地 OCR/LayoutLMv3 + mock PO/GRN + deterministic audit + guarded LoRA 链路通过视频展示。
 
 > **安全边界**：本项目是研究原型和作品集 Demo，不是生产财务系统，不可作为付款依据。请勿上传真实敏感发票。详见 [隐私与数据边界](docs/PRIVACY_AND_DATA_BOUNDARIES.md)。
 

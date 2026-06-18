@@ -79,3 +79,5 @@
 - 2026-06-17：完成 Phase 4G-EXT 端到端 API `/api/mvp/audit/execute`，输出 AuditReport JSON、Markdown 和 AI/human/rules trace。
 - 2026-06-17：完成 Phase 4H Guarded LoRA Rewrite Runtime，新增 `guarded_lora/shadow_lora`、严格 Guard trace 和 4G-EXT fallback 接入。
 - 2026-06-18：完成方案 B demo mock PO/GRN 预置和自动采购上下文解析，新增 `/api/demo/audit` 与三案例回归测试。
+- 2026-06-18：补齐显式开启的本地 LoRA rewrite provider 接入，默认不加载 Qwen/LoRA，缺模型或 adapter 时 fail fast。
+- 2026-06-18：补齐 Windows `.venv` 的 PEFT/Accelerate 依赖，接入外部 Qwen/LoRA 本地资产，并用 uvicorn/curl 跑通 full pipeline LoRA provider smoke。
