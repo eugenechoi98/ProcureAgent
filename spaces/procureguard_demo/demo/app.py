@@ -75,7 +75,7 @@ def _register_static_assets() -> None:
 def _static_file_url(path: Path) -> str:
     """生成 Gradio 静态文件 URL。"""
 
-    return f"/file={quote(path.resolve().as_posix(), safe='/:')}"
+    return f"/gradio_api/file={quote(path.resolve().as_posix(), safe='/:')}"
 
 
 def _video_player_html() -> str:
