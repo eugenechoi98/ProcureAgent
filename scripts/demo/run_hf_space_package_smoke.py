@@ -70,6 +70,11 @@ def run_smoke() -> dict[str, Any]:
         errors.append("e2e_case_count_not_three")
     if not (SPACE_ROOT / "demo" / "assets" / "videos" / "procureguard_full_pipeline_demo.mp4").is_file():
         errors.append("full_pipeline_video_missing")
+    app_source = (SPACE_ROOT / "demo" / "app.py").read_text(encoding="utf-8")
+    if "gr.Video(" in app_source:
+        errors.append("gradio_video_component_must_not_be_used")
+    if "full-pipeline-video-html" not in app_source:
+        errors.append("html_video_player_missing")
     if not all(
         (SPACE_ROOT / "demo" / case["image"]).is_file()
         for case in case_catalog.values()

@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
+from html import escape
 from pathlib import Path
+from urllib.parse import quote
 from uuid import uuid4
 from typing import Any
 
@@ -61,6 +63,44 @@ def _require_gradio() -> Any:
     if gr is None:
         raise RuntimeError(_GRADIO_INSTALL_MESSAGE)
     return gr
+
+
+def _register_static_assets() -> None:
+    """把静态资源交给浏览器直接读取，避免 Gradio 初始化时复制或转码。"""
+
+    if gr is not None and hasattr(gr, "set_static_paths"):
+        gr.set_static_paths(DEMO_ROOT / "assets")
+
+
+def _static_file_url(path: Path) -> str:
+    """生成 Gradio 静态文件 URL。"""
+
+    return f"/file={quote(path.resolve().as_posix(), safe='/:')}"
+
+
+def _video_player_html() -> str:
+    """第三页视频：使用原生 HTML video，避免 gr.Video 冷启动转码。"""
+
+    if not DEMO_VIDEO_PATH.is_file():
+        return """
+<div id="full-pipeline-video-placeholder" style="border:1px solid #e5e7eb;border-radius:12px;padding:18px;background:#fff7ed;">
+  <strong>视频暂未打包到 Space。</strong><br>
+  请检查 <code>demo/assets/videos/procureguard_full_pipeline_demo.mp4</code>。
+  页面会继续展示文字说明，不会因为资源缺失阻塞启动。
+</div>
+"""
+    video_url = escape(_static_file_url(DEMO_VIDEO_PATH), quote=True)
+    return f"""
+<div id="full-pipeline-video" style="border:1px solid #e5e7eb;border-radius:12px;padding:12px;background:#ffffff;">
+  <video controls preload="metadata" style="width:100%;max-height:720px;border-radius:10px;background:#111;">
+    <source src="{video_url}" type="video/mp4">
+    当前浏览器无法直接播放该 MP4。请在 GitHub 或本地 Demo 中查看完整录屏。
+  </video>
+  <p style="margin:10px 0 0;color:#4b5563;font-size:14px;">
+    视频为静态浏览器播放资源；Space 启动阶段不会加载模型，也不会执行视频转码。
+  </p>
+</div>
+"""
 
 
 def _summary_markdown(result: DemoOutput) -> str:
@@ -798,6 +838,7 @@ def build_app(service: DemoService | None = None) -> Any:
     """构建流程驱动版 HF Spaces UI。"""
 
     _require_gradio()
+    _register_static_assets()
     demo_service = service or DemoService()
     case_catalog = load_invoice_case_catalog()
     initial_path_b = _path_b_preview(case_catalog, "normal_invoice")
@@ -965,16 +1006,7 @@ def build_app(service: DemoService | None = None) -> Any:
 
             with gr.Tab("完整流程视频", elem_id="full-pipeline-video-tab"):
                 gr.Markdown(_video_intro_markdown(), elem_id="video-intro")
-                if DEMO_VIDEO_PATH.is_file():
-                    gr.Video(
-                        value=str(DEMO_VIDEO_PATH.resolve()),
-                        label="Local full pipeline recording",
-                        elem_id="full-pipeline-video",
-                    )
-                else:
-                    gr.Markdown(
-                        "视频文件暂未打包到 Space。请检查 `demo/assets/videos/procureguard_full_pipeline_demo.mp4`。"
-                    )
+                gr.HTML(_video_player_html(), elem_id="full-pipeline-video-html")
                 gr.Markdown(
                     "### 视频里应该重点看什么\n\n"
                     "1. 上传真实 SROIE 发票图片。\n"

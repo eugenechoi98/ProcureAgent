@@ -51,7 +51,7 @@ def _labels() -> set[str]:
     }
 
 
-def test_app_builds_with_three_tabs() -> None:
+def test_app_builds_with_current_tabs() -> None:
     config = _config()
     tab_labels = [
         component.get("props", {}).get("label")
@@ -61,7 +61,12 @@ def test_app_builds_with_three_tabs() -> None:
 
     assert config["title"] == "ProcureGuard AI"
     assert config["analytics_enabled"] is False
-    assert ["Path A 手动审核", "Path B Scenario Demo", "系统说明"] == tab_labels
+    assert [
+        "产品总览",
+        "Scenario Demo",
+        "完整流程视频",
+        "GitHub / 运行边界",
+    ] == tab_labels
 
 
 def test_main_chain_case_validation_and_explanation_controls_are_visible() -> None:
@@ -104,11 +109,13 @@ def test_public_demo_contains_chinese_usage_guidance() -> None:
     ]
     rendered = "\n".join(str(value) for value in markdown_values)
 
-    assert "流程驱动的采购发票审核 Demo" in rendered
-    assert "Path B 展示发票图片到 AuditReport 的完整交互链路" in rendered
-    assert "Run Audit 会按 OCR预置结果 → 字段确认 → 规则审计 → LoRA语言增强 的顺序展示" in rendered
+    assert "受控采购发票审核 Agent" in rendered
+    assert "公网 Space 使用稳定的 scenario-driven demo" in rendered
+    assert "视频为静态浏览器播放资源" in json.dumps(
+        _config(), ensure_ascii=False
+    )
     assert "LoRA OFF/ON 只切换解释文本" in rendered
-    assert "risk_level 和 recommended_action 只能来自确定性规则" in rendered
+    assert "`risk_level` 和 `recommended_action` 始终由规则生成" in rendered
 
 
 def test_public_demo_avoids_bare_english_business_labels() -> None:
@@ -263,7 +270,12 @@ def test_smoke_cli_prints_json_without_writing(tmp_path: Path) -> None:
 
     assert completed.returncode == 0
     assert payload["ready"] is True
-    assert payload["tabs"] == ["Path A 手动审核", "Path B Scenario Demo", "系统说明"]
+    assert payload["tabs"] == [
+        "产品总览",
+        "Scenario Demo",
+        "完整流程视频",
+        "GitHub / 运行边界",
+    ]
     assert payload["default_case"] == "normal_invoice"
     assert payload["default_mode"] == "LoRA OFF"
     assert set(tmp_path.iterdir()) == before

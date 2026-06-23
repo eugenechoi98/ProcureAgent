@@ -31,9 +31,10 @@ def run_smoke() -> dict[str, Any]:
         if item.get("type") == "tabitem"
     ]
     expected_tabs = [
-        "Path A 手动审核",
-        "Path B Scenario Demo",
-        "系统说明",
+        "产品总览",
+        "Scenario Demo",
+        "完整流程视频",
+        "GitHub / 运行边界",
     ]
     for label in expected_tabs:
         if label not in tab_labels:
