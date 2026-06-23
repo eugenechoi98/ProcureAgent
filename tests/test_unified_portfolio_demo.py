@@ -110,12 +110,12 @@ def test_public_demo_contains_chinese_usage_guidance() -> None:
     rendered = "\n".join(str(value) for value in markdown_values)
 
     assert "受控采购发票审核 Agent" in rendered
-    assert "公网 Space 使用稳定的 scenario-driven demo" in rendered
+    assert "公网 Space 使用稳定的预置案例驱动演示" in rendered
     assert "视频为静态浏览器播放资源" in json.dumps(
         _config(), ensure_ascii=False
     )
     assert "LoRA OFF/ON 只切换解释文本" in rendered
-    assert "`risk_level` 和 `recommended_action` 始终由规则生成" in rendered
+    assert "“风险等级”和“建议动作”始终由规则生成" in rendered
 
 
 def test_public_demo_avoids_bare_english_business_labels() -> None:
@@ -231,7 +231,6 @@ def test_architecture_tab_contains_governance_explanations() -> None:
 
     for node in (
         "受控采购审核 Agent",
-        "autonomous LLM",
         "发票图片",
         "OCR + LayoutLMv3 字段抽取",
         "Agent 工具",
@@ -242,7 +241,7 @@ def test_architecture_tab_contains_governance_explanations() -> None:
         "确定性模板",
         "受控 rewrite",
         "Guard",
-        "fallback",
+        "模板回退",
         "审计轨迹",
         "审核报告",
     ):
@@ -252,7 +251,7 @@ def test_architecture_tab_contains_governance_explanations() -> None:
     assert "模板回退保证" in text
     assert "审计轨迹" in text
     assert "受控采购审核 Agent" in text
-    assert "不是让大模型直接决定风险" in text
+    assert "不是让大模型自主决定风险" in text
 
 
 def test_smoke_cli_prints_json_without_writing(tmp_path: Path) -> None:

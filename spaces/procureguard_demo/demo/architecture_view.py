@@ -8,7 +8,7 @@ from typing import Any
 ARCHITECTURE_MARKDOWN = """
 ## 系统架构
 
-**ProcureGuard AI 是受控采购审核 Agent，不是让大模型直接决定风险的 autonomous LLM 系统。**
+**ProcureGuard AI 是受控采购审核 Agent，不是让大模型自主决定风险的系统。**
 
 本页解释模型、规则链和受控解释层各自负责什么，以及为什么模型不能直接决定风险。
 采购审核的风险结论必须可复现、可审计。
@@ -25,7 +25,7 @@ ARCHITECTURE_MARKDOWN = """
 -> `确定性模板`
 -> `受控 rewrite`
 -> `Guard`
--> `fallback`
+-> `模板回退`
 -> `审计轨迹`
 -> `审核报告`
 
@@ -42,14 +42,14 @@ ARCHITECTURE_MARKDOWN = """
 
 ### 运行边界
 
-- 公网 Demo 中，LayoutLMv3 图片推理以离线 checkpoint 证据包形式展示；
-  Phase 2 审核链和 Guard / fallback 为轻量 CPU 可运行逻辑。
+- 公网 Demo 中，LayoutLMv3 图片推理以离线检查点证据包形式展示；
+  第二阶段审核链和 Guard / 模板回退为轻量 CPU 可运行逻辑。
 - 当前 Space 不上传模型权重，不执行任意图片实时推理。
 - 发票审核页以已验收证据包展示图片到审核报告的完整链路。
-- 模型实验展示真实离线 artifacts。
+- 模型实验展示真实离线证据包。
 - 系统架构只解释工程与治理边界。
 - 当前网页不加载 LayoutLMv3、Qwen 或真实 LoRA。
-- 当前已部署 CPU-only Hugging Face Space，但不加载模型或启用 GPU。
+- 当前已部署 CPU 版 Hugging Face Space，但不加载模型或启用 GPU。
 """
 
 

@@ -97,7 +97,7 @@ def run_smoke() -> dict[str, Any]:
 
     required_architecture_terms = [
         "受控采购审核 Agent",
-        "autonomous LLM",
+        "不是让大模型自主决定风险",
         "发票图片",
         "OCR + LayoutLMv3 字段抽取",
         "Agent 工具",
@@ -108,7 +108,7 @@ def run_smoke() -> dict[str, Any]:
         "确定性模板",
         "受控 rewrite",
         "Guard",
-        "fallback",
+        "模板回退",
         "审计轨迹",
         "审核报告",
     ]
